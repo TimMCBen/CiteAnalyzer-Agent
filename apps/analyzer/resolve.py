@@ -5,12 +5,17 @@ import re
 from packages.shared.models import TargetPaper
 
 DOI_PATTERN = re.compile(r"10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
+ARXIV_PATTERN = re.compile(
+    r"(?:https?://arxiv\.org/(?:abs|pdf)/)?(?P<identifier>\d{4}\.\d{4,5})(?:v\d+)?(?:\.pdf)?$",
+    re.IGNORECASE,
+)
 
 
 def resolve_target_paper(paper_input: str) -> TargetPaper:
     normalized_input = paper_input.strip()
     doi = extract_doi(normalized_input)
     paper_id = extract_paper_id(normalized_input)
+    arxiv_id = extract_arxiv_id(normalized_input)
 
     if doi:
         return TargetPaper(
@@ -30,6 +35,16 @@ def resolve_target_paper(paper_input: str) -> TargetPaper:
             doi=None,
             source_ids={source_name: source_value},
             input_type="paper_id",
+            resolve_status="resolved",
+        )
+
+    if arxiv_id:
+        return TargetPaper(
+            canonical_id=f"arxiv:{arxiv_id}",
+            title=None,
+            doi=None,
+            source_ids={"arxiv": arxiv_id},
+            input_type="arxiv",
             resolve_status="resolved",
         )
 
@@ -74,3 +89,11 @@ def extract_paper_id(raw_value: str) -> tuple[str, str] | None:
         return ("openalex", normalized_value[9:])
 
     return None
+
+
+def extract_arxiv_id(raw_value: str) -> str | None:
+    match = ARXIV_PATTERN.search(raw_value.strip())
+    if not match:
+        return None
+
+    return match.group("identifier")
