@@ -64,7 +64,7 @@ def resolve_target_paper(paper_input: str) -> TargetPaper:
                 doi=None,
                 source_ids={},
                 input_type="title",
-                resolve_status="unresolved",
+                resolve_status="uncertain",
             )
         )
 
