@@ -1,6 +1,6 @@
-# harness-template-cn
+# CiteAnalyzer-Agent
 
-English version: [`harness-template`](https://github.com/iFurySt/harness-template)
+English version: [`CiteAnalyzer-Agent`](https://github.com/iFurySt/CiteAnalyzer-Agent)
 
 ## 简介
 
@@ -11,7 +11,7 @@ English version: [`harness-template`](https://github.com/iFurySt/harness-templat
 可以在这个仓库右上角直接使用 GitHub 的模板流程：
 
 1. 选择 **Use this template**。
-2. 选择 [**Create a new repository**](https://github.com/new?template_name=harness-template-cn&template_owner=iFurySt)。
+2. 选择 [**Create a new repository**](https://github.com/new?template_name=CiteAnalyzer-Agent&template_owner=iFurySt)。
 
 也可以在新仓库或已有仓库里用 `harness-cli` 初始化：
 
