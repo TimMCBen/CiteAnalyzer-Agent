@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from apps.analyzer.resolve import resolve_target_paper
 from packages.shared.models import AnalysisRequest, TargetPaper
 
 
 class CitationAnalysisAgent:
     def analyze(self, request: AnalysisRequest) -> TargetPaper:
-        raise NotImplementedError("Stage 1 orchestration flow is not implemented yet.")
+        return resolve_target_paper(request.paper_input)
