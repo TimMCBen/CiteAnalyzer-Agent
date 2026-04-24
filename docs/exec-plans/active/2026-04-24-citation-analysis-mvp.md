@@ -122,7 +122,7 @@
 
 #### 阶段 1 TODO
 
-- [ ] 明确 `TargetPaper` 的最小字段结构
+- [x] 明确 `TargetPaper` 的最小字段结构
 - [ ] 明确总智能体入口的输入参数格式
 - [ ] 搭建 `apps/analyzer/` 的最小入口骨架
 - [ ] 实现 DOI 输入解析
