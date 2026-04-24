@@ -13,3 +13,11 @@ class TargetPaper:
     authors: list[str] = field(default_factory=list)
     input_type: str = "unknown"
     resolve_status: str = "unresolved"
+
+
+@dataclass(slots=True)
+class AnalysisRequest:
+    paper_input: str
+    time_range: str | None = None
+    report_format: str = "html"
+    source_toggles: dict[str, bool] = field(default_factory=dict)
