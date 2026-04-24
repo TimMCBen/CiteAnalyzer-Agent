@@ -33,6 +33,16 @@ def resolve_target_paper(paper_input: str) -> TargetPaper:
             resolve_status="resolved",
         )
 
+    if normalized_input:
+        return TargetPaper(
+            canonical_id=None,
+            title=normalized_input,
+            doi=None,
+            source_ids={},
+            input_type="title",
+            resolve_status="unresolved",
+        )
+
     return TargetPaper(
         canonical_id=None,
         title=None,
