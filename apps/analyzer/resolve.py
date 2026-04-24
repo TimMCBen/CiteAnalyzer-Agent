@@ -10,6 +10,7 @@ DOI_PATTERN = re.compile(r"10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
 def resolve_target_paper(paper_input: str) -> TargetPaper:
     normalized_input = paper_input.strip()
     doi = extract_doi(normalized_input)
+    paper_id = extract_paper_id(normalized_input)
 
     if doi:
         return TargetPaper(
@@ -18,6 +19,17 @@ def resolve_target_paper(paper_input: str) -> TargetPaper:
             doi=doi,
             source_ids={"doi": doi},
             input_type="doi",
+            resolve_status="resolved",
+        )
+
+    if paper_id:
+        source_name, source_value = paper_id
+        return TargetPaper(
+            canonical_id=f"{source_name}:{source_value}",
+            title=None,
+            doi=None,
+            source_ids={source_name: source_value},
+            input_type="paper_id",
             resolve_status="resolved",
         )
 
@@ -36,3 +48,19 @@ def extract_doi(raw_value: str) -> str | None:
         return None
 
     return match.group(0).lower()
+
+
+def extract_paper_id(raw_value: str) -> tuple[str, str] | None:
+    normalized_value = raw_value.strip()
+    lowered_value = normalized_value.lower()
+
+    if lowered_value.startswith("s2:"):
+        return ("semantic_scholar", normalized_value[3:])
+
+    if lowered_value.startswith("corpusid:"):
+        return ("corpus_id", normalized_value[9:])
+
+    if lowered_value.startswith("openalex:"):
+        return ("openalex", normalized_value[9:])
+
+    return None
