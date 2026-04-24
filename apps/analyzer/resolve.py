@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 
+from packages.shared.errors import InvalidPaperInputError
 from packages.shared.models import TargetPaper
 
 DOI_PATTERN = re.compile(r"10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
@@ -13,6 +14,7 @@ ARXIV_PATTERN = re.compile(
 
 def resolve_target_paper(paper_input: str) -> TargetPaper:
     normalized_input = paper_input.strip()
+    validate_paper_input(normalized_input)
     doi = extract_doi(normalized_input)
     paper_id = extract_paper_id(normalized_input)
     arxiv_id = extract_arxiv_id(normalized_input)
@@ -134,3 +136,16 @@ def normalize_optional_text(value: str | None) -> str | None:
 
     normalized_value = value.strip()
     return normalized_value or None
+
+
+def validate_paper_input(raw_value: str) -> None:
+    if not raw_value:
+        raise InvalidPaperInputError("paper_input cannot be empty.")
+
+    lowered_value = raw_value.lower()
+
+    if "doi.org" in lowered_value and not extract_doi(raw_value):
+        raise InvalidPaperInputError("paper_input contains an invalid DOI URL.")
+
+    if "arxiv.org" in lowered_value and not extract_arxiv_id(raw_value):
+        raise InvalidPaperInputError("paper_input contains an invalid arXiv URL.")
