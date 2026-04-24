@@ -14,6 +14,18 @@ class TargetPaper:
     input_type: str = "unknown"
     resolve_status: str = "unresolved"
 
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "canonical_id": self.canonical_id,
+            "title": self.title,
+            "doi": self.doi,
+            "source_ids": dict(self.source_ids),
+            "year": self.year,
+            "authors": list(self.authors),
+            "input_type": self.input_type,
+            "resolve_status": self.resolve_status,
+        }
+
 
 @dataclass(slots=True)
 class AnalysisRequest:
