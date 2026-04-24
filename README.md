@@ -23,6 +23,25 @@
 - `引用情感分析子智能体`：负责引用上下文提取与情感分类
 - `可视化报告子智能体`：负责汇总结果并生成 HTML 报告
 
+```mermaid
+flowchart LR
+    paper_input["目标论文输入<br/>DOI / 标题 / 论文 ID / arXiv"]
+    main_agent["论文被引分析智能体<br/>统一编排与降级控制"]
+    crawl_agent["文献爬取子智能体<br/>施引抓取 / 多源融合 / 去重"]
+    scholar_agent["学者识别子智能体<br/>作者画像 / h-index / 重量级标注"]
+    sentiment_agent["引用情感分析子智能体<br/>上下文提取 / 情感分类"]
+    report_agent["可视化报告子智能体<br/>趋势图 / 来源地图 / HTML 报告"]
+    final_output["输出结果<br/>HTML 报告 + JSON"]
+
+    paper_input --> main_agent
+    main_agent --> crawl_agent
+    crawl_agent --> scholar_agent
+    crawl_agent --> sentiment_agent
+    scholar_agent --> report_agent
+    sentiment_agent --> report_agent
+    report_agent --> final_output
+```
+
 更完整的说明见：
 
 - [产品规格](docs/product-specs/citation-analysis-mvp.md)
