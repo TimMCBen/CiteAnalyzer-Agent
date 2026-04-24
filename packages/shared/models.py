@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 
-@dataclass(slots=True)
+@dataclass
 class TargetPaper:
     canonical_id: str | None
     title: str | None
@@ -27,7 +27,7 @@ class TargetPaper:
         }
 
 
-@dataclass(slots=True)
+@dataclass
 class AnalysisRequest:
     paper_input: str
     time_range: str | None = None

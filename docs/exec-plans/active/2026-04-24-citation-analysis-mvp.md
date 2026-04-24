@@ -134,8 +134,16 @@
 - [x] 对标题歧义返回“不确定”状态
 - [x] 输出标准化的 `TargetPaper` 对象
 - [x] 为阶段 2 预留文献爬取调用接口
-- [ ] 用 1 个真实样本和 2~3 个异常输入做手工验证
+- [x] 用 1 个真实样本和 2~3 个异常输入做手工验证
 - [ ] 更新 execution plan 的阶段进度
+
+#### 阶段 1 验证记录
+
+- 正常 DOI 输入：`10.1145/3368089.3409740`，返回 `resolved` 的 `TargetPaper`
+- 论文 ID 输入：`openalex:W2741809807`，返回 `resolved` 的 `TargetPaper`
+- arXiv 输入：`https://arxiv.org/abs/1706.03762`，返回 `resolved` 的 `TargetPaper`
+- 标题输入：`Attention Is All You Need`，返回 `uncertain` 的 `TargetPaper`
+- 空输入：抛出 `InvalidPaperInputError`
 
 ### 阶段 2：文献爬取主链路
 
