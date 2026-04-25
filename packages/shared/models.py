@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Literal, Optional, TypedDict
+from typing import Any, Dict, List, Literal, Optional, TypedDict
 
 
 @dataclass
@@ -49,5 +49,8 @@ class AnalysisState(TypedDict, total=False):
     analysis_goal: str
     constraints: Dict[str, str]
     target_paper: TargetPaper
+    citing_papers: List[Any]
+    source_trace: List[Any]
+    fetch_summary: Any
     errors: List[str]
     status: str
