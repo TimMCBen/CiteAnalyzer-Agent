@@ -3,7 +3,18 @@ from __future__ import annotations
 import re
 from typing import Dict, Optional
 
-from pydantic import BaseModel, Field
+try:
+    from pydantic import BaseModel, Field
+except ImportError:
+    class BaseModel:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+    def Field(default=None, **kwargs):  # type: ignore
+        if "default_factory" in kwargs:
+            return kwargs["default_factory"]()
+        return default
 
 from apps.analyzer.config import build_llm
 from packages.shared.errors import InvalidAnalysisRequestError

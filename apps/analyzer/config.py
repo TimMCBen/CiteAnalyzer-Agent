@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import os
-
-from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
+from typing import Any
 
 
-def build_llm() -> ChatOpenAI:
+def build_llm() -> Any:
+    try:
+        from dotenv import load_dotenv
+        from langchain_openai import ChatOpenAI
+    except ImportError as exc:
+        raise RuntimeError("LLM dependencies are not installed") from exc
+
     load_dotenv()
 
     api_key = (os.getenv("API_KEY") or "").strip()
