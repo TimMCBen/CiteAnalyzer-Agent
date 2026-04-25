@@ -44,11 +44,11 @@
 
 ## [2026-04-25 02:10] | Task: 跟进评审反馈补强解析回退
 
-### 📥 User Query
+### 📥 Follow-up User Query
 
 > @codex address that feedback (path=apps/analyzer/nodes.py line=45 side=RIGHT)
 
-### 🛠 Changes Overview
+### 🛠 Follow-up Changes Overview
 
 **Scope:** `apps/analyzer` 阶段 1 输入解析鲁棒性
 
@@ -57,11 +57,11 @@
 - **新增二次回退判定**: 当 LLM 判定为 `citation_analysis` 但未提取具体句柄（`unknown/title`）且原文含 DOI/arXiv/OpenAlex 线索时，触发规则解析二次重试
 - **合并解析结果**: 在规则解析命中具体句柄后，优先采用规则产出的 `paper_query/paper_query_type`，同时保留 LLM 提取出的 `analysis_goal/constraints`
 
-### 🧠 Design Intent (Why)
+### 🧠 Follow-up Design Intent (Why)
 
 评审指出当前逻辑仅在“非 citation_analysis”时回退，导致 LLM 漏抽具体 ID 时会把本可确定的请求误保留为 `uncertain`。本次补强用于优先保障目标论文句柄识别准确率，同时不丢失 LLM 对分析目标和约束的理解能力。
 
-### 📁 Files Modified
+### 📁 Follow-up Files Modified
 
 - `apps/analyzer/nodes.py`
 - `docs/histories/2026-04/20260425-0135-stage1-natural-language-entry.md`
