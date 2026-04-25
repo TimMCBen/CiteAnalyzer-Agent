@@ -1,11 +1,7 @@
 PROJECT ?=
 SLUG ?=
 
-<<<<<<< HEAD
 .PHONY: init check-docs check-repo ci check-project release-package new-history new-plan
-=======
-.PHONY: init check-docs check-repo ci test-agent release-package new-history new-plan
->>>>>>> ce64f33 (Make staged validation executable from repo CI)
 
 init:
 	@if [ -z "$(PROJECT)" ]; then echo "用法: make init PROJECT=项目名"; exit 1; fi
@@ -21,14 +17,8 @@ check-repo:
 ci:
 	./scripts/ci.sh
 
-<<<<<<< HEAD
 check-project:
 	bash ./scripts/check-project.sh
-=======
-test-agent:
-	python ./scripts/test_agent/run.py
->>>>>>> ce64f33 (Make staged validation executable from repo CI)
-
 release-package:
 	./scripts/release-package.sh
 
