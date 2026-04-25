@@ -4,9 +4,19 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+if command -v python >/dev/null 2>&1; then
+  python_cmd="python"
+elif command -v python3 >/dev/null 2>&1; then
+  python_cmd="python3"
+else
+  echo "python or python3 is required"
+  exit 1
+fi
+
 "${repo_root}/scripts/check-docs.sh"
 "${repo_root}/scripts/check-repo-hygiene.sh"
 "${repo_root}/scripts/check-action-pinning.sh"
+"${python_cmd}" "${repo_root}/scripts/test_agent/run.py"
 
 while IFS= read -r file; do
   bash -n "$file"
