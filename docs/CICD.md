@@ -20,6 +20,7 @@
 
 1. 保留 `ci.yml`，作为唯一默认常驻的仓库基础门禁。
 2. 在 `scripts/ci.sh` 里继续叠加项目自己的验证命令。
+   当前仓库已经接入 `python scripts/test_agent/run.py`，用于承载按阶段拆分的脚本式验证。
 3. 用真实构建产物替换 `scripts/release-package.sh`。
 4. 技术栈和环境稳定后，再补具体的部署 job。
 5. 即使交付方式变化，SBOM 和 provenance 这类供应链能力也建议保留。
