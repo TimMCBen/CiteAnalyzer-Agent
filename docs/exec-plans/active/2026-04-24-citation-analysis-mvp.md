@@ -113,33 +113,61 @@
 
 ## 任务分阶段拆解
 
-### 阶段 1：论文被引分析智能体骨架
+### 阶段 1：自然语言输入理解与状态初始化
 
 - 负责人：主导人
 - 目标：
-  - 定义总智能体状态
-  - 搭建 LangGraph 最小骨架
-  - 定义共享对象
+  - 让 `论文被引分析智能体` 能接收自然语言输入
+  - 从自然语言中抽取目标论文线索、分析目标和约束条件
+  - 初始化总智能体状态对象
 - 交付物：
-  - 总智能体状态对象
-  - 最小图结构
-  - 节点占位
+  - `UserQuery` / `AnalysisState` 等最小状态对象
+  - 自然语言输入解析节点
+  - 可运行的总智能体入口骨架
 - 依赖：
   - 无
 
 #### 阶段 1 TODO
 
-- [ ] 明确总智能体状态字段
-- [ ] 明确 `TargetPaper` 最小字段结构
-- [ ] 明确总智能体入口输入参数格式
-- [ ] 搭建 `apps/analyzer/` 最小入口骨架
-- [ ] 搭建 LangGraph 状态图最小骨架
-- [ ] 定义总智能体与子智能体的最小接口
-- [ ] 对非法输入返回明确错误
-- [ ] 对标题输入返回 `uncertain` 状态
-- [ ] 输出标准化 `TargetPaper`
-- [ ] 用 1 个 DOI、1 个论文 ID、1 个 arXiv 链接、1 个标题、1 个空输入做本地验证
-- [ ] 更新 execution plan 的阶段进度
+- [x] 明确自然语言输入对象的最小字段结构
+- [x] 明确总智能体状态字段
+- [x] 明确 `TargetPaper` 最小字段结构
+- [x] 明确总智能体入口输入参数格式
+- [x] 搭建 `apps/analyzer/` 最小入口骨架
+- [x] 搭建 LangGraph 状态图最小骨架
+- [x] 定义总智能体与子智能体的最小接口
+- [x] 接入 `.env` 中的模型配置读取逻辑
+- [x] 实现自然语言输入理解节点
+- [x] 让模型从用户输入中抽取目标论文线索
+- [x] 让模型从用户输入中抽取分析目标
+- [x] 让模型从用户输入中抽取约束条件
+- [x] 对非论文被引分析请求返回明确错误
+- [x] 对目标论文线索不足的请求返回 `uncertain` 状态
+- [x] 输出标准化的总智能体状态对象
+- [x] 用 3~5 条真实自然语言样本做本地验证
+- [x] 更新 execution plan 的阶段进度
+
+#### 阶段 1 验证记录
+
+- `帮我分析一下 Attention Is All You Need 的被引情况`
+  - 识别为 `citation_analysis`
+  - 提取标题线索 `Attention Is All You Need`
+  - `TargetPaper.resolve_status = uncertain`
+- `请查看 DOI 为 10.1145/3368089.3409740 的论文有哪些施引文献`
+  - 识别为 `citation_analysis`
+  - 提取 DOI `10.1145/3368089.3409740`
+  - `TargetPaper.resolve_status = resolved`
+- `分析一下这篇 arXiv 论文 https://arxiv.org/abs/1706.03762 的引用情感`
+  - 识别为 `citation_analysis`
+  - 提取 arXiv 编号 `1706.03762`
+  - `TargetPaper.resolve_status = resolved`
+- `我想知道 openalex:W2741809807 这篇论文的主要引用者和情感倾向`
+  - 识别为 `citation_analysis`
+  - 提取 OpenAlex 论文标识 `W2741809807`
+  - `TargetPaper.resolve_status = resolved`
+- `帮我总结一下 LangGraph 是什么`
+  - 返回 `InvalidAnalysisRequestError`
+  - 被正确识别为非论文被引分析请求
 
 ### 阶段 2：文献爬取智能体
 
@@ -322,7 +350,7 @@
 
 - [x] 完成产品规格与架构文档
 - [ ] 完成重写后的 active execution plan
-- [ ] 完成总智能体状态骨架
+- [x] 完成总智能体状态骨架
 - [ ] 完成文献爬取智能体主链路
 - [ ] 完成 `Google Scholar` 补充源探索
 - [ ] 完成学者识别智能体
