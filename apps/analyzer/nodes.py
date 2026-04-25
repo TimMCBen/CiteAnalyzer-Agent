@@ -43,6 +43,17 @@ def parse_user_query(state: AnalysisState) -> AnalysisState:
 
     if parsed.request_type != "citation_analysis" and looks_like_citation_analysis(state["raw_query"]):
         parsed = parse_with_fallback_rules(state["raw_query"])
+    elif should_retry_fallback_for_concrete_id(parsed, state["raw_query"]):
+        fallback_parsed = parse_with_fallback_rules(state["raw_query"])
+        if fallback_parsed.paper_query_type in {"doi", "paper_id", "arxiv"}:
+            parsed = ParsedUserIntent(
+                request_type=fallback_parsed.request_type,
+                paper_query=fallback_parsed.paper_query,
+                paper_query_type=fallback_parsed.paper_query_type,
+                analysis_goal=parsed.analysis_goal or fallback_parsed.analysis_goal,
+                constraints=parsed.constraints,
+                reason=parsed.reason or fallback_parsed.reason,
+            )
 
     if parsed.request_type != "citation_analysis":
         raise InvalidAnalysisRequestError(parsed.reason or "The request is not a paper citation-analysis request.")
@@ -148,6 +159,14 @@ def parse_with_fallback_rules(raw_query: str) -> ParsedUserIntent:
         analysis_goal="citation_analysis",
         reason="Fallback parser could not confidently identify a unique paper handle.",
     )
+
+
+def should_retry_fallback_for_concrete_id(parsed: ParsedUserIntent, raw_query: str) -> bool:
+    if parsed.request_type != "citation_analysis":
+        return False
+    if parsed.paper_query_type in {"doi", "paper_id", "arxiv"}:
+        return False
+    return bool(DOI_PATTERN.search(raw_query) or ARXIV_PATTERN.search(raw_query) or OPENALEX_PATTERN.search(raw_query))
 
 
 def extract_title_clue(raw_query: str) -> Optional[str]:
