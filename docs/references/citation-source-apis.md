@@ -71,7 +71,7 @@
 - 官方 Postman Collection
 - 社区 Python client
 
-#### 官方 REST API
+#### 官方 REST API（Semantic Scholar）
 
 最值得直接参考的能力：
 
@@ -91,7 +91,7 @@
 - 调接口前先手工试字段
 - 快速验证返回结构
 
-#### 社区 Python client
+#### 社区 Python client（Semantic Scholar）
 
 目前常见的是社区维护库，不是官方 SDK：
 
@@ -136,7 +136,7 @@
 - 官方 REST API
 - 社区 Python client
 
-#### 官方 REST API
+#### 官方 REST API（Crossref）
 
 最值得直接参考的能力：
 
@@ -152,7 +152,7 @@
 - 用标题 / 年份 / 作者做候选匹配
 - 补 DOI、venue、年份、引用计数等字段
 
-#### 社区 Python client
+#### 社区 Python client（Crossref）
 
 常见的是社区维护库：
 

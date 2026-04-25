@@ -25,6 +25,7 @@
 当前仓库已经按阶段推进 MVP，但验证仍主要停留在手工记录里。把阶段验证沉淀成 `scripts/test_agent/` 下的可运行脚本，可以先把阶段 1 的行为锁住，同时给后续阶段保留统一入口，避免每推进一阶段都重新发明验证方式。
 
 后续又补了一轮结构调整：模板级 `CICD`、`Makefile` 和 `scripts/ci.sh` 不再直接绑定 `test_agent`，而是通过独立的项目级钩子与 `docs/testing/` 文档承载具体实现，确保模板本身更可复用。
+
 ### 📁 Files Modified
 
 - `scripts/test_agent/stage1.py`
