@@ -323,8 +323,8 @@
 - [x] 新建阶段 2 细化执行计划
 - [x] 定义 `CitingPaper` / `SourceTrace` / `FetchSummary`
 - [x] 明确阶段 2 服务入口与状态挂接点
-- [ ] 设计 `Semantic Scholar` 主抓取参数与输出映射
-- [ ] 设计 `Crossref` 补全参数与输出映射
+- [x] 设计 `Semantic Scholar` 主抓取参数与输出映射
+- [x] 设计 `Crossref` 补全参数与输出映射
 - [x] 明确去重规则与来源追踪规则
 - [x] 规划 `packages/citation-sources/` 模块边界
 - [x] 规划 `scripts/test_agent/stage2.py` 的验证样例与断言点
@@ -338,6 +338,11 @@
 - `packages/citation_sources/normalize.py`
 - `packages/citation_sources/dedupe.py`
 - `packages/citation_sources/service.py`
+- `packages/citation_sources/clients/semantic_scholar.py`
+- `packages/citation_sources/clients/crossref.py`
+- `apps/analyzer/graph.py`
+- `apps/analyzer/nodes.py`
+- `apps/analyzer/main.py`
 - `scripts/test_agent/stage2.py`
 
 当前阶段 2 已具备：
@@ -347,13 +352,16 @@
 - 基于 DOI / 标题+年份+首作者 的去重合并
 - 来源追踪输出
 - 单来源失败时的 `partial_failure` 降级
+- 真实 `Semantic Scholar` Graph API 客户端
+- 真实 `Crossref` metadata enrichment 客户端
+- 阶段 2 graph 节点和 `run_stage2_analysis()` 入口
+- 可选 live smoke 验证开关
 
 尚未完成：
 
-- 真实 `Semantic Scholar` API 客户端
-- 真实 `Crossref` 补全客户端
-- 接入总智能体状态图节点
 - 基于真实样本论文的在线抓取验证
+- 更细的 rate limit / backoff 观测与日志
+- 把阶段 2 接入默认分析主路径而不影响阶段 1 验证
 
 ## 决策记录
 

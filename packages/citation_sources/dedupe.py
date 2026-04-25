@@ -72,6 +72,9 @@ def _merge_into_citing_paper(paper: CitingPaper, record: Dict[str, object]) -> N
     source_name = str(record.get("source_name") or "unknown")
     source_record_id = str(record.get("source_record_id") or "")
     source_url = str(record.get("url") or "")
+    source_names = [str(name) for name in list(record.get("source_names") or []) if str(name)]
+    source_links = {str(k): str(v) for k, v in dict(record.get("source_links") or {}).items() if str(k) and str(v)}
+    source_specific_ids = {str(k): str(v) for k, v in dict(record.get("source_specific_ids") or {}).items() if str(k) and str(v)}
     title = str(record.get("title") or "")
     venue = record.get("venue") if isinstance(record.get("venue"), str) else None
     abstract = record.get("abstract") if isinstance(record.get("abstract"), str) else None
@@ -79,12 +82,17 @@ def _merge_into_citing_paper(paper: CitingPaper, record: Dict[str, object]) -> N
     doi = record.get("doi") if isinstance(record.get("doi"), str) else None
     authors = [author for author in list(record.get("authors") or []) if isinstance(author, str)]
 
-    if source_name not in paper.source_names:
-        paper.source_names.append(source_name)
+    for candidate_source_name in source_names or [source_name]:
+        if candidate_source_name not in paper.source_names:
+            paper.source_names.append(candidate_source_name)
     if source_record_id:
         paper.source_specific_ids[source_name] = source_record_id
     if source_url:
         paper.source_links[source_name] = source_url
+    for linked_source_name, linked_source_url in source_links.items():
+        paper.source_links[linked_source_name] = linked_source_url
+    for specific_source_name, specific_source_id in source_specific_ids.items():
+        paper.source_specific_ids[specific_source_name] = specific_source_id
     if not paper.title and title:
         paper.title = title
     if not paper.venue and venue:

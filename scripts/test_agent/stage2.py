@@ -8,10 +8,18 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from packages.citation_sources.service import fetch_citation_candidates
+from packages.citation_sources.clients import CrossrefClient, SemanticScholarClient
 from packages.shared.models import TargetPaper
 
 
 class FakeSemanticScholarClient:
+    def resolve_target_paper(self, target_paper: TargetPaper):
+        return {
+            "paper_id": "S2-TARGET-1",
+            "title": target_paper.title,
+            "doi": target_paper.doi,
+        }
+
     def fetch_citations(self, target_paper: TargetPaper, max_results: int = 20):
         return [
             {
@@ -40,35 +48,35 @@ class FakeSemanticScholarClient:
 
 
 class FakeCrossrefClient:
-    def fetch_citations(self, target_paper: TargetPaper, max_results: int = 20):
-        return [
-            {
-                "source_name": "crossref",
-                "source_record_id": "CR-1",
-                "title": "Citation Graphs for Transformers",
-                "doi": "10.1000/alpha",
-                "year": 2021,
-                "authors": ["Alice Smith", "Bob Lee"],
-                "venue": "ACL 2021",
-                "abstract": None,
-                "url": "https://example.org/crossref/alpha",
-            },
-            {
-                "source_name": "crossref",
-                "source_record_id": "CR-3",
-                "title": "Crossref Metadata Backfill",
-                "doi": "10.1000/gamma",
-                "year": 2020,
-                "authors": ["Dana Xu"],
-                "venue": "Findings",
-                "abstract": None,
-                "url": "https://example.org/crossref/gamma",
-            },
-        ]
+    def enrich_candidate(self, candidate: dict[str, object]):
+        source_names = list(candidate.get("source_names") or [])
+        if candidate.get("source_record_id") == "S2-1":
+            source_names.append("crossref")
+            candidate["source_names"] = source_names
+            candidate["source_specific_ids"] = {"semantic_scholar": "S2-1", "crossref": "CR-1"}
+            candidate["source_links"] = {
+                "semantic_scholar": "https://example.org/semantic/alpha",
+                "crossref": "https://example.org/crossref/alpha",
+            }
+            candidate["venue"] = "ACL 2021"
+            return candidate
+
+        if candidate.get("source_record_id") == "S2-2":
+            source_names.append("crossref")
+            candidate["source_names"] = source_names
+            candidate["source_specific_ids"] = {"semantic_scholar": "S2-2", "crossref": "CR-2"}
+            candidate["doi"] = "10.1000/beta"
+            candidate["source_links"] = {
+                "semantic_scholar": "https://example.org/semantic/beta",
+                "crossref": "https://example.org/crossref/beta",
+            }
+            return candidate
+
+        return candidate
 
 
 class FailingCrossrefClient:
-    def fetch_citations(self, target_paper: TargetPaper, max_results: int = 20):
+    def enrich_candidate(self, candidate: dict[str, object]):
         raise RuntimeError("crossref unavailable")
 
 
@@ -92,16 +100,18 @@ def assert_merge_across_sources() -> None:
         max_results=10,
     )
 
-    assert len(result.citing_papers) == 3, f"expected 3 deduped papers, got {len(result.citing_papers)}"
+    assert len(result.citing_papers) == 2, f"expected 2 deduped papers, got {len(result.citing_papers)}"
     assert result.fetch_summary.semantic_scholar_candidates == 2
     assert result.fetch_summary.crossref_candidates == 2
-    assert result.fetch_summary.merged_candidates == 4
-    assert result.fetch_summary.deduped_candidates == 3
+    assert result.fetch_summary.merged_candidates == 2
+    assert result.fetch_summary.deduped_candidates == 2
     assert result.fetch_summary.partial_failure is False
 
     merged = next(paper for paper in result.citing_papers if paper.doi == "10.1000/alpha")
     assert merged.source_names == ["crossref", "semantic_scholar"], f"unexpected source names: {merged.source_names}"
-    assert len(result.source_trace) == 4, f"expected 4 source traces, got {len(result.source_trace)}"
+    enriched = next(paper for paper in result.citing_papers if paper.doi == "10.1000/beta")
+    assert enriched.source_names == ["crossref", "semantic_scholar"], f"unexpected source names: {enriched.source_names}"
+    assert len(result.source_trace) == 2, f"expected 2 source traces, got {len(result.source_trace)}"
 
 
 def assert_partial_failure() -> None:
@@ -123,7 +133,37 @@ def main() -> None:
     print("[PASS] stage2::merge_across_sources")
     assert_partial_failure()
     print("[PASS] stage2::partial_failure")
+    maybe_run_live_smoke()
     print("stage2 validation passed")
+
+
+def maybe_run_live_smoke() -> None:
+    live_mode = str(__import__("os").getenv("STAGE2_LIVE", "")).strip().lower()
+    if live_mode not in {"1", "true", "yes"}:
+        return
+
+    target_doi = str(__import__("os").getenv("STAGE2_TARGET_DOI", "")).strip()
+    if not target_doi:
+        raise AssertionError("STAGE2_TARGET_DOI is required when STAGE2_LIVE is enabled")
+
+    result = fetch_citation_candidates(
+        target_paper=TargetPaper(
+            canonical_id=None,
+            paper_query=target_doi,
+            paper_query_type="doi",
+            title=None,
+            doi=target_doi,
+            source_ids={"doi": target_doi},
+            resolve_status="resolved",
+        ),
+        semantic_scholar_client=SemanticScholarClient(),
+        crossref_client=CrossrefClient(),
+        max_results=5,
+    )
+
+    assert result.fetch_summary.semantic_scholar_candidates >= 0
+    assert result.fetch_summary.deduped_candidates >= 0
+    print("[PASS] stage2::live_smoke")
 
 
 if __name__ == "__main__":

@@ -192,13 +192,13 @@
 - [ ] 定义文献爬取智能体的状态输入输出接口
 - [ ] 搭建 `packages/citation-sources/` 基础目录结构
 - [x] 搭建 `packages/citation_sources/` 基础目录结构
-- [ ] 实现 `Semantic Scholar` 客户端封装
-- [ ] 实现 `Crossref` 客户端封装
-- [ ] 实现文献爬取智能体的主抓取策略
+- [x] 实现 `Semantic Scholar` 客户端封装
+- [x] 实现 `Crossref` 客户端封装
+- [x] 实现文献爬取智能体的主抓取策略
 - [ ] 统一不同来源字段结构
 - [ ] 实现来源追踪字段保留
 - [ ] 实现主链路去重逻辑
-- [ ] 将文献爬取智能体接入总智能体状态图
+- [x] 将文献爬取智能体接入总智能体状态图
 - [ ] 用 1 篇真实目标论文验证抓取与去重结果
 - [x] 添加 `scripts/test_agent/stage2.py` 阶段验证脚本
 - [ ] 更新 execution plan 的阶段进度
