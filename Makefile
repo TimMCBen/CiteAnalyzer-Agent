@@ -19,7 +19,6 @@ ci:
 
 check-project:
 	bash ./scripts/check-project.sh
-
 release-package:
 	./scripts/release-package.sh
 

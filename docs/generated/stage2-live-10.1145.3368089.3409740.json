@@ -1,0 +1,208 @@
+{
+  "target_doi": "10.1145/3368089.3409740",
+  "fetch_result": {
+    "citing_papers": [
+      {
+        "canonical_id": "citing-1",
+        "title": "As Long As I See It - OSVHunter: Understanding and Detecting Open-Secret Vulnerabilities in Smart Contracts",
+        "doi": "10.1145/3806397",
+        "year": 2026,
+        "authors": [
+          "Songyan Ji",
+          "Jin Wu",
+          "Wei Zhang",
+          "Ming Han",
+          "Limin Ma",
+          "Jian Dong"
+        ],
+        "venue": "ACM Transactions on Software Engineering and Methodology",
+        "abstract": "<jats:p>\n                    This paper centers on open-secret vulnerabilities (OSVs), a kind of smart contract vulnerability that allows attackers to exploit the natural\n                    <jats:italic toggle=\"yes\">transparency</jats:italic>\n                    feature of blockchains to gain illegal monetary profits from problematic smart contracts. Attackers can easily launch OSV attacks by leveraging publicly visible information from a smart contract to issue a profitable transaction without violating its business logic. This poses significant challenges in detecting OSVs. Despite the severe impacts of OSVs, there is no prior research work that systematically discusses OSVs (to the best of our knowledge). To fill this knowledge gap, this paper presents a formal definition of OSVs, and OSVHunter, the\n                    <jats:italic toggle=\"yes\">first-ever</jats:italic>\n                    tool aiming to detect OSVs in smart contracts. The detection results show that OSVs are prevalent in real-world smart contracts. Some of these vulnerabilities are even concealed within highly popular Ethereum contracts, with individual contract valuations exceeding five hundred thousand U.S. dollars. These vulnerabilities appear in finance, gaming, gambling, etc. We hope this paper can arouse our community’s attention to the significance of OSVs and lay the technical foundation for future research.\n                  </jats:p>",
+        "source_links": {
+          "semantic_scholar": "https://www.semanticscholar.org/paper/0f0fde6f830fe5716eeaaf2f63b19530c913eb90",
+          "crossref": "https://doi.org/10.1145/3806397"
+        },
+        "source_names": [
+          "crossref",
+          "semantic_scholar"
+        ],
+        "source_specific_ids": {
+          "semantic_scholar": "0f0fde6f830fe5716eeaaf2f63b19530c913eb90",
+          "doi": "10.1145/3806397",
+          "crossref": "10.1145/3806397"
+        }
+      },
+      {
+        "canonical_id": "citing-2",
+        "title": "Exploring Human-Centric Dimensions in Blockchain Smart Contracts",
+        "doi": "10.1145/3777414",
+        "year": 2025,
+        "authors": [
+          "Hanouf Al. Ghanmi",
+          "Sabreen Ahmadjee",
+          "Rami Bahsoon",
+          "Hayatullahi Bolaji Adeyemo"
+        ],
+        "venue": "ACM Computing Surveys",
+        "abstract": "<jats:p>Blockchain smart contract technology has revolutionised various industries by automating agreements through immutable and self-executing logic, reducing reliance on third-party intermediaries. However, despite its transformative potential, existing research has predominantly focused on technical aspects—particularly security—while largely neglecting human-in-the-loop concerns. Systematic efforts to explore these concerns from a human perspective have been limited which creates a gap in the literature. This study aims to address this gap by offering a comprehensive understanding of smart contracts from a human-centred perspective. To achieve this, we conducted a systematic literature review to examine human-related issues in smart contracts and their existing solutions. We found that concerns are primarily concentrated in two stages: development and interaction. During the development stage, issues arise in relation to programming languages, including complexity, readability and expressiveness, as well as the legality of smart contracts and their ethical and social implications. In the interaction stage, concerns focus on usability, human readability, trust, governance and cost. Additionally, we identified several quality attributes frequently associated with these concerns such as transparency, accountability, understandability, simplicity, learnability, compliance and fairness. We also uncovered new human-centred quality attributes that are overlooked in existing literature, such as explainability and interpretability. This research offers valuable insights for researchers, requirements engineers and designers by examining existing efforts to address human-centric concerns and proposing future directions and opportunities to improve smart contract design.</jats:p>",
+        "source_links": {
+          "semantic_scholar": "https://www.semanticscholar.org/paper/e3258f8d01dd8a76439a5e4c4f99c1a0be72d11c",
+          "crossref": "https://doi.org/10.1145/3777414"
+        },
+        "source_names": [
+          "crossref",
+          "semantic_scholar"
+        ],
+        "source_specific_ids": {
+          "semantic_scholar": "e3258f8d01dd8a76439a5e4c4f99c1a0be72d11c",
+          "doi": "10.1145/3777414",
+          "crossref": "10.1145/3777414"
+        }
+      },
+      {
+        "canonical_id": "citing-3",
+        "title": "FairChecker: Detecting Fund-Stealing Bugs in DeFi Protocols via Fairness Validation",
+        "doi": "10.1109/icse55347.2025.00134",
+        "year": 2025,
+        "authors": [
+          "Yi Sun",
+          "Zhuo Zhang",
+          "Xiangyu Zhang"
+        ],
+        "venue": "International Conference on Software Engineering",
+        "abstract": null,
+        "source_links": {
+          "semantic_scholar": "https://www.semanticscholar.org/paper/cc88016d00c45a9f739142fb087fb547c6e94bbb",
+          "crossref": "https://doi.org/10.1109/icse55347.2025.00134"
+        },
+        "source_names": [
+          "crossref",
+          "semantic_scholar"
+        ],
+        "source_specific_ids": {
+          "semantic_scholar": "cc88016d00c45a9f739142fb087fb547c6e94bbb",
+          "doi": "10.1109/ICSE55347.2025.00134",
+          "crossref": "10.1109/icse55347.2025.00134"
+        }
+      },
+      {
+        "canonical_id": "citing-4",
+        "title": "Understanding End-User Perception of Transfer Risks in Smart Contracts",
+        "doi": "10.1145/3706598.3713887",
+        "year": 2025,
+        "authors": [
+          "Yustynn Panicker",
+          "Ezekiel Soremekun",
+          "Sudipta Chattopadhyay",
+          "Sumei Sun"
+        ],
+        "venue": "International Conference on Human Factors in Computing Systems",
+        "abstract": null,
+        "source_links": {
+          "semantic_scholar": "https://www.semanticscholar.org/paper/e35f6623e1dd5e03c8338737023a38a876d440c3",
+          "crossref": "https://doi.org/10.1145/3706598.3713887"
+        },
+        "source_names": [
+          "crossref",
+          "semantic_scholar"
+        ],
+        "source_specific_ids": {
+          "semantic_scholar": "e35f6623e1dd5e03c8338737023a38a876d440c3",
+          "doi": "10.1145/3706598.3713887",
+          "crossref": "10.1145/3706598.3713887"
+        }
+      },
+      {
+        "canonical_id": "citing-5",
+        "title": "SymGPT: Auditing Smart Contracts via Combining Symbolic Execution with Large Language Models",
+        "doi": "10.1145/3798217",
+        "year": 2025,
+        "authors": [
+          "Shihao Xia",
+          "Mengting He",
+          "Shuai Shao",
+          "Tingting Yu",
+          "Yiying Zhang",
+          "Nobuko Yoshida",
+          "Linhai Song"
+        ],
+        "venue": "Proceedings of the ACM on Programming Languages",
+        "abstract": "<jats:p>To govern smart contracts running on Ethereum, multiple Ethereum Request for Comment (ERC) standards have been developed, each defining a set of rules governing contract behavior. Violating these rules can cause serious security issues and financial losses, signifying the importance of verifying ERC compliance. Today’s practices of such verification include manual audits, expert-developed program-analysis tools, and large language models (LLMs), all of which remain ineffective at detecting ERC rule violations.</jats:p>\n                  <jats:p>\n                    This paper introduces\n                    <jats:italic toggle=\"yes\">SymGPT</jats:italic>\n                    , a tool that combines LLMs with symbolic execution to automatically verify smart contracts’ compliance with ERC rules. We begin by empirically analyzing 132 ERC rules from three major ERC standards, examining their content, security implications, and natural language descriptions. Based on this study, SymGPTinstructs an LLM to translate ERC rules into a domain-specific language, synthesizes constraints from the translated rules to model potential rule violations, and performs symbolic execution for violation detection. Our evaluation shows that SymGPTidentifies 5,783 ERC rule violations in 4,000 real-world contracts, including 1,375 violations with clear attack paths for financial theft. Furthermore, SymGPToutperforms six automated techniques and a security-expert auditing service, underscoring its superiority over current smart contract analysis methods.\n                  </jats:p>",
+        "source_links": {
+          "semantic_scholar": "https://www.semanticscholar.org/paper/cffacf0f86d968b3ec340adfb438dfab73446ace",
+          "crossref": "https://doi.org/10.1145/3798217"
+        },
+        "source_names": [
+          "crossref",
+          "semantic_scholar"
+        ],
+        "source_specific_ids": {
+          "semantic_scholar": "cffacf0f86d968b3ec340adfb438dfab73446ace",
+          "doi": "10.1145/3798217",
+          "crossref": "10.1145/3798217"
+        }
+      }
+    ],
+    "source_trace": [
+      {
+        "candidate_id": "citing-1",
+        "source_name": "semantic_scholar",
+        "source_record_id": "0f0fde6f830fe5716eeaaf2f63b19530c913eb90",
+        "query_used": "10.1145/3368089.3409740",
+        "fetched_at": "2026-04-25T15:16:22.956438+00:00",
+        "raw_title": "As Long As I See It - OSVHunter: Understanding and Detecting Open-Secret Vulnerabilities in Smart Contracts",
+        "raw_doi": "10.1145/3806397",
+        "merge_status": "unique"
+      },
+      {
+        "candidate_id": "citing-2",
+        "source_name": "semantic_scholar",
+        "source_record_id": "e3258f8d01dd8a76439a5e4c4f99c1a0be72d11c",
+        "query_used": "10.1145/3368089.3409740",
+        "fetched_at": "2026-04-25T15:16:22.956438+00:00",
+        "raw_title": "Exploring Human-Centric Dimensions in Blockchain Smart Contracts",
+        "raw_doi": "10.1145/3777414",
+        "merge_status": "unique"
+      },
+      {
+        "candidate_id": "citing-3",
+        "source_name": "semantic_scholar",
+        "source_record_id": "cc88016d00c45a9f739142fb087fb547c6e94bbb",
+        "query_used": "10.1145/3368089.3409740",
+        "fetched_at": "2026-04-25T15:16:22.956438+00:00",
+        "raw_title": "FairChecker: Detecting Fund-Stealing Bugs in DeFi Protocols via Fairness Validation",
+        "raw_doi": "10.1109/icse55347.2025.00134",
+        "merge_status": "unique"
+      },
+      {
+        "candidate_id": "citing-4",
+        "source_name": "semantic_scholar",
+        "source_record_id": "e35f6623e1dd5e03c8338737023a38a876d440c3",
+        "query_used": "10.1145/3368089.3409740",
+        "fetched_at": "2026-04-25T15:16:22.956438+00:00",
+        "raw_title": "Understanding End-User Perception of Transfer Risks in Smart Contracts",
+        "raw_doi": "10.1145/3706598.3713887",
+        "merge_status": "unique"
+      },
+      {
+        "candidate_id": "citing-5",
+        "source_name": "semantic_scholar",
+        "source_record_id": "cffacf0f86d968b3ec340adfb438dfab73446ace",
+        "query_used": "10.1145/3368089.3409740",
+        "fetched_at": "2026-04-25T15:16:22.956438+00:00",
+        "raw_title": "SymGPT: Auditing Smart Contracts via Combining Symbolic Execution with Large Language Models",
+        "raw_doi": "10.1145/3798217",
+        "merge_status": "unique"
+      }
+    ],
+    "fetch_summary": {
+      "target_query": "10.1145/3368089.3409740",
+      "semantic_scholar_candidates": 5,
+      "crossref_candidates": 5,
+      "merged_candidates": 5,
+      "deduped_candidates": 5,
+      "partial_failure": false,
+      "notes": []
+    },
+    "errors": []
+  }
+}

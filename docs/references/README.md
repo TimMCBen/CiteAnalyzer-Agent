@@ -43,6 +43,10 @@
   - `CiteAnalyzer-Agent` 当前可直接采用的框架组合方式
   - 总智能体与子智能体可用的能力清单
 
+- `citation-source-apis.md`
+  - `Semantic Scholar API` 与 `Crossref REST API` 的能力边界整理
+  - 阶段 2 该如何使用这两个外部源的建议
+
 ## 使用方式
 
 如果你在实现过程中遇到下面这些问题，优先先看这个目录：

@@ -22,8 +22,16 @@
 
 ### 阶段 2 到阶段 7
 
+- 阶段 2
+  - 脚本：`scripts/test_agent/stage2.py`
+  - 覆盖：
+    - 多源记录合并与去重
+    - 来源追踪输出
+    - 单来源失败时的部分结果降级
+    - 可选 live smoke（通过 `STAGE2_LIVE=1` 与 `STAGE2_TARGET_DOI` 启用）
+
+- 阶段 3 到阶段 7
 - 目录中已预留：
-  - `stage2.py`
   - `stage3.py`
   - `stage4.py`
   - `stage5.py`
