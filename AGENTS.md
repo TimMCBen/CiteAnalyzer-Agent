@@ -26,6 +26,7 @@
 - `docs/SUPPLY_CHAIN_SECURITY.md`：依赖、SBOM、制品 provenance 和仓库级供应链安全默认做法。
 - `docs/CICD.md`：仓库的 CI/CD 骨架以及后续如何接入真实项目。
 - `docs/FRONTEND.md`：如果仓库包含前端界面，这里记录对应规范。
+- `docs/EXPERIENCE_GOVERNANCE.md`：协作经验如何沉淀、何时需要人工决定是否升级为正式规则。
 - `CONTRIBUTING.md`：提 PR 前后的默认检查项和协作要求。
 - `docs/releases/README.md`：如何维护面向用户的发布记录。
 - `docs/references/README.md`：沉淀到仓库里的外部参考资料。
@@ -36,3 +37,4 @@
 - prompt、规则、架构约束尽量都版本化落在仓库里。
 - 复杂任务不要只靠聊天上下文，应该落 execution plan。
 - 完成的代码变更要记到 `docs/histories/`。
+- 每轮结束时可以判断是否形成了可复用协作经验；若有，优先写入经验池，而不是直接修改仓库初始基线文件或长期规范文件。
