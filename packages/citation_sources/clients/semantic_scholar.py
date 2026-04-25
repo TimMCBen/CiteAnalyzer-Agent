@@ -18,8 +18,7 @@ DEFAULT_RESOLVE_FIELDS = (
 )
 DEFAULT_CITATION_FIELDS = (
     "citingPaper.paperId,citingPaper.title,citingPaper.externalIds,"
-    "citingPaper.year,citingPaper.venue,citingPaper.abstract,"
-    "citingPaper.url,citingPaper.authors.name"
+    "citingPaper.year,citingPaper.venue,citingPaper.url"
 )
 
 
@@ -33,7 +32,7 @@ class _RequestConfig:
 class SemanticScholarClient:
     """Thin Graph API client for stage2 citation fetching."""
 
-    base_url = "https://api.semanticscholar.org/graph/v1"
+    default_base_url = "https://api.semanticscholar.org/graph/v1"
 
     def __init__(
         self,
@@ -48,7 +47,13 @@ class SemanticScholarClient:
             max_retries=max_retries,
             backoff_seconds=backoff_seconds,
         )
-        self._api_key = api_key or os.getenv("SEMANTIC_SCHOLAR_API_KEY")
+        self._api_key = (api_key or os.getenv("SEMANTIC_SCHOLAR_API_KEY") or "").strip() or None
+        self._base_url = (
+            os.getenv("SEMANTIC_SCHOLAR_BASE_URL") or self.default_base_url
+        ).rstrip("/")
+        self._auth_mode = (
+            os.getenv("SEMANTIC_SCHOLAR_AUTH_MODE") or "x-api-key"
+        ).strip().lower()
 
     def resolve_target_paper(
         self,
@@ -56,13 +61,20 @@ class SemanticScholarClient:
         *,
         fields: str = DEFAULT_RESOLVE_FIELDS,
     ) -> dict[str, object]:
+        title_fallback = target_paper.title or (
+            target_paper.paper_query if target_paper.paper_query_type == "title" else None
+        )
+
         for paper_id in self._candidate_identifiers(target_paper):
-            paper = self._fetch_paper_by_id(paper_id, fields=fields)
+            try:
+                paper = self._fetch_paper_by_id(paper_id, fields=fields)
+            except Exception:
+                paper = None
             if paper is not None:
                 return self._adapt_resolved_paper(paper)
 
-        if target_paper.title:
-            paper = self._search_match_by_title(target_paper.title, fields=fields)
+        if title_fallback:
+            paper = self._search_match_by_title(title_fallback, fields=fields)
             if paper is not None:
                 return self._adapt_resolved_paper(paper)
 
@@ -166,7 +178,7 @@ class SemanticScholarClient:
         return payload if isinstance(payload, dict) and payload.get("paperId") else None
 
     def _get_json(self, path: str, params: dict[str, str]) -> dict[str, Any]:
-        url = f"{self.base_url}{path}"
+        url = f"{self._base_url}{path}"
         if params:
             url = f"{url}?{parse.urlencode(params)}"
 
@@ -175,7 +187,10 @@ class SemanticScholarClient:
             "User-Agent": "CiteAnalyzer-Agent/semantic-scholar-client",
         }
         if self._api_key:
-            headers["x-api-key"] = self._api_key
+            if self._auth_mode == "bearer":
+                headers["Authorization"] = f"Bearer {self._api_key}"
+            else:
+                headers["x-api-key"] = self._api_key
 
         last_error: Exception | None = None
         for attempt in range(self._config.max_retries + 1):
@@ -262,9 +277,9 @@ class SemanticScholarClient:
             "title": self._clean_optional_str(citing_paper.get("title")) or "",
             "doi": doi,
             "year": self._coerce_int(citing_paper.get("year")),
-            "authors": self._extract_author_names(citing_paper.get("authors")),
+            "authors": [],
             "venue": self._clean_optional_str(citing_paper.get("venue")),
-            "abstract": self._clean_optional_str(citing_paper.get("abstract")),
+            "abstract": None,
             "url": url,
             "source_names": ["semantic_scholar"],
             "source_specific_ids": {

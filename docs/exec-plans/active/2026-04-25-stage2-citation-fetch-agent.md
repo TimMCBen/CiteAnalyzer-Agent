@@ -359,9 +359,25 @@
 
 尚未完成：
 
-- 基于真实样本论文的在线抓取验证
 - 更细的 rate limit / backoff 观测与日志
-- 把阶段 2 接入默认分析主路径而不影响阶段 1 验证
+- 更多真实样本论文的在线回归验证
+
+## 已完成的在线验证
+
+- 已用真实 DOI `10.1145/3368089.3409740` 完成一次在线抓取验证
+- 生成结果文件：
+  - `docs/generated/stage2-live-10.1145.3368089.3409740.json`
+- 结果摘要：
+  - `semantic_scholar_candidates = 5`
+  - `crossref_candidates = 5`
+  - `deduped_candidates = 5`
+  - `partial_failure = false`
+
+## 当前默认入口状态
+
+- `run_analysis()` 现在默认走阶段 2 路径
+- `run_stage1_analysis()` 保留为显式阶段 1 入口
+- 阶段 1 的独立验证仍由 `scripts/test_agent/stage1.py` 负责
 
 ## 决策记录
 

@@ -106,6 +106,29 @@
 
 - 直接把社区库作为阶段 2 的核心依赖边界
 
+#### 第三方代理平台
+
+如果官方 API 在当前网络环境下握手不稳定，或者默认速率限制影响阶段验证，也可以接入第三方代理平台。
+
+当前项目已经记录过一个可选方案：
+
+- 代理地址：`https://s2api.ominiai.cn/s2`
+- 接入方式：
+  - 将官方域名 `https://api.semanticscholar.org` 替换为 `https://s2api.ominiai.cn/s2`
+  - 将 `x-api-key` 鉴权改为 `Authorization: Bearer <token>`
+
+对当前项目的落地方式：
+
+- `SEMANTIC_SCHOLAR_BASE_URL`
+- `SEMANTIC_SCHOLAR_API_KEY`
+- `SEMANTIC_SCHOLAR_AUTH_MODE=bearer`
+
+风险边界：
+
+- 这是第三方代理，不是 `Semantic Scholar` 官方服务
+- 项目应把它视为“可选网络接入层”，不要在架构文档中把它等同于官方能力边界
+- token 只能保存在本地 `.env` 或安全的 secret store 中，不能写进仓库
+
 ### Crossref
 
 当前可选调用方式：

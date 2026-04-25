@@ -138,11 +138,12 @@ def main() -> None:
 
 
 def maybe_run_live_smoke() -> None:
-    live_mode = str(__import__("os").getenv("STAGE2_LIVE", "")).strip().lower()
+    os = __import__("os")
+    live_mode = str(os.getenv("STAGE2_LIVE", "")).strip().lower()
     if live_mode not in {"1", "true", "yes"}:
         return
 
-    target_doi = str(__import__("os").getenv("STAGE2_TARGET_DOI", "")).strip()
+    target_doi = str(os.getenv("STAGE2_TARGET_DOI", "")).strip()
     if not target_doi:
         raise AssertionError("STAGE2_TARGET_DOI is required when STAGE2_LIVE is enabled")
 
@@ -161,8 +162,9 @@ def maybe_run_live_smoke() -> None:
         max_results=5,
     )
 
-    assert result.fetch_summary.semantic_scholar_candidates >= 0
-    assert result.fetch_summary.deduped_candidates >= 0
+    assert (
+        result.fetch_summary.semantic_scholar_candidates > 0 or result.fetch_summary.deduped_candidates > 0
+    ), f"live smoke returned no citation candidates: errors={result.errors!r}"
     print("[PASS] stage2::live_smoke")
 
 
