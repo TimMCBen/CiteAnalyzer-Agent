@@ -1,7 +1,7 @@
 PROJECT ?=
 SLUG ?=
 
-.PHONY: init check-docs check-repo ci test-agent release-package new-history new-plan
+.PHONY: init check-docs check-repo ci check-project release-package new-history new-plan
 
 init:
 	@if [ -z "$(PROJECT)" ]; then echo "用法: make init PROJECT=项目名"; exit 1; fi
@@ -17,8 +17,8 @@ check-repo:
 ci:
 	./scripts/ci.sh
 
-test-agent:
-	python ./scripts/test_agent/run.py
+check-project:
+	bash ./scripts/check-project.sh
 
 release-package:
 	./scripts/release-package.sh

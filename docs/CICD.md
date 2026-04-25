@@ -19,11 +19,19 @@
 ## 推荐接入顺序
 
 1. 保留 `ci.yml`，作为唯一默认常驻的仓库基础门禁。
-2. 在 `scripts/ci.sh` 里继续叠加项目自己的验证命令。
-   当前仓库已经接入 `python scripts/test_agent/run.py`，用于承载按阶段拆分的脚本式验证。
-3. 用真实构建产物替换 `scripts/release-package.sh`。
-4. 技术栈和环境稳定后，再补具体的部署 job。
-5. 即使交付方式变化，SBOM 和 provenance 这类供应链能力也建议保留。
+2. 将 `scripts/ci.sh` 保持为模板级基础检查入口。
+3. 如果项目需要自己的测试、构建或 smoke 验证，放到单独脚本里，再由 `scripts/ci.sh` 通过可选钩子调用。
+   推荐钩子名：`scripts/check-project.sh`
+   这样模板层和项目实现层不会耦合在同一个入口文件里。
+4. 用真实构建产物替换 `scripts/release-package.sh`。
+5. 技术栈和环境稳定后，再补具体的部署 job。
+6. 即使交付方式变化，SBOM 和 provenance 这类供应链能力也建议保留。
+
+## 模板层与项目层分离
+
+- `docs/CICD.md` 只记录模板级流水线结构、扩展方式和约束。
+- 项目自己的测试说明、阶段验证说明和样本约定，建议写到单独目录，例如 `docs/testing/`。
+- `Makefile` 中也优先保留通用目标名，例如 `check-project`，不要把具体项目测试实现直接暴露成模板默认命令。
 
 ## 默认 release 产物
 

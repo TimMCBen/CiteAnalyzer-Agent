@@ -46,6 +46,7 @@ flowchart LR
 
 - [产品规格](docs/product-specs/citation-analysis-mvp.md)
 - [架构文档](docs/ARCHITECTURE.md)
+- [测试文档](docs/testing/README.md)
 
 ## 当前开发进度
 
