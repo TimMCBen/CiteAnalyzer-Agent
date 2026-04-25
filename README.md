@@ -4,7 +4,7 @@
 
 `CiteAnalyzer-Agent` 是一个面向单篇目标论文的被引分析智能体项目。系统目标是输入一篇论文后，自动抓取施引文献，识别施引作者中的重点学者，分析引用语境与情感，并生成可视化分析报告。
 
-当前项目仍处于 MVP 设计与落地准备阶段，重点是先把产品边界、智能体架构和实现计划稳定下来，再进入代码实现。
+当前项目已经完成阶段 1 和阶段 2 的主链路落地，正在从“架构与计划收口”转向“按阶段持续实现和联调”的状态。当前最稳定的能力是目标论文输入理解与施引文献抓取，后续重点将转向学者识别、引用情感分析和报告生成。
 
 ## 目标功能
 
@@ -25,21 +25,21 @@
 
 ```mermaid
 flowchart LR
-    paper_input["目标论文输入<br/>DOI / 标题 / 论文 ID / arXiv"]
-    main_agent["论文被引分析智能体<br/>统一编排与降级控制"]
-    crawl_agent["文献爬取子智能体<br/>施引抓取 / 多源融合 / 去重"]
-    scholar_agent["学者识别子智能体<br/>作者画像 / h-index / 重量级标注"]
-    sentiment_agent["引用情感分析子智能体<br/>上下文提取 / 情感分类"]
-    report_agent["可视化报告子智能体<br/>趋势图 / 来源地图 / HTML 报告"]
+    paper_input["用户输入<br/>自然语言 / DOI / 标题 / 论文 ID / arXiv"]
+    parse_stage["阶段 1<br/>输入理解与状态初始化"]
+    fetch_stage["阶段 2<br/>施引文献抓取 / 补全 / 去重"]
+    scholar_stage["阶段 4<br/>学者识别与影响力标注"]
+    sentiment_stage["阶段 5<br/>引用上下文提取与情感分析"]
+    report_stage["阶段 6<br/>汇总结果并生成 HTML 报告"]
     final_output["输出结果<br/>HTML 报告 + JSON"]
 
-    paper_input --> main_agent
-    main_agent --> crawl_agent
-    crawl_agent --> scholar_agent
-    crawl_agent --> sentiment_agent
-    scholar_agent --> report_agent
-    sentiment_agent --> report_agent
-    report_agent --> final_output
+    paper_input --> parse_stage
+    parse_stage --> fetch_stage
+    fetch_stage --> scholar_stage
+    fetch_stage --> sentiment_stage
+    scholar_stage --> report_stage
+    sentiment_stage --> report_stage
+    report_stage --> final_output
 ```
 
 更完整的说明见：
@@ -55,6 +55,9 @@ flowchart LR
 - 项目名称初始化
 - MVP 产品规格初稿与规则收口
 - 总智能体 + 子智能体架构文档
+- 阶段 1：自然语言输入理解与状态初始化
+- 阶段 2：`Semantic Scholar + Crossref` 主抓取链路
+- 单篇真实 DOI 的阶段 2 在线样本验证
 - 关键边界约定
   - `Semantic Scholar + Crossref` 为主抓取链路
   - `Google Scholar` 作为补充源，不阻塞主流程
@@ -64,13 +67,12 @@ flowchart LR
 
 进行中：
 
-- execution plan 编写
+- 阶段 4 之前的文档收口、边界细化和阶段联调准备
 
 尚未开始：
 
-- 真实代码目录搭建
-- 外部数据源适配器实现
-- 情感分析模块实现
+- 学者识别模块实现
+- 引用情感分析模块实现
 - HTML 报告生成实现
 - 端到端验证
 
@@ -83,9 +85,9 @@ flowchart LR
 
 ## 当前建议的下一步
 
-1. 写完 `docs/exec-plans/active/` 下的 execution plan。
-2. 按计划搭建 `apps/analyzer` 和 `packages/*` 代码骨架。
-3. 优先实现主链路：目标论文解析、施引抓取、学者识别、情感分析、HTML 报告。
+1. 进入阶段 4，落地学者识别能力与作者画像补充。
+2. 为阶段 5 明确全文入口、引用句子提取和情感分类边界。
+3. 在更多真实 DOI 上补阶段 2 的在线回归验证。
 
 ## 许可证
 
