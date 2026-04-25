@@ -34,6 +34,7 @@ def merge_normalized_records(records: Iterable[Dict[str, object]]) -> tuple[List
 
         if merge_status != "unique":
             _merge_into_citing_paper(deduped_papers[index], record)
+            _refresh_indexes(deduped_papers[index], index, seen_by_doi, seen_by_title_key)
 
         source_traces.append(
             SourceTrace(
@@ -112,6 +113,25 @@ def _title_year_key(record: Dict[str, object]) -> str:
     year = record.get("year")
     authors = record.get("authors") or []
     first_author = authors[0].casefold() if authors else ""
-    if not normalized_title:
+    if not normalized_title or year is None:
         return ""
     return f"{normalized_title}|{year}|{first_author}"
+
+
+def _refresh_indexes(
+    paper: CitingPaper,
+    index: int,
+    seen_by_doi: Dict[str, int],
+    seen_by_title_key: Dict[str, int],
+) -> None:
+    if paper.doi:
+        seen_by_doi[paper.doi] = index
+
+    normalized_title = str(getattr(paper, "title", "") or "").casefold().strip()
+    normalized_title = "".join(ch for ch in normalized_title if ch.isalnum() or ch.isspace())
+    normalized_title = " ".join(normalized_title.split())
+    if not normalized_title or paper.year is None:
+        return
+
+    first_author = paper.authors[0].casefold() if paper.authors else ""
+    seen_by_title_key[f"{normalized_title}|{paper.year}|{first_author}"] = index
