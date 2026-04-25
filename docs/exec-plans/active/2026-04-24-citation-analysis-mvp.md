@@ -191,6 +191,7 @@
 - [ ] 明确 `CitingPaper` 最小字段结构
 - [ ] 定义文献爬取智能体的状态输入输出接口
 - [ ] 搭建 `packages/citation-sources/` 基础目录结构
+- [x] 搭建 `packages/citation_sources/` 基础目录结构
 - [ ] 实现 `Semantic Scholar` 客户端封装
 - [ ] 实现 `Crossref` 客户端封装
 - [ ] 实现文献爬取智能体的主抓取策略
@@ -199,7 +200,7 @@
 - [ ] 实现主链路去重逻辑
 - [ ] 将文献爬取智能体接入总智能体状态图
 - [ ] 用 1 篇真实目标论文验证抓取与去重结果
-- [ ] 添加 `scripts/test_agent/stage2.py` 阶段验证脚本
+- [x] 添加 `scripts/test_agent/stage2.py` 阶段验证脚本
 - [ ] 更新 execution plan 的阶段进度
 
 ### 阶段 3：Google Scholar 补充源探索
