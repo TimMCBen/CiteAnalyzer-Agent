@@ -18,7 +18,7 @@ DEFAULT_RESOLVE_FIELDS = (
 )
 DEFAULT_CITATION_FIELDS = (
     "citingPaper.paperId,citingPaper.title,citingPaper.externalIds,"
-    "citingPaper.year,citingPaper.venue,citingPaper.url"
+    "citingPaper.year,citingPaper.venue,citingPaper.url,citingPaper.authors.name"
 )
 
 
@@ -277,7 +277,7 @@ class SemanticScholarClient:
             "title": self._clean_optional_str(citing_paper.get("title")) or "",
             "doi": doi,
             "year": self._coerce_int(citing_paper.get("year")),
-            "authors": [],
+            "authors": self._extract_author_names(citing_paper.get("authors")),
             "venue": self._clean_optional_str(citing_paper.get("venue")),
             "abstract": None,
             "url": url,

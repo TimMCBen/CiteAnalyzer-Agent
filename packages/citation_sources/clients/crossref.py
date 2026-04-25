@@ -21,6 +21,7 @@ class CrossrefClient:
     """Thin metadata-oriented client for the Crossref REST API."""
 
     BASE_URL = "https://api.crossref.org/v1"
+    MIN_CONFIDENT_MATCH_SCORE = 6.0
     SELECT_FIELDS = ",".join(
         [
             "DOI",
@@ -111,7 +112,7 @@ class CrossrefClient:
             return None
 
         best_match = max(candidates, key=lambda item: self._score_match(item, clean_title, year, authors))
-        if self._score_match(best_match, clean_title, year, authors) <= 0:
+        if self._score_match(best_match, clean_title, year, authors) < self.MIN_CONFIDENT_MATCH_SCORE:
             return None
         return best_match
 
