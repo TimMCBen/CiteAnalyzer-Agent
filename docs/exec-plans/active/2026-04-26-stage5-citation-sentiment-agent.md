@@ -321,6 +321,26 @@ flowchart TD
 - [ ] 规划 `scripts/test_agent/stage5.py` 验证入口
 - [ ] 将阶段 5 计划与父计划建立引用关系
 
+## 当前分支进展
+
+当前开发分支上已经完成的原型能力包括：
+
+- 阶段 5
+  - `arXiv-first` 全文抓取
+  - PDF / HTML / LaTeX 解析
+  - 本地落盘 `parsed txt + source.tar + extracted/`
+- 阶段 6
+  - `LangGraph` 工作流骨架
+  - TeX bibliography / cite-key 路径
+  - GROBID `PDF -> TEI XML -> 引用上下文` 路径
+  - 目标引文显式高亮后再交给 LLM 分类
+
+当前尚未完成的关键项：
+
+- 多上下文全部返回
+- 更多真实 citing paper 的批量回归
+- 学者识别与报告生成链路接入联调
+
 ## 决策记录
 
 - 2026-04-26：阶段 5 第一版明确允许 `unknown` 作为合法输出，而不是强制对所有引用做情感分类。
