@@ -158,8 +158,7 @@ def locate_reference_context_with_llm(
 
 
 def split_document_sections(text: str) -> tuple[str, str, str]:
-    pattern = re.compile(r"\b(references|bibliography)\b", re.IGNORECASE)
-    match = pattern.search(text)
+    match = find_bibliography_heading(text)
     if not match:
         return text, "", "reference_section=not_found"
     body_text = text[: match.start()].strip()
@@ -253,6 +252,50 @@ def build_target_hints(target_paper: TargetPaper) -> str:
 
 def normalize_window_text(text: str) -> str:
     return " ".join(text.split())
+
+
+def find_bibliography_heading(text: str) -> Optional[re.Match[str]]:
+    heading_pattern = re.compile(r"(?im)^(references|bibliography)\s*$")
+    matches = list(heading_pattern.finditer(text))
+    if not matches:
+        return None
+
+    total_len = max(1, len(text))
+    candidates: List[tuple[int, re.Match[str]]] = []
+    for match in matches:
+        start = match.start()
+        relative_pos = start / total_len
+        if relative_pos < 0.5:
+            continue
+        following_text = text[match.end() : match.end() + 4000]
+        score = score_bibliography_region(following_text)
+        if score <= 0:
+            continue
+        position_bonus = int(relative_pos * 10)
+        candidates.append((score + position_bonus, match))
+
+    if not candidates:
+        return None
+
+    candidates.sort(key=lambda item: (item[0], item[1].start()))
+    return candidates[-1][1]
+
+
+def score_bibliography_region(text: str) -> int:
+    score = 0
+    if re.search(r"@(?:article|inproceedings|book|misc)\{", text, re.IGNORECASE):
+        score += 5
+    if re.search(r"\\bibitem(?:\[[^\]]+\])?\{", text):
+        score += 5
+    if len(re.findall(r"(?m)^\s*\[\d+\]", text)) >= 2:
+        score += 4
+    if len(re.findall(r"\b(?:19|20)\d{2}\b", text)) >= 4:
+        score += 2
+    if len(re.findall(r"10\.\d{4,9}/[-._;()/:A-Z0-9]+", text, re.IGNORECASE)) >= 1:
+        score += 2
+    if len(re.findall(r"\bProceedings\b|\bJournal\b|\bConference\b", text, re.IGNORECASE)) >= 2:
+        score += 1
+    return score
 
 
 def locate_reference_context_from_tex_sources(target_paper: TargetPaper, extracted_dir: Path) -> ReferenceMatch:
