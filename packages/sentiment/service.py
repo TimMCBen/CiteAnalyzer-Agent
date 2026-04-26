@@ -57,7 +57,10 @@ def analyze_citation_sentiments(
                 source_type=text_source.source_type,
                 extracted_dir=text_source.extracted_dir,
             )
-            reference_match = llm_match if getattr(llm_match, "context_text", None) or getattr(llm_match, "evidence_note", None) else locate_reference_context(text_source.text, target_paper=target_paper)  # type: ignore[assignment]
+            if getattr(llm_match, "context_text", None):
+                reference_match = llm_match  # type: ignore[assignment]
+            else:
+                reference_match = locate_reference_context(text_source.text, target_paper=target_paper)
         else:
             reference_match = locate_reference_context(text_source.text, target_paper=target_paper)
 
