@@ -79,9 +79,32 @@ def extract_contexts_for_bibl_id(root: ET.Element, bibl_id: str) -> list[str]:
     for paragraph in root.findall(".//tei:p", TEI_NS):
         refs = paragraph.findall(".//tei:ref[@type='bibr']", TEI_NS)
         if any(ref.attrib.get("target") == target_ref for ref in refs):
-            contexts.append(normalize_ws("".join(paragraph.itertext())))
+            contexts.append(serialize_paragraph_with_target_markup(paragraph, target_ref=target_ref))
     return contexts
 
 
 def normalize_ws(text: str) -> str:
     return " ".join(text.split())
+
+
+def serialize_paragraph_with_target_markup(paragraph: ET.Element, target_ref: str) -> str:
+    parts: list[str] = []
+
+    def walk(node: ET.Element) -> None:
+        if node.text:
+            parts.append(node.text)
+
+        for child in list(node):
+            if child.tag.endswith("ref") and child.attrib.get("type") == "bibr":
+                ref_text = "".join(child.itertext())
+                if child.attrib.get("target") == target_ref:
+                    parts.append(f"**{ref_text}**")
+                else:
+                    parts.append(ref_text)
+            else:
+                walk(child)
+            if child.tail:
+                parts.append(child.tail)
+
+    walk(paragraph)
+    return normalize_ws("".join(parts))

@@ -33,6 +33,8 @@ def classify_sentiment(context_text: str, target_paper: TargetPaper) -> tuple[Se
     target_hint = target_paper.title or target_paper.doi or target_paper.paper_query or "unknown target"
     prompt = (
         "You are classifying a citation context toward a target paper. "
+        "The exact target citation mention inside the context is wrapped with double asterisks like **this** when available. "
+        "Use the wrapped citation as the primary anchor for deciding what the surrounding context says about the target paper. "
         "Use label=positive when the context supports, builds on, adopts, or extends the target work. "
         "Use label=critical when the context points out limitations, failures, weaknesses, or contrasts against the target work. "
         "Use label=neutral when the context is mainly background or factual mention. "

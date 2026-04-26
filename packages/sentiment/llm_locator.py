@@ -388,13 +388,13 @@ def find_body_context_for_citation_key(extracted_dir: Path, citation_key: str) -
             continue
         for match in cite_pattern.finditer(text):
             context = extract_tex_context(text, match.start(), match.end())
-            return normalize_window_text(context), path
+            return normalize_window_text(mark_target_cite_in_context(context, citation_key=citation_key)), path
     # Fall back to any TeX file, including those that may mix body and bibliography.
     for path in iter_source_files(extracted_dir, suffixes={".tex"}):
         text = path.read_text(encoding="utf-8", errors="ignore")
         for match in cite_pattern.finditer(text):
             context = extract_tex_context(text, match.start(), match.end())
-            return normalize_window_text(context), path
+            return normalize_window_text(mark_target_cite_in_context(context, citation_key=citation_key)), path
     return None
 
 
@@ -462,3 +462,9 @@ def evenly_spaced_indexes(total: int, max_windows: int) -> List[int]:
     for slot in range(max_windows):
         indexes.add(int(round(slot * step)))
     return sorted(indexes)[:max_windows]
+
+
+def mark_target_cite_in_context(context: str, citation_key: str) -> str:
+    escaped_key = re.escape(citation_key)
+    cite_pattern = re.compile(rf"(\\cite[t|p]?\{{[^}}]*\b{escaped_key}\b[^}}]*\}})")
+    return cite_pattern.sub(r"**\1**", context)
