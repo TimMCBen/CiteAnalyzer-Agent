@@ -399,17 +399,47 @@ def find_body_context_for_citation_key(extracted_dir: Path, citation_key: str) -
 
 
 def extract_tex_context(text: str, start: int, end: int, window: int = 280) -> str:
-    left = max(0, start - window)
-    right = min(len(text), end + window)
-    snippet = text[left:right]
-    # Trim at paragraph boundaries when possible.
-    paragraph_splits = re.split(r"\n\s*\n", snippet)
-    for paragraph in paragraph_splits:
-        if start - left < 0:
-            continue
-        if snippet.find(paragraph) <= start - left <= snippet.find(paragraph) + len(paragraph):
-            return paragraph
+    paragraph_start = find_left_boundary(text, start, patterns=[r"\n\s*\n"])
+    paragraph_end = find_right_boundary(text, end, patterns=[r"\n\s*\n"])
+
+    sentence_start = find_left_boundary(text, start, patterns=[r"(?<=[\.;])\s", r"\n"])
+    sentence_end = find_right_boundary(text, end, patterns=[r"(?<=[\.;])\s", r"\n"])
+
+    left = max(0, min(sentence_start, start - window, paragraph_start))
+    right = min(len(text), max(sentence_end, end + window, paragraph_end))
+    snippet = text[left:right].strip()
+
+    # Prefer the containing paragraph if it is reasonably bounded.
+    paragraph = text[paragraph_start:paragraph_end].strip()
+    if paragraph and len(paragraph) <= 900:
+        return paragraph
+
+    # Otherwise prefer the sentence/statement bounded by period or semicolon.
+    sentence = text[sentence_start:sentence_end].strip()
+    if sentence and len(sentence) <= 700:
+        return sentence
+
     return snippet
+
+
+def find_left_boundary(text: str, index: int, patterns: List[str]) -> int:
+    boundary = 0
+    prefix = text[:index]
+    for pattern in patterns:
+        matches = list(re.finditer(pattern, prefix, re.MULTILINE))
+        if matches:
+            boundary = max(boundary, matches[-1].end())
+    return boundary
+
+
+def find_right_boundary(text: str, index: int, patterns: List[str]) -> int:
+    boundary = len(text)
+    suffix = text[index:]
+    for pattern in patterns:
+        match = re.search(pattern, suffix, re.MULTILINE)
+        if match:
+            boundary = min(boundary, index + match.start())
+    return boundary
 
 
 def iter_source_files(root: Path, suffixes: set[str]) -> List[Path]:
