@@ -17,6 +17,7 @@ except ImportError:
         return default
 
 from apps.analyzer.config import build_llm
+from apps.analyzer.resolve import resolve_target_paper_metadata
 from packages.citation_sources.service import attach_fetch_result_to_state, fetch_citation_candidates_with_live_clients
 from packages.shared.errors import InvalidAnalysisRequestError
 from packages.shared.models import AnalysisState, ParsedUserIntent, TargetPaper, UserQuery
@@ -92,9 +93,27 @@ def fetch_citation_candidates_node(state: AnalysisState) -> AnalysisState:
     target_paper = state.get("target_paper")
     if not isinstance(target_paper, TargetPaper):
         raise RuntimeError("target_paper is missing from analysis state")
+    if target_paper.resolve_status != "resolved":
+        raise RuntimeError("target_paper must be resolved before fetching citation candidates")
 
     result = fetch_citation_candidates_with_live_clients(target_paper=target_paper, max_results=20)
     return attach_fetch_result_to_state(state, result)
+
+
+def resolve_target_paper_node(state: AnalysisState) -> AnalysisState:
+    target_paper = state.get("target_paper")
+    if not isinstance(target_paper, TargetPaper):
+        raise RuntimeError("target_paper is missing from analysis state")
+
+    resolved = resolve_target_paper_metadata(target_paper)
+    state["target_paper"] = resolved
+    state["status"] = "target_paper_resolved" if resolved.resolve_status == "resolved" else "target_paper_unresolved"
+    if resolved.resolve_status != "resolved":
+        state.setdefault("errors", [])
+        state["errors"].append(
+            f"target_paper_{resolved.paper_query_type}_resolution_failed"
+        )
+    return state
 
 
 def parse_with_llm(raw_query: str) -> ParsedUserIntent:
