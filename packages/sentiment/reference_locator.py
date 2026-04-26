@@ -29,9 +29,14 @@ def locate_reference_context(text: str, target_paper: TargetPaper, window_senten
         normalized_text = normalize_for_matching(text)
         index = normalized_text.find(normalize_for_matching(doi))
         if index >= 0:
+            original_index = lowered_text.find(doi)
+            if original_index < 0:
+                original_index = find_doi_span_ignoring_punctuation(text=text, doi=doi)
+            if original_index < 0:
+                original_index = 0
             return build_reference_match(
                 text=text,
-                anchor_index=index,
+                anchor_index=original_index,
                 matched_target_reference=f"doi:{doi}",
                 evidence_note="matched_by_normalized_doi",
                 window_sentences=window_sentences,
@@ -152,3 +157,21 @@ def significant_tokens(text: str) -> List[str]:
 def normalize_for_matching(text: str) -> str:
     lowered = text.lower()
     return NON_ALNUM_PATTERN.sub(" ", lowered).strip()
+
+
+def find_doi_span_ignoring_punctuation(text: str, doi: str) -> int:
+    compact_text = NON_ALNUM_PATTERN.sub("", text.lower())
+    compact_doi = NON_ALNUM_PATTERN.sub("", doi.lower())
+    compact_index = compact_text.find(compact_doi)
+    if compact_index < 0:
+        return -1
+
+    seen = 0
+    started = False
+    for original_index, char in enumerate(text.lower()):
+        if not char.isalnum():
+            continue
+        if seen == compact_index and not started:
+            return original_index
+        seen += 1
+    return -1

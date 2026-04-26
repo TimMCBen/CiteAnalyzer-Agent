@@ -56,7 +56,7 @@ def locate_reference_context_with_llm(
             target_paper=target_paper,
             extracted_dir=Path(extracted_dir),
         )
-        if tex_match.context_text or tex_match.matched_target_reference:
+        if tex_match.context_text:
             return tex_match
 
     body_text, reference_text, extraction_logs = split_document_sections(text)

@@ -66,11 +66,17 @@ def analyze_citation_sentiments(
 
         if reference_match.context_text:
             summary.context_found += 1
-            label, classifier_note = classify_sentiment(reference_match.context_text, target_paper=target_paper)
-            if label != "unknown":
-                summary.classified_count += 1
-            else:
+            try:
+                label, classifier_note = classify_sentiment(reference_match.context_text, target_paper=target_paper)
+            except Exception as exc:
+                label = "unknown"
+                classifier_note = f"llm_sentiment_failed:{exc.__class__.__name__}"
                 summary.unknown_count += 1
+            else:
+                if label != "unknown":
+                    summary.classified_count += 1
+                else:
+                    summary.unknown_count += 1
             evidence_note = f"{reference_match.evidence_note}; {classifier_note}"
         else:
             label = "unknown"
