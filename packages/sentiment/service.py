@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Mapping, Optional, Sequence
+from typing import Callable, Mapping, Optional, Sequence
 
 from packages.citation_sources.models import CitingPaper
 from packages.sentiment.classifier import classify_sentiment
 from packages.sentiment.fulltext import select_text_source
+from packages.sentiment.llm_locator import locate_reference_context_with_llm
 from packages.sentiment.models import CitationContext, FullTextDocument, SentimentAnalysisResult, SentimentSummary
 from packages.sentiment.reference_locator import locate_reference_context
 from packages.shared.models import AnalysisState, TargetPaper
@@ -14,12 +15,21 @@ def analyze_citation_sentiments(
     target_paper: TargetPaper,
     citing_papers: Sequence[CitingPaper],
     fulltext_documents: Optional[Mapping[str, FullTextDocument]] = None,
+    allow_network: bool = True,
+    search_arxiv_fallback: bool = True,
+    use_llm_reference_fallback: bool = True,
+    llm_reference_matcher: Optional[Callable[[str, TargetPaper], object]] = None,
 ) -> SentimentAnalysisResult:
     contexts: list[CitationContext] = []
     summary = SentimentSummary(total_candidates=len(citing_papers))
 
     for citing_paper in citing_papers:
-        text_source = select_text_source(citing_paper, provided_documents=fulltext_documents)
+        text_source = select_text_source(
+            citing_paper,
+            provided_documents=fulltext_documents,
+            allow_network=allow_network,
+            search_arxiv_fallback=search_arxiv_fallback,
+        )
         if text_source.text:
             summary.fulltext_available += 1
         else:
@@ -40,6 +50,16 @@ def analyze_citation_sentiments(
             continue
 
         reference_match = locate_reference_context(text_source.text, target_paper=target_paper)
+        if not reference_match.context_text and use_llm_reference_fallback:
+            matcher = llm_reference_matcher or locate_reference_context_with_llm
+            try:
+                llm_match = matcher(text_source.text, target_paper)
+            except Exception as exc:
+                reference_match.evidence_note = f"{reference_match.evidence_note}; llm_reference_match_failed:{exc.__class__.__name__}"
+            else:
+                if getattr(llm_match, "context_text", None):
+                    reference_match = llm_match  # type: ignore[assignment]
+
         if reference_match.context_text:
             summary.context_found += 1
             label, classifier_note = classify_sentiment(reference_match.context_text)

@@ -43,9 +43,14 @@
   - 脚本：`scripts/test_agent/stage5.py`
   - 覆盖：
     - 直接读取已保存的阶段 2 真实样本：`docs/generated/stage2-live-10.1145.3368089.3409740.json`
-    - 使用本地注入的正文 / LaTeX / Markdown 夹具验证引用定位
+    - 使用本地 PDF / HTML / LaTeX 文件夹具走真实解析链路验证引用定位
     - 覆盖 `positive` / `neutral` / `critical` / `unknown` 四类标签
-    - 覆盖缺全文和未定位到目标引用两种 `unknown` 降级路径
+    - 覆盖缺全文降级和 LLM 间接引用定位 fallback
+    - 可选 live smoke：
+      - `STAGE5_LIVE=1 python ./scripts/test_agent/stage5.py`
+      - 验证真实 LLM zero-shot 间接引用定位
+      - `STAGE5_FETCH_LIVE=1 python ./scripts/test_agent/stage5.py`
+      - 验证真实 arXiv 全文抓取与解析入口
 
 ## 维护原则
 

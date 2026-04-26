@@ -11,7 +11,7 @@ SentimentLabel = Literal["positive", "neutral", "critical", "unknown"]
 class FullTextDocument:
     citing_paper_id: str
     text: str
-    source_type: Literal["fulltext", "markdown", "latex", "abstract", "unknown"] = "unknown"
+    source_type: Literal["fulltext", "markdown", "latex", "html", "pdf", "abstract", "unknown"] = "unknown"
     source_label: Optional[str] = None
 
 
@@ -19,7 +19,7 @@ class FullTextDocument:
 class TextSourceSelection:
     citing_paper_id: str
     text: Optional[str]
-    source_type: Literal["fulltext", "markdown", "latex", "abstract", "unknown"] = "unknown"
+    source_type: Literal["fulltext", "markdown", "latex", "html", "pdf", "abstract", "unknown"] = "unknown"
     source_label: Optional[str] = None
     evidence_note: str = "no_text_available"
 
@@ -40,7 +40,7 @@ class CitationContext:
     mention_span: Optional[Tuple[int, int]] = None
     matched_target_reference: Optional[str] = None
     evidence_note: str = "unable_to_determine"
-    text_source_type: Literal["fulltext", "markdown", "latex", "abstract", "unknown"] = "unknown"
+    text_source_type: Literal["fulltext", "markdown", "latex", "html", "pdf", "abstract", "unknown"] = "unknown"
     text_source_label: Optional[str] = None
 
 
