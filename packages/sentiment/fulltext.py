@@ -78,23 +78,17 @@ def iter_fulltext_candidates(citing_paper: CitingPaper, search_arxiv_fallback: b
     scored: list[tuple[int, str, str]] = []
     seen: set[str] = set()
 
-    for label, url in citing_paper.source_links.items():
-        if not url or url in seen:
-            continue
-        seen.add(url)
-        scored.append((score_candidate(url), label, url))
-
-    if citing_paper.doi:
-        doi_url = f"https://doi.org/{citing_paper.doi}"
-        if doi_url not in seen:
-            seen.add(doi_url)
-            scored.append((score_candidate(doi_url), "doi", doi_url))
-
     if search_arxiv_fallback:
         for arxiv_url in search_arxiv_candidates_by_title(citing_paper.title):
             if arxiv_url not in seen:
                 seen.add(arxiv_url)
                 scored.append((score_candidate(arxiv_url), "arxiv_search", arxiv_url))
+
+    for label, url in citing_paper.source_links.items():
+        if not url or url in seen:
+            continue
+        seen.add(url)
+        scored.append((score_candidate(url), label, url))
 
     for _, label, url in sorted(scored, key=lambda item: item[0]):
         yield label, url
@@ -104,20 +98,18 @@ def score_candidate(candidate: str) -> int:
     lowered = candidate.lower()
     if lowered.startswith("file://") or re.match(r"^[a-zA-Z]:[\\/]", candidate):
         return 0
-    if lowered.endswith(".pdf"):
-        return 1
     if "arxiv.org/e-print/" in lowered:
-        return 2
+        return 1
     if "arxiv.org/src/" in lowered:
+        return 1
+    if lowered.endswith(".pdf"):
         return 2
     if "arxiv.org/html/" in lowered:
         return 3
     if "arxiv.org/abs/" in lowered:
         return 4
-    if "doi.org/" in lowered:
-        return 5
     if lowered.endswith(".tex") or lowered.endswith(".md") or lowered.endswith(".html"):
-        return 6
+        return 5
     if "semanticscholar.org" in lowered:
         return 50
     return 10

@@ -14,7 +14,6 @@ if str(REPO_ROOT) not in sys.path:
 from packages.citation_sources.models import CitingPaper
 from packages.sentiment import analyze_citation_sentiments, locate_reference_context_with_llm
 from packages.sentiment.fulltext import fetch_fulltext_document
-from packages.sentiment.models import ReferenceMatch
 from packages.shared.models import TargetPaper
 
 DEFAULT_SAMPLE_PATH = REPO_ROOT / "docs" / "generated" / "stage2-live-10.1145.3368089.3409740.json"
@@ -62,33 +61,43 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
     html_path.write_text(
         (
             "<html><body><article>"
-            f"<p>We cite {target_doi} as background literature on smart-contract transparency and human-centric concerns.</p>"
-            "<p>The paper is referenced here to frame the surrounding design space rather than to evaluate its claims.</p>"
+            "<h1>Introduction</h1>"
+            "<p>Smart-contract studies often summarize previous security models [12].</p>"
+            "<p>In this paper we use [12] only as background to frame transparency-related concerns.</p>"
+            "<h2>References</h2>"
+            f"<p>[12] Target Work. {target_doi}. A First Systematic Study of Open-Secret Vulnerabilities in Smart Contracts.</p>"
             "</article></body></html>"
         ),
         encoding="utf-8",
     )
     tex_path.write_text(
         (
-            "\\section{Background}\n"
-            f"However, {target_doi} does not model fairness constraints and cannot explain fund-stealing scenarios in DeFi protocols. "
+            "\\section{Method}\n"
+            "Our analysis compares candidate approaches with prior baselines [7]. "
+            "However, [7] does not model fairness constraints and cannot explain fund-stealing scenarios in DeFi protocols. "
             "This limitation motivates our fairness validation design.\n"
+            "\\section{References}\n"
+            f"[7] Target Work. {target_doi}. A First Systematic Study of Open-Secret Vulnerabilities in Smart Contracts.\n"
         ),
         encoding="utf-8",
     )
     indirect_html_path.write_text(
         (
             "<html><body><article>"
-            "<p>Earlier work gave the first systematic treatment of open-secret vulnerabilities in smart contracts.</p>"
-            "<p>We rely on that conceptual framing when discussing attacker-visible information leakage.</p>"
+            "<h1>Discussion</h1>"
+            "<p>Earlier work [3] gave the first systematic treatment of open-secret vulnerabilities in smart contracts.</p>"
+            "<p>We rely on [3] as background framing when discussing attacker-visible information leakage.</p>"
+            "<h2>References</h2>"
+            f"<p>[3] Target Work. {target_doi}. A First Systematic Study of Open-Secret Vulnerabilities in Smart Contracts.</p>"
             "</article></body></html>"
         ),
         encoding="utf-8",
     )
     pdf_path.write_bytes(
         build_simple_pdf_bytes(
-            f"Our detector explicitly builds on the vulnerability model introduced in {target_doi}. "
-            "Following that work, we extend the analysis pipeline to identify open-secret attack paths."
+            "Introduction. Our detector explicitly builds on the vulnerability model introduced in [5]. "
+            "Following [5], we extend the analysis pipeline to identify open-secret attack paths. "
+            f"References. [5] Target Work. {target_doi}. A First Systematic Study of Open-Secret Vulnerabilities in Smart Contracts."
         )
     )
 
@@ -169,29 +178,9 @@ def wrap_text(text: str, width: int) -> list[str]:
     return lines
 
 
-def fake_llm_reference_matcher(text: str, target_paper: TargetPaper) -> ReferenceMatch:
-    marker = "first systematic treatment of open-secret vulnerabilities"
-    start = text.lower().find(marker)
-    if start < 0:
-        return ReferenceMatch(
-            matched_target_reference=None,
-            context_text=None,
-            mention_span=None,
-            evidence_note="llm_no_match:fixture_marker_missing",
-        )
-    sentence_end = text.find(".", start)
-    end = len(text) if sentence_end < 0 else sentence_end + 1
-    return ReferenceMatch(
-        matched_target_reference=f"llm:title:{target_paper.title or target_paper.paper_query or 'unknown'}",
-        context_text=text[start:end].strip(),
-        mention_span=(start, end),
-        evidence_note="matched_by_llm:semantic_fixture_match",
-    )
-
-
 def assert_stage5_local_validation(sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
     target_paper, citing_papers = load_stage2_sample(sample_path)
-    target_paper.title = "OSVHunter: Detecting Publicly Observable Information Abuse in Ethereum Programs"
+    target_paper.title = "A First Systematic Study of Open-Secret Vulnerabilities in Smart Contracts"
     temp_dir = build_local_source_links(citing_papers, target_paper.doi or "")
     try:
         result = analyze_citation_sentiments(
@@ -201,7 +190,7 @@ def assert_stage5_local_validation(sample_path: Path = DEFAULT_SAMPLE_PATH) -> N
             allow_network=True,
             search_arxiv_fallback=False,
             use_llm_reference_fallback=True,
-            llm_reference_matcher=fake_llm_reference_matcher,
+            llm_reference_matcher=None,
         )
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
@@ -217,11 +206,15 @@ def assert_stage5_local_validation(sample_path: Path = DEFAULT_SAMPLE_PATH) -> N
     assert labels["citing-4"] == "unknown", labels
     assert labels["citing-5"] == "neutral", labels
 
-    assert evidence_notes["citing-1"].startswith("matched_by_doi; rule_positive"), evidence_notes["citing-1"]
-    assert evidence_notes["citing-2"].endswith("default_neutral_without_polarized_cues"), evidence_notes["citing-2"]
-    assert "rule_critical" in evidence_notes["citing-3"], evidence_notes["citing-3"]
+    assert evidence_notes["citing-1"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-1"]
+    assert evidence_notes["citing-2"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-2"]
+    assert evidence_notes["citing-3"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-3"]
     assert evidence_notes["citing-4"] == "no_text_available", evidence_notes["citing-4"]
-    assert evidence_notes["citing-5"].startswith("matched_by_llm:semantic_fixture_match"), evidence_notes["citing-5"]
+    assert evidence_notes["citing-5"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-5"]
+    assert "llm_sentiment:" in evidence_notes["citing-1"], evidence_notes["citing-1"]
+    assert "llm_sentiment:" in evidence_notes["citing-2"], evidence_notes["citing-2"]
+    assert "llm_sentiment:" in evidence_notes["citing-3"], evidence_notes["citing-3"]
+    assert "llm_sentiment:" in evidence_notes["citing-5"], evidence_notes["citing-5"]
     assert source_types["citing-1"] == "pdf", source_types
     assert source_types["citing-2"] == "html", source_types
     assert source_types["citing-3"] == "latex", source_types
@@ -251,15 +244,16 @@ def maybe_run_live_llm_smoke() -> None:
         canonical_id=None,
         paper_query="10.1145/3368089.3409740",
         paper_query_type="doi",
-        title="OSVHunter: Detecting Publicly Observable Information Abuse in Ethereum Programs",
+        title="A First Systematic Study of Open-Secret Vulnerabilities in Smart Contracts",
         doi="10.1145/3368089.3409740",
         source_ids={"doi": "10.1145/3368089.3409740"},
         resolve_status="resolved",
     )
     text = (
-        "Prior work offered the first systematic treatment of open-secret vulnerabilities in smart contracts and clarified "
-        "how attacker-visible information can be abused without breaking contract logic. We adopt that framing as the basis "
-        "for our discussion of information leakage."
+        "Introduction. We compare our method against prior approaches [9]. "
+        "Earlier work [9] offered the first systematic treatment of open-secret vulnerabilities in smart contracts and clarified "
+        "how attacker-visible information can be abused without breaking contract logic. References. "
+        "[9] Target Work. 10.1145/3368089.3409740. A First Systematic Study of Open-Secret Vulnerabilities in Smart Contracts."
     )
     match = locate_reference_context_with_llm(text=text, target_paper=target_paper)
     assert match.context_text, f"live llm failed to locate indirect reference: {match.evidence_note}"

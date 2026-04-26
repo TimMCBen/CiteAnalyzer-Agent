@@ -49,20 +49,16 @@ def analyze_citation_sentiments(
             summary.label_counts["unknown"] += 1
             continue
 
-        reference_match = locate_reference_context(text_source.text, target_paper=target_paper)
-        if not reference_match.context_text and use_llm_reference_fallback:
+        if use_llm_reference_fallback:
             matcher = llm_reference_matcher or locate_reference_context_with_llm
-            try:
-                llm_match = matcher(text_source.text, target_paper)
-            except Exception as exc:
-                reference_match.evidence_note = f"{reference_match.evidence_note}; llm_reference_match_failed:{exc.__class__.__name__}"
-            else:
-                if getattr(llm_match, "context_text", None):
-                    reference_match = llm_match  # type: ignore[assignment]
+            llm_match = matcher(text_source.text, target_paper)
+            reference_match = llm_match if getattr(llm_match, "context_text", None) or getattr(llm_match, "evidence_note", None) else locate_reference_context(text_source.text, target_paper=target_paper)  # type: ignore[assignment]
+        else:
+            reference_match = locate_reference_context(text_source.text, target_paper=target_paper)
 
         if reference_match.context_text:
             summary.context_found += 1
-            label, classifier_note = classify_sentiment(reference_match.context_text)
+            label, classifier_note = classify_sentiment(reference_match.context_text, target_paper=target_paper)
             if label != "unknown":
                 summary.classified_count += 1
             else:

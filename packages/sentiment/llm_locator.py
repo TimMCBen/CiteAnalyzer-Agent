@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+import re
+from typing import List, Optional
 
 try:
     from pydantic import BaseModel, Field
@@ -21,123 +22,210 @@ from packages.sentiment.reference_locator import sentence_spans, split_sentences
 from packages.shared.models import TargetPaper
 
 
-class ReferenceLocatorModel(BaseModel):
-    matched: bool = Field(description="Whether the text window refers to the target paper.")
-    window_index: int = Field(description="The selected candidate window index, or -1 if no match exists.")
-    matched_reference: Optional[str] = Field(default=None, description="Short note about what kind of reference was matched.")
-    evidence_note: str = Field(description="A concise reason for the decision.")
+class ReferenceSelectionModel(BaseModel):
+    matched: bool = Field(description="Whether one reference entry matches the target paper.")
+    reference_index: int = Field(description="Selected reference entry index, or -1 if no match.")
+    citation_marker: Optional[str] = Field(default=None, description="The body citation marker linked to that entry, such as [7] or (Smith, 2020).")
+    matched_reference: Optional[str] = Field(default=None, description="Short textual description of the matched reference.")
+    evidence_note: str = Field(description="Why this reference was chosen or rejected.")
+
+
+class ContextSelectionModel(BaseModel):
+    matched: bool = Field(description="Whether one context window clearly cites the selected target reference.")
+    window_index: int = Field(description="Selected window index, or -1 if no match.")
+    evidence_note: str = Field(description="Why this context was selected or rejected.")
 
 
 def locate_reference_context_with_llm(
     text: str,
     target_paper: TargetPaper,
-    max_windows: int = 8,
+    max_reference_entries: int = 24,
+    max_candidate_windows: int = 16,
 ) -> ReferenceMatch:
     if not (target_paper.title or target_paper.doi or target_paper.paper_query):
-        return ReferenceMatch(
-            matched_target_reference=None,
-            context_text=None,
-            mention_span=None,
-            evidence_note="llm_reference_match_skipped_missing_target_hints",
-        )
+        raise RuntimeError("stage5 llm locator requires target paper hints")
 
-    candidate_windows = build_candidate_windows(text, max_windows=max_windows)
-    if not candidate_windows:
-        return ReferenceMatch(
-            matched_target_reference=None,
-            context_text=None,
-            mention_span=None,
-            evidence_note="llm_reference_match_skipped_no_candidate_windows",
-        )
+    body_text, reference_text, extraction_logs = split_document_sections(text)
+    reference_entries = extract_reference_entries(reference_text, max_entries=max_reference_entries)
+    if not reference_entries:
+        reference_entries = extract_reference_entries(text, max_entries=max_reference_entries)
+    if not reference_entries:
+        raise RuntimeError("stage5 llm locator could not extract any reference entries")
 
     llm = build_llm()
-    structured_llm = llm.with_structured_output(ReferenceLocatorModel, method="function_calling")
-
-    window_block = "\n\n".join(f"[{index}] {window['text']}" for index, window in enumerate(candidate_windows))
-    target_hint_parts = []
-    if target_paper.title:
-        target_hint_parts.append(f"title={target_paper.title}")
-    if target_paper.doi:
-        target_hint_parts.append(f"doi={target_paper.doi}")
-    if target_paper.paper_query and target_paper.paper_query != target_paper.title:
-        target_hint_parts.append(f"query={target_paper.paper_query}")
-    target_hints = "; ".join(target_hint_parts)
-
-    prompt = (
-        "You are locating whether a citing-paper text window refers to a target paper. "
-        "The reference may be indirect: method nickname, concept description, paraphrase, or discussion of the same contribution. "
-        "Return matched=false if none of the candidate windows clearly refers to the target paper. "
-        "Only select a window when the evidence is specific enough to trust for downstream sentiment analysis."
+    structured_reference_llm = llm.with_structured_output(ReferenceSelectionModel, method="function_calling")
+    target_hints = build_target_hints(target_paper)
+    reference_prompt = (
+        "You are matching a target paper against reference entries extracted from a citing paper. "
+        "Use the title, DOI, aliases, and semantic description to decide which reference entry is the target paper. "
+        "If no entry matches, return matched=false."
     )
-
-    result = structured_llm.invoke(
+    reference_block = "\n\n".join(f"[{index}] {entry}" for index, entry in enumerate(reference_entries))
+    reference_result = structured_reference_llm.invoke(
         [
-            {"role": "system", "content": prompt},
+            {"role": "system", "content": reference_prompt},
             {
                 "role": "user",
                 "content": (
-                    f"Target paper hints: {target_hints}\n\n"
-                    f"Candidate windows:\n{window_block}\n\n"
-                    "Choose the single best window index or -1 if none match."
+                    f"Target paper hints:\n{target_hints}\n\n"
+                    f"Extraction logs:\n{extraction_logs}\n\n"
+                    f"Reference entries:\n{reference_block}"
                 ),
             },
         ]
     )
 
-    if not result.matched:
+    if not reference_result.matched or reference_result.reference_index < 0 or reference_result.reference_index >= len(reference_entries):
         return ReferenceMatch(
             matched_target_reference=None,
             context_text=None,
             mention_span=None,
-            evidence_note=f"llm_no_match:{result.evidence_note}",
+            evidence_note=f"llm_reference_not_found:{reference_result.evidence_note}",
         )
 
-    if result.window_index < 0 or result.window_index >= len(candidate_windows):
+    selected_entry = reference_entries[reference_result.reference_index]
+    candidate_windows = build_candidate_windows(
+        body_text=body_text,
+        citation_marker=reference_result.citation_marker,
+        max_windows=max_candidate_windows,
+    )
+    if not candidate_windows:
+        candidate_windows = build_candidate_windows(
+            body_text=body_text,
+            citation_marker=None,
+            max_windows=max_candidate_windows,
+        )
+    if not candidate_windows:
+        raise RuntimeError("stage5 llm locator could not build any candidate body windows")
+
+    structured_context_llm = llm.with_structured_output(ContextSelectionModel, method="function_calling")
+    context_prompt = (
+        "You are selecting the body context that cites a target reference entry. "
+        "Use the chosen reference entry and the citation marker if available. "
+        "Prefer the window that actually discusses the target work rather than a neighboring citation."
+    )
+    window_block = "\n\n".join(f"[{index}] {window['text']}" for index, window in enumerate(candidate_windows))
+    context_result = structured_context_llm.invoke(
+        [
+            {"role": "system", "content": context_prompt},
+            {
+                "role": "user",
+                "content": (
+                    f"Target paper hints:\n{target_hints}\n\n"
+                    f"Selected reference entry:\n{selected_entry}\n\n"
+                    f"Citation marker hint:\n{reference_result.citation_marker or 'none'}\n\n"
+                    f"Candidate body windows:\n{window_block}"
+                ),
+            },
+        ]
+    )
+
+    if not context_result.matched or context_result.window_index < 0 or context_result.window_index >= len(candidate_windows):
         return ReferenceMatch(
-            matched_target_reference=None,
+            matched_target_reference=reference_result.matched_reference or selected_entry,
             context_text=None,
             mention_span=None,
-            evidence_note="llm_invalid_window_index",
+            evidence_note=f"llm_context_not_found:{context_result.evidence_note}",
         )
 
-    selected = candidate_windows[result.window_index]
+    selected_window = candidate_windows[context_result.window_index]
     return ReferenceMatch(
-        matched_target_reference=result.matched_reference or "llm:semantic_reference",
-        context_text=selected["text"],
-        mention_span=(selected["start"], selected["end"]),
-        evidence_note=f"matched_by_llm:{result.evidence_note}",
+        matched_target_reference=reference_result.matched_reference or selected_entry,
+        context_text=selected_window["text"],
+        mention_span=(selected_window["start"], selected_window["end"]),
+        evidence_note=f"matched_by_llm_reference_and_context:{reference_result.evidence_note} | {context_result.evidence_note}",
     )
 
 
-def build_candidate_windows(text: str, max_windows: int = 8) -> List[dict[str, int | str]]:
-    spans = sentence_spans(text)
-    sentences = split_sentences(text)
+def split_document_sections(text: str) -> tuple[str, str, str]:
+    pattern = re.compile(r"\b(references|bibliography)\b", re.IGNORECASE)
+    match = pattern.search(text)
+    if not match:
+        return text, "", "reference_section=not_found"
+    body_text = text[: match.start()].strip()
+    reference_text = text[match.end() :].strip()
+    return body_text, reference_text, "reference_section=found"
+
+
+def extract_reference_entries(reference_text: str, max_entries: int = 24) -> List[str]:
+    if not reference_text.strip():
+        return []
+
+    numbered = re.split(r"(?=\[\d+\])|(?=(?:^|\s)\d+\.\s)", reference_text)
+    entries = [normalize_window_text(chunk) for chunk in numbered if normalize_window_text(chunk)]
+    if len(entries) <= 1:
+        chunks = re.split(r"(?<=\.)\s+(?=[A-Z][a-z].+?\d{4})", reference_text)
+        entries = [normalize_window_text(chunk) for chunk in chunks if normalize_window_text(chunk)]
+    return entries[:max_entries]
+
+
+def build_candidate_windows(body_text: str, citation_marker: Optional[str], max_windows: int = 16) -> List[dict[str, int | str]]:
+    sentences = split_sentences(body_text)
+    spans = sentence_spans(body_text)
     windows: List[dict[str, int | str]] = []
+
+    for index, sentence in enumerate(sentences):
+        sentence_text = sentence.strip()
+        if not sentence_text:
+            continue
+        looks_like_citation = bool(re.search(r"\[\d+(?:\s*,\s*\d+)*\]|\([A-Z][^)]*\d{4}[a-z]?\)", sentence_text))
+        marker_hit = citation_marker and citation_marker in sentence_text
+        if not marker_hit and not looks_like_citation:
+            continue
+        start_sentence = max(0, index - 1)
+        end_sentence = min(len(sentences), index + 2)
+        start = spans[start_sentence][0]
+        end = spans[end_sentence - 1][1]
+        windows.append(
+            {
+                "start": start,
+                "end": end,
+                "text": " ".join(sentences[start_sentence:end_sentence]).strip(),
+            }
+        )
+
+    if windows:
+        return dedupe_windows(windows)[:max_windows]
+
+    # Fall back to evenly sampled windows across the body.
+    fallback_windows: List[dict[str, int | str]] = []
     for index in range(len(sentences)):
         start_sentence = index
         end_sentence = min(len(sentences), index + 2)
         start = spans[start_sentence][0]
         end = spans[end_sentence - 1][1]
-        window_text = " ".join(sentences[start_sentence:end_sentence]).strip()
-        if window_text:
-            windows.append({"start": start, "end": end, "text": window_text})
+        fallback_windows.append(
+            {
+                "start": start,
+                "end": end,
+                "text": " ".join(sentences[start_sentence:end_sentence]).strip(),
+            }
+        )
+    return dedupe_windows(fallback_windows)[:max_windows]
 
-    if len(windows) <= max_windows:
-        return windows
 
-    selected_indexes = evenly_spaced_indexes(len(windows), max_windows=max_windows)
-    return [windows[index] for index in selected_indexes]
+def dedupe_windows(windows: List[dict[str, int | str]]) -> List[dict[str, int | str]]:
+    unique: List[dict[str, int | str]] = []
+    seen: set[str] = set()
+    for window in windows:
+        key = str(window["text"])
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(window)
+    return unique
 
 
-def evenly_spaced_indexes(total: int, max_windows: int) -> List[int]:
-    if total <= max_windows:
-        return list(range(total))
+def build_target_hints(target_paper: TargetPaper) -> str:
+    parts = []
+    if target_paper.title:
+        parts.append(f"title={target_paper.title}")
+    if target_paper.doi:
+        parts.append(f"doi={target_paper.doi}")
+    if target_paper.paper_query and target_paper.paper_query != target_paper.title:
+        parts.append(f"query={target_paper.paper_query}")
+    return "\n".join(parts)
 
-    indexes = {0, total - 1}
-    if max_windows == 1:
-        return [0]
 
-    step = (total - 1) / float(max_windows - 1)
-    for slot in range(max_windows):
-        indexes.add(int(round(slot * step)))
-    return sorted(indexes)[:max_windows]
+def normalize_window_text(text: str) -> str:
+    return " ".join(text.split())

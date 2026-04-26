@@ -1,51 +1,50 @@
 from __future__ import annotations
 
+try:
+    from pydantic import BaseModel, Field
+except ImportError:
+    class BaseModel:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+    def Field(default=None, **kwargs):  # type: ignore
+        if "default_factory" in kwargs:
+            return kwargs["default_factory"]()
+        return default
+
+from apps.analyzer.config import build_llm
 from packages.sentiment.models import SentimentLabel
+from packages.shared.models import TargetPaper
 
 
-POSITIVE_CUES = (
-    "we build on",
-    "we extend",
-    "following",
-    "inspired by",
-    "adopt",
-    "adopts",
-    "use their",
-    "uses their",
-    "based on",
-    "leverages",
-    "outperforms",
-    "effective",
-)
-
-CRITICAL_CUES = (
-    "however",
-    "limited",
-    "limitation",
-    "fails to",
-    "challenge",
-    "problematic",
-    "insufficient",
-    "weakness",
-    "unlike",
-    "does not",
-    "cannot",
-    "shortcoming",
-)
+class SentimentClassificationModel(BaseModel):
+    label: SentimentLabel = Field(description="positive, neutral, critical, or unknown")
+    evidence_note: str = Field(description="A concise justification for the label.")
 
 
-def classify_sentiment(context_text: str) -> tuple[SentimentLabel, str]:
-    normalized = " ".join(context_text.lower().split())
+def classify_sentiment(context_text: str, target_paper: TargetPaper) -> tuple[SentimentLabel, str]:
+    normalized = " ".join(context_text.split())
     if len(normalized) < 24:
-        return "unknown", "context_too_short"
+        return "unknown", "context_too_short_for_llm_classification"
 
-    positive_hits = [cue for cue in POSITIVE_CUES if cue in normalized]
-    critical_hits = [cue for cue in CRITICAL_CUES if cue in normalized]
-
-    if positive_hits and not critical_hits:
-        return "positive", f"rule_positive:{positive_hits[0]}"
-    if critical_hits and not positive_hits:
-        return "critical", f"rule_critical:{critical_hits[0]}"
-    if critical_hits and positive_hits:
-        return "neutral", "mixed_positive_and_critical_cues"
-    return "neutral", "default_neutral_without_polarized_cues"
+    llm = build_llm()
+    structured_llm = llm.with_structured_output(SentimentClassificationModel, method="function_calling")
+    target_hint = target_paper.title or target_paper.doi or target_paper.paper_query or "unknown target"
+    prompt = (
+        "You are classifying a citation context toward a target paper. "
+        "Use label=positive when the context supports, builds on, adopts, or extends the target work. "
+        "Use label=critical when the context points out limitations, failures, weaknesses, or contrasts against the target work. "
+        "Use label=neutral when the context is mainly background or factual mention. "
+        "Use label=unknown only when the context is too weak to justify a label."
+    )
+    result = structured_llm.invoke(
+        [
+            {"role": "system", "content": prompt},
+            {
+                "role": "user",
+                "content": f"Target paper hint: {target_hint}\n\nCitation context:\n{normalized}",
+            },
+        ]
+    )
+    return result.label, f"llm_sentiment:{result.evidence_note}"
