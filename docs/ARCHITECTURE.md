@@ -273,17 +273,28 @@ flowchart TD
     scholar_agent["学者识别智能体"]
     sentiment_agent["引用情感分析智能体"]
     report_agent["可视化报告智能体"]
+    citing_list["施引文献统一清单"]
+    scholar_result["作者画像 / ScholarLabel"]
+    sentiment_result["CitationContext 集合"]
     final_output["HTML 报告 / JSON"]
 
     user_input --> main_agent
-    main_agent --> crawl_agent
-    crawl_agent --> main_agent
-    main_agent --> scholar_agent
-    main_agent --> sentiment_agent
-    scholar_agent --> main_agent
-    sentiment_agent --> main_agent
-    main_agent --> report_agent
-    report_agent --> main_agent
+    main_agent -->|调度| crawl_agent
+    crawl_agent -->|返回结果| main_agent
+    main_agent -->|写入状态| citing_list
+    main_agent -->|调度| scholar_agent
+    main_agent -->|调度| sentiment_agent
+    citing_list --> scholar_agent
+    citing_list --> sentiment_agent
+    scholar_agent -->|返回结果| main_agent
+    sentiment_agent -->|返回结果| main_agent
+    main_agent -->|写入状态| scholar_result
+    main_agent -->|写入状态| sentiment_result
+    main_agent -->|调度| report_agent
+    citing_list --> report_agent
+    scholar_result --> report_agent
+    sentiment_result --> report_agent
+    report_agent -->|返回报告产物| main_agent
     main_agent --> final_output
 ```
 

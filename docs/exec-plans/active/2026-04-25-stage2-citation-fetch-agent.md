@@ -90,19 +90,33 @@
 flowchart TD
     target_input["TargetPaper / AnalysisState"]
     resolve_target["Semantic Scholar 解析目标论文"]
+    target_resolved{"是否成功定位目标论文"}
+    target_error["返回目标论文解析失败"]
     fetch_citations["Semantic Scholar 拉取 citing papers"]
-    enrich_crossref["Crossref 补 DOI / venue / year / abstract"]
+    primary_ok{"主链路是否拿到候选施引记录"}
+    primary_partial["保留主链路失败信息"]
+    enrich_crossref["Crossref 尝试补 DOI / venue / year / abstract"]
+    crossref_ok{"Crossref 补充是否成功"}
+    keep_primary["保留 Semantic Scholar 原始字段"]
     normalize["统一字段标准化"]
     dedupe["按 DOI / title+year+first_author 去重"]
     source_trace["生成 SourceTrace / FetchSummary"]
-    partial_failure{"是否存在局部失败"}
+    partial_failure{"是否存在局部失败或字段缺失"}
     attach_state["写回 AnalysisState"]
     stage2_output["输出 citing_papers / source_trace / fetch_summary"]
 
     target_input --> resolve_target
-    resolve_target --> fetch_citations
-    fetch_citations --> enrich_crossref
-    enrich_crossref --> normalize
+    resolve_target --> target_resolved
+    target_resolved -- 否 --> target_error
+    target_resolved -- 是 --> fetch_citations
+    fetch_citations --> primary_ok
+    primary_ok -- 否 --> primary_partial
+    primary_partial --> source_trace
+    primary_ok -- 是 --> enrich_crossref
+    enrich_crossref --> crossref_ok
+    crossref_ok -- 否 --> keep_primary
+    crossref_ok -- 是 --> normalize
+    keep_primary --> normalize
     normalize --> dedupe
     dedupe --> source_trace
     source_trace --> partial_failure
