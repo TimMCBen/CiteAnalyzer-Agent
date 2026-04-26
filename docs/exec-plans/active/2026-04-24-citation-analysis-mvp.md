@@ -141,7 +141,8 @@ flowchart TD
     build_target["构造 TargetPaper"]
     resolve_status{"线索是否足以直接定位"}
     resolved["resolve_status = resolved"]
-    uncertain["resolve_status = uncertain"]
+    ambiguous["resolve_status = ambiguous"]
+    insufficient["resolve_status = insufficient"]
     parsed_state["输出 parsed 状态"]
 
     user_input --> init_state
@@ -153,9 +154,11 @@ flowchart TD
     validate_request -- 是 --> build_target
     build_target --> resolve_status
     resolve_status -- 是 --> resolved
-    resolve_status -- 否 --> uncertain
+    resolve_status -- 否，存在多个候选 --> ambiguous
+    resolve_status -- 否，线索仍不足 --> insufficient
     resolved --> parsed_state
-    uncertain --> parsed_state
+    ambiguous --> parsed_state
+    insufficient --> parsed_state
 ```
 
 #### 阶段 1 TODO
@@ -246,6 +249,11 @@ flowchart TD
 - 依赖：
   - 阶段 2
 
+补充说明：
+
+- 阶段 3 的细化计划见：
+  - `docs/exec-plans/active/2026-04-26-stage3-google-scholar-supplement.md`
+
 #### 阶段 3 TODO
 
 - [ ] 调研 `Google Scholar` 可获取字段
@@ -269,6 +277,11 @@ flowchart TD
   - 可被总智能体调用的学者识别能力节点
 - 依赖：
   - 阶段 2
+
+补充说明：
+
+- 阶段 4 的细化计划见：
+  - `docs/exec-plans/active/2026-04-26-stage4-scholar-intel-agent.md`
 
 #### 阶段 4 TODO
 
@@ -299,6 +312,11 @@ flowchart TD
   - 可被总智能体调用的情感分析能力节点
 - 依赖：
   - 阶段 2
+
+补充说明：
+
+- 阶段 5 的细化计划见：
+  - `docs/exec-plans/active/2026-04-26-stage5-citation-sentiment-agent.md`
 
 #### 阶段 5 TODO
 
