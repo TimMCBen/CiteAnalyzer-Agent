@@ -261,6 +261,24 @@ flowchart TD
 - 如果 bibliography 中找不到目标论文，允许输出 `unknown`，但要保留失败原因。
 - 如果已经有源文件级证据，不要只依赖压平后的 `parsed txt`。
 
+## PDF 路径建议
+
+当阶段 5 / 当前分支上的引用情感分析模块面对的是 PDF 原文，而不是 TeX 源文件时，优先走 GROBID 路径：
+
+1. 将 PDF 提交给本地 GROBID 服务的 `processFulltextDocument`。
+2. 获取 TEI XML。
+3. 在 `listBibl/biblStruct` 中根据目标论文 DOI / 标题匹配目标参考文献条目。
+4. 恢复对应的 `xml:id`。
+5. 在正文中找到 `ref type="bibr"` 且 `target="#xml:id"` 的位置。
+6. 取该 `ref` 所在段落作为候选引用上下文。
+7. 再将该候选上下文交给 LLM 做情感判断。
+
+执行原则：
+
+- 优先使用 DOI 匹配 `biblStruct`，标题匹配作为兜底。
+- 正文上下文优先返回包含目标 `ref` 的完整段落，而不是只取短 token 片段。
+- GROBID 服务不可用时，才退回当前的普通文本窗口路径。
+
 ## 风险
 
 - 风险：很多论文拿不到全文

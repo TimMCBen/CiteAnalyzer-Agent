@@ -4,14 +4,21 @@ import os
 from typing import Any
 
 
-def build_llm() -> Any:
+def load_local_env() -> None:
     try:
         from dotenv import load_dotenv
+    except ImportError:
+        return
+    load_dotenv()
+
+
+def build_llm() -> Any:
+    try:
         from langchain_openai import ChatOpenAI
     except ImportError as exc:
         raise RuntimeError("LLM dependencies are not installed") from exc
 
-    load_dotenv()
+    load_local_env()
 
     api_key = (os.getenv("API_KEY") or "").strip()
     base_url = (os.getenv("BASE_URL") or "").strip()
@@ -25,3 +32,8 @@ def build_llm() -> Any:
         raise ValueError("MODEL is required in .env")
 
     return ChatOpenAI(api_key=api_key, base_url=base_url, model=model, temperature=0)
+
+
+def get_grobid_api_url() -> str:
+    load_local_env()
+    return (os.getenv("GROBID_API_URL") or "http://localhost:8070/api").strip().rstrip("/")

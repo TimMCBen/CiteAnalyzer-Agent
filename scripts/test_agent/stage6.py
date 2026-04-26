@@ -12,7 +12,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from packages.citation_sources.models import CitingPaper
-from packages.sentiment import FullTextDocument, analyze_citation_sentiments
+from packages.sentiment import FullTextDocument, analyze_citation_sentiments, grobid_is_alive
 from packages.sentiment.fulltext import fetch_fulltext_document
 from packages.shared.models import TargetPaper
 
@@ -258,10 +258,44 @@ def maybe_run_real_citing5_smoke(sample_path: Path = DEFAULT_SAMPLE_PATH) -> Non
     print("[PASS] stage6::real_citing5_smoke")
 
 
+def maybe_run_grobid_citing5_smoke(sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
+    live_mode = str(os.getenv("STAGE6_GROBID_CITING5", "")).strip().lower()
+    if live_mode not in {"1", "true", "yes"}:
+        return
+
+    assert grobid_is_alive(), "GROBID service is not alive"
+    target_paper, citing_papers = load_stage2_sample(sample_path)
+    paper = next(item for item in citing_papers if item.canonical_id == "citing-5")
+    pdf_path = REPO_ROOT / "downloaded-papers" / "citing-5-symgpt.pdf"
+    assert pdf_path.exists(), f"missing PDF for GROBID smoke: {pdf_path}"
+
+    result = analyze_citation_sentiments(
+        target_paper=target_paper,
+        citing_papers=[paper],
+        fulltext_documents={
+            "citing-5": FullTextDocument(
+                citing_paper_id="citing-5",
+                text="PDF artifact available via raw_path for GROBID processing.",
+                source_type="pdf",
+                source_label=str(pdf_path),
+                raw_path=str(pdf_path),
+            )
+        },
+        allow_network=False,
+        search_arxiv_fallback=False,
+        use_llm_reference_fallback=True,
+    )
+    ctx = result.contexts[0]
+    assert "#b94" in (ctx.matched_target_reference or ""), ctx
+    assert "fairness issues" in (ctx.context_text or "").lower(), ctx
+    print("[PASS] stage6::grobid_citing5_smoke")
+
+
 def main() -> None:
     assert_stage6_local_sentiment_validation()
     print("[PASS] stage6::local_sentiment_validation")
     maybe_run_real_citing5_smoke()
+    maybe_run_grobid_citing5_smoke()
     print("stage6 validation passed")
 
 
