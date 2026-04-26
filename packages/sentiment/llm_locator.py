@@ -39,6 +39,8 @@ class ContextSelectionModel(BaseModel):
 def locate_reference_context_with_llm(
     text: str,
     target_paper: TargetPaper,
+    source_type: Optional[str] = None,
+    extracted_dir: Optional[str] = None,
     max_reference_entries: int = 24,
     max_candidate_windows: int = 16,
 ) -> ReferenceMatch:
@@ -58,7 +60,8 @@ def locate_reference_context_with_llm(
     reference_prompt = (
         "You are matching a target paper against reference entries extracted from a citing paper. "
         "Use the title, DOI, aliases, and semantic description to decide which reference entry is the target paper. "
-        "If no entry matches, return matched=false."
+        "If no entry matches, return matched=false. "
+        "When the source comes from TeX/LaTeX, assume the reliable path is: find the bibliography entry first, recover the citation key or marker, then use that key or marker to find body citations."
     )
     reference_block = "\n\n".join(f"[{index}] {entry}" for index, entry in enumerate(reference_entries))
     reference_result = structured_reference_llm.invoke(
@@ -68,6 +71,8 @@ def locate_reference_context_with_llm(
                 "role": "user",
                 "content": (
                     f"Target paper hints:\n{target_hints}\n\n"
+                    f"Source type: {source_type or 'unknown'}\n"
+                    f"Extracted dir: {extracted_dir or 'none'}\n\n"
                     f"Extraction logs:\n{extraction_logs}\n\n"
                     f"Reference entries:\n{reference_block}"
                 ),
@@ -102,7 +107,8 @@ def locate_reference_context_with_llm(
     context_prompt = (
         "You are selecting the body context that cites a target reference entry. "
         "Use the chosen reference entry and the citation marker if available. "
-        "Prefer the window that actually discusses the target work rather than a neighboring citation."
+        "Prefer the window that actually discusses the target work rather than a neighboring citation. "
+        "When the source is TeX/LaTeX, prioritize windows carrying the recovered citation key/marker and treat that as stronger evidence than loose semantic similarity."
     )
     window_block = "\n\n".join(f"[{index}] {window['text']}" for index, window in enumerate(candidate_windows))
     context_result = structured_context_llm.invoke(
@@ -112,6 +118,8 @@ def locate_reference_context_with_llm(
                 "role": "user",
                 "content": (
                     f"Target paper hints:\n{target_hints}\n\n"
+                    f"Source type: {source_type or 'unknown'}\n"
+                    f"Extracted dir: {extracted_dir or 'none'}\n\n"
                     f"Selected reference entry:\n{selected_entry}\n\n"
                     f"Citation marker hint:\n{reference_result.citation_marker or 'none'}\n\n"
                     f"Candidate body windows:\n{window_block}"
@@ -168,7 +176,7 @@ def build_candidate_windows(body_text: str, citation_marker: Optional[str], max_
         sentence_text = sentence.strip()
         if not sentence_text:
             continue
-        looks_like_citation = bool(re.search(r"\[\d+(?:\s*,\s*\d+)*\]|\([A-Z][^)]*\d{4}[a-z]?\)", sentence_text))
+        looks_like_citation = bool(re.search(r"\[\d+(?:\s*,\s*\d+)*\]|\([A-Z][^)]*\d{4}[a-z]?\)|\\cite[t|p]?\{[^}]+\}", sentence_text))
         marker_hit = citation_marker and citation_marker in sentence_text
         if not marker_hit and not looks_like_citation:
             continue

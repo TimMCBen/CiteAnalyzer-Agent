@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import io
+import shutil
 import re
 import tarfile
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, Mapping, Optional
 from urllib.parse import quote, urlparse
@@ -17,6 +19,15 @@ from packages.sentiment.models import FullTextDocument, TextSourceSelection
 REQUEST_TIMEOUT_SECONDS = 20
 TEXT_MIN_LENGTH = 80
 DEFAULT_STAGE5_DOWNLOAD_DIR = Path("downloaded-papers") / "stage5"
+
+
+@dataclass
+class LoadedDocumentPayload:
+    document: Optional[FullTextDocument]
+    raw_bytes: Optional[bytes] = None
+    raw_suffix: Optional[str] = None
+    extracted_files: dict[str, str] = field(default_factory=dict)
+    source_file_path: Optional[Path] = None
 
 
 def select_text_source(
@@ -34,6 +45,8 @@ def select_text_source(
             source_type=document.source_type,
             source_label=document.source_label,
             local_path=document.local_path,
+            raw_path=document.raw_path,
+            extracted_dir=document.extracted_dir,
             evidence_note="text_loaded",
         )
 
@@ -50,6 +63,8 @@ def select_text_source(
                 source_type=fetched_document.source_type,
                 source_label=fetched_document.source_label,
                 local_path=fetched_document.local_path,
+                raw_path=fetched_document.raw_path,
+                extracted_dir=fetched_document.extracted_dir,
                 evidence_note="text_fetched",
             )
 
@@ -60,6 +75,8 @@ def select_text_source(
             source_type="abstract",
             source_label="citing_paper.abstract",
             local_path=None,
+            raw_path=None,
+            extracted_dir=None,
             evidence_note="fallback_to_abstract_only",
         )
 
@@ -69,6 +86,8 @@ def select_text_source(
         source_type="unknown",
         source_label=None,
         local_path=None,
+        raw_path=None,
+        extracted_dir=None,
         evidence_note="no_text_available",
     )
 
@@ -80,13 +99,15 @@ def fetch_fulltext_document(
 ) -> Optional[FullTextDocument]:
     for source_label, candidate in iter_fulltext_candidates(citing_paper, search_arxiv_fallback=search_arxiv_fallback):
         try:
-            document = load_candidate_text(citing_paper.canonical_id, source_label, candidate)
+            payload = load_candidate_text(citing_paper.canonical_id, source_label, candidate)
         except Exception:
             continue
+        document = payload.document
         if document and len(document.text.strip()) >= TEXT_MIN_LENGTH:
-            document.local_path = persist_fulltext_document(
+            persist_fulltext_document(
                 citing_paper=citing_paper,
                 document=document,
+                payload=payload,
                 save_dir=save_dir,
             )
             return document
@@ -134,46 +155,61 @@ def score_candidate(candidate: str) -> int:
     return 10
 
 
-def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str) -> Optional[FullTextDocument]:
+def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str) -> LoadedDocumentPayload:
     parsed = urlparse(candidate)
     if looks_like_local_path(candidate, parsed):
         path = Path(parsed.path if parsed.scheme == "file" else candidate)
         if not path.exists() or path.is_dir():
-            return None
+            return LoadedDocumentPayload(document=None)
         suffix = path.suffix.lower()
         if suffix == ".pdf":
-            return FullTextDocument(
-                citing_paper_id=citing_paper_id,
-                text=extract_pdf_text(path.read_bytes()),
-                source_type="pdf",
-                source_label=str(path),
+            return LoadedDocumentPayload(
+                document=FullTextDocument(
+                    citing_paper_id=citing_paper_id,
+                    text=extract_pdf_text(path.read_bytes()),
+                    source_type="pdf",
+                    source_label=str(path),
+                ),
+                source_file_path=path,
             )
         if suffix in {".html", ".htm"}:
-            return FullTextDocument(
-                citing_paper_id=citing_paper_id,
-                text=extract_html_text(path.read_text(encoding="utf-8")),
-                source_type="html",
-                source_label=str(path),
+            return LoadedDocumentPayload(
+                document=FullTextDocument(
+                    citing_paper_id=citing_paper_id,
+                    text=extract_html_text(path.read_text(encoding="utf-8")),
+                    source_type="html",
+                    source_label=str(path),
+                ),
+                source_file_path=path,
             )
         if suffix in {".tex", ".latex"}:
-            return FullTextDocument(
-                citing_paper_id=citing_paper_id,
-                text=extract_latex_text(path.read_text(encoding="utf-8")),
-                source_type="latex",
-                source_label=str(path),
+            return LoadedDocumentPayload(
+                document=FullTextDocument(
+                    citing_paper_id=citing_paper_id,
+                    text=extract_latex_text(path.read_text(encoding="utf-8")),
+                    source_type="latex",
+                    source_label=str(path),
+                ),
+                source_file_path=path,
             )
         if suffix in {".md", ".markdown"}:
-            return FullTextDocument(
+            return LoadedDocumentPayload(
+                document=FullTextDocument(
+                    citing_paper_id=citing_paper_id,
+                    text=normalize_whitespace(path.read_text(encoding="utf-8")),
+                    source_type="markdown",
+                    source_label=str(path),
+                ),
+                source_file_path=path,
+            )
+        return LoadedDocumentPayload(
+            document=FullTextDocument(
                 citing_paper_id=citing_paper_id,
                 text=normalize_whitespace(path.read_text(encoding="utf-8")),
-                source_type="markdown",
+                source_type="fulltext",
                 source_label=str(path),
-            )
-        return FullTextDocument(
-            citing_paper_id=citing_paper_id,
-            text=normalize_whitespace(path.read_text(encoding="utf-8")),
-            source_type="fulltext",
-            source_label=str(path),
+            ),
+            source_file_path=path,
         )
 
     response = requests.get(candidate, timeout=REQUEST_TIMEOUT_SECONDS, headers={"User-Agent": "CiteAnalyzer-Agent/0.1"})
@@ -182,45 +218,71 @@ def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str)
     content_type = (response.headers.get("content-type") or "").lower()
     lowered = candidate.lower()
     if lowered.endswith(".pdf") or "application/pdf" in content_type:
-        return FullTextDocument(
-            citing_paper_id=citing_paper_id,
-            text=extract_pdf_text(response.content),
-            source_type="pdf",
-            source_label=candidate,
+        return LoadedDocumentPayload(
+            document=FullTextDocument(
+                citing_paper_id=citing_paper_id,
+                text=extract_pdf_text(response.content),
+                source_type="pdf",
+                source_label=candidate,
+            ),
+            raw_bytes=response.content,
+            raw_suffix=".pdf",
         )
     if "arxiv.org/e-print/" in lowered or "application/x-eprint-tar" in content_type:
-        return FullTextDocument(
-            citing_paper_id=citing_paper_id,
-            text=extract_arxiv_source_text(response.content),
-            source_type="latex",
-            source_label=candidate,
+        extracted_text, extracted_files = extract_arxiv_source_bundle(response.content)
+        return LoadedDocumentPayload(
+            document=FullTextDocument(
+                citing_paper_id=citing_paper_id,
+                text=extracted_text,
+                source_type="latex",
+                source_label=candidate,
+            ),
+            raw_bytes=response.content,
+            raw_suffix=".tar",
+            extracted_files=extracted_files,
         )
     if lowered.endswith(".tex"):
-        return FullTextDocument(
-            citing_paper_id=citing_paper_id,
-            text=extract_latex_text(response.text),
-            source_type="latex",
-            source_label=candidate,
+        return LoadedDocumentPayload(
+            document=FullTextDocument(
+                citing_paper_id=citing_paper_id,
+                text=extract_latex_text(response.text),
+                source_type="latex",
+                source_label=candidate,
+            ),
+            raw_bytes=response.content,
+            raw_suffix=".tex",
         )
     if lowered.endswith(".md") or lowered.endswith(".markdown") or "text/markdown" in content_type:
-        return FullTextDocument(
-            citing_paper_id=citing_paper_id,
-            text=normalize_whitespace(response.text),
-            source_type="markdown",
-            source_label=candidate,
+        return LoadedDocumentPayload(
+            document=FullTextDocument(
+                citing_paper_id=citing_paper_id,
+                text=normalize_whitespace(response.text),
+                source_type="markdown",
+                source_label=candidate,
+            ),
+            raw_bytes=response.content,
+            raw_suffix=".md",
         )
     if "text/html" in content_type or lowered.endswith(".html") or lowered.endswith(".htm") or "arxiv.org/abs/" in lowered or "arxiv.org/html/" in lowered:
-        return FullTextDocument(
-            citing_paper_id=citing_paper_id,
-            text=extract_html_text(response.text),
-            source_type="html",
-            source_label=candidate,
+        return LoadedDocumentPayload(
+            document=FullTextDocument(
+                citing_paper_id=citing_paper_id,
+                text=extract_html_text(response.text),
+                source_type="html",
+                source_label=candidate,
+            ),
+            raw_bytes=response.content,
+            raw_suffix=".html",
         )
-    return FullTextDocument(
-        citing_paper_id=citing_paper_id,
-        text=normalize_whitespace(response.text),
-        source_type="fulltext",
-        source_label=candidate,
+    return LoadedDocumentPayload(
+        document=FullTextDocument(
+            citing_paper_id=citing_paper_id,
+            text=normalize_whitespace(response.text),
+            source_type="fulltext",
+            source_label=candidate,
+        ),
+        raw_bytes=response.content,
+        raw_suffix=".txt",
     )
 
 
@@ -254,6 +316,12 @@ def extract_latex_text(content: str) -> str:
 
 
 def extract_arxiv_source_text(content: bytes) -> str:
+    text, _ = extract_arxiv_source_bundle(content)
+    return text
+
+
+def extract_arxiv_source_bundle(content: bytes) -> tuple[str, dict[str, str]]:
+    extracted_files: dict[str, str] = {}
     try:
         with tarfile.open(fileobj=io.BytesIO(content), mode="r:*") as archive:
             parts: list[str] = []
@@ -263,10 +331,14 @@ def extract_arxiv_source_text(content: bytes) -> str:
                 extracted = archive.extractfile(member)
                 if extracted is None:
                     continue
-                parts.append(extract_latex_text(extracted.read().decode("utf-8", errors="ignore")))
-            return normalize_whitespace("\n".join(parts))
+                decoded = extracted.read().decode("utf-8", errors="ignore")
+                extracted_files[member.name] = decoded
+                parts.append(extract_latex_text(decoded))
+            return normalize_whitespace("\n".join(parts)), extracted_files
     except tarfile.ReadError:
-        return extract_latex_text(content.decode("utf-8", errors="ignore"))
+        decoded = content.decode("utf-8", errors="ignore")
+        extracted_files["source.tex"] = decoded
+        return extract_latex_text(decoded), extracted_files
 
 
 def search_arxiv_candidates_by_title(title: str) -> list[str]:
@@ -336,15 +408,37 @@ def normalize_whitespace(text: str) -> str:
 def persist_fulltext_document(
     citing_paper: CitingPaper,
     document: FullTextDocument,
+    payload: LoadedDocumentPayload,
     save_dir: Optional[Path] = None,
-) -> str:
+) -> None:
     base_dir = (save_dir or DEFAULT_STAGE5_DOWNLOAD_DIR).resolve()
     base_dir.mkdir(parents=True, exist_ok=True)
     slug = slugify(citing_paper.title)
-    filename = f"{citing_paper.canonical_id}__{slug}__{document.source_type}.txt"
-    path = base_dir / filename
-    path.write_text(document.text, encoding="utf-8")
-    return str(path)
+    paper_dir = base_dir / f"{citing_paper.canonical_id}__{slug}"
+    paper_dir.mkdir(parents=True, exist_ok=True)
+
+    parsed_path = paper_dir / f"parsed__{document.source_type}.txt"
+    parsed_path.write_text(document.text, encoding="utf-8")
+    document.local_path = str(parsed_path)
+
+    if payload.raw_bytes is not None and payload.raw_suffix:
+        raw_path = paper_dir / f"source{payload.raw_suffix}"
+        raw_path.write_bytes(payload.raw_bytes)
+        document.raw_path = str(raw_path)
+    elif payload.source_file_path is not None and payload.source_file_path.exists():
+        raw_path = paper_dir / payload.source_file_path.name
+        shutil.copy2(payload.source_file_path, raw_path)
+        document.raw_path = str(raw_path)
+
+    if payload.extracted_files:
+        extracted_dir = paper_dir / "extracted"
+        extracted_dir.mkdir(parents=True, exist_ok=True)
+        for relative_name, content in payload.extracted_files.items():
+            safe_name = Path(relative_name)
+            out_path = extracted_dir / safe_name
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(content, encoding="utf-8")
+        document.extracted_dir = str(extracted_dir)
 
 
 def slugify(text: str, limit: int = 80) -> str:
