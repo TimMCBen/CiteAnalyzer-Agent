@@ -5,9 +5,8 @@ from typing import Callable, Mapping, Optional, Sequence
 from packages.citation_sources.models import CitingPaper
 from packages.sentiment.classifier import classify_sentiment
 from packages.sentiment.fulltext import select_text_source
-from packages.sentiment.llm_locator import locate_reference_context_with_llm
 from packages.sentiment.models import CitationContext, FullTextDocument, SentimentAnalysisResult, SentimentSummary
-from packages.sentiment.reference_locator import locate_reference_context
+from packages.sentiment.workflow import run_stage6_workflow
 from packages.shared.models import AnalysisState, TargetPaper
 
 VALID_SENTIMENT_LABELS = {"positive", "neutral", "critical", "unknown"}
@@ -52,56 +51,31 @@ def analyze_citation_sentiments(
             continue
 
         if use_llm_reference_fallback:
-            matcher = llm_reference_matcher or locate_reference_context_with_llm
-            llm_match = matcher(
-                text_source.text,
-                target_paper,
-                source_type=text_source.source_type,
-                extracted_dir=text_source.extracted_dir,
+            citation_context = run_stage6_workflow(
+                target_paper=target_paper,
+                citing_paper=citing_paper,
+                text_source=text_source,
+                llm_reference_matcher=llm_reference_matcher,
             )
-            if getattr(llm_match, "context_text", None):
-                reference_match = llm_match  # type: ignore[assignment]
-            else:
-                reference_match = locate_reference_context(text_source.text, target_paper=target_paper)
         else:
-            reference_match = locate_reference_context(text_source.text, target_paper=target_paper)
+            citation_context = run_stage6_workflow(
+                target_paper=target_paper,
+                citing_paper=citing_paper,
+                text_source=text_source,
+                llm_reference_matcher=None,
+            )
 
-        if reference_match.context_text:
+        if citation_context.context_text:
             summary.context_found += 1
-            try:
-                label, classifier_note = classify_sentiment(reference_match.context_text, target_paper=target_paper)
-            except Exception as exc:
-                label = "unknown"
-                classifier_note = f"llm_sentiment_failed:{exc.__class__.__name__}"
-                summary.unknown_count += 1
-            else:
-                if label != "unknown":
-                    summary.classified_count += 1
-                else:
-                    summary.unknown_count += 1
-            if label not in VALID_SENTIMENT_LABELS:
-                label = "unknown"
-                classifier_note = f"{classifier_note}; invalid_label_normalized_to_unknown"
-                summary.unknown_count += 1
-            evidence_note = f"{reference_match.evidence_note}; {classifier_note}"
+        if citation_context.sentiment_label not in VALID_SENTIMENT_LABELS:
+            citation_context.sentiment_label = "unknown"
+            citation_context.evidence_note = f"{citation_context.evidence_note}; invalid_label_normalized_to_unknown"
+        if citation_context.sentiment_label != "unknown":
+            summary.classified_count += 1
         else:
-            label = "unknown"
-            evidence_note = reference_match.evidence_note
             summary.unknown_count += 1
-
-        summary.label_counts[label] += 1
-        contexts.append(
-            CitationContext(
-                citing_paper_id=citing_paper.canonical_id,
-                sentiment_label=label,
-                context_text=reference_match.context_text,
-                mention_span=reference_match.mention_span,
-                matched_target_reference=reference_match.matched_target_reference,
-                evidence_note=evidence_note,
-                text_source_type=text_source.source_type,
-                text_source_label=text_source.source_label,
-            )
-        )
+        summary.label_counts[citation_context.sentiment_label] += 1
+        contexts.append(citation_context)
 
     return SentimentAnalysisResult(contexts=contexts, summary=summary)
 

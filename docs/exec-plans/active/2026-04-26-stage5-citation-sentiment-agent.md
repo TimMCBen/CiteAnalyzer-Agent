@@ -190,6 +190,35 @@ flowchart TD
 - `service.py`
   - 对外暴露给总智能体的统一入口
 
+## 工作流实现建议
+
+阶段 5 / 当前分支上的引用情感分析模块建议采用 `LangGraph` 驱动的固定工作流，而不是自由式 ReAct。
+
+推荐节点：
+
+1. `load_fulltext_artifact`
+   - 加载阶段 5 已准备好的全文文本与本地产物路径
+2. `detect_source_kind`
+   - 判断当前来源是不是 `TeX/LaTeX`
+3. `tex_bibliography_matcher`
+   - 如果是 TeX，优先在 `.bib/.bbl/.tex` 中恢复目标论文条目与 citation key
+4. `body_citation_finder`
+   - 用 citation key / marker 或普通文本策略回正文定位引用上下文
+5. `sentiment_classifier`
+   - 用 `LLM zero-shot` 对上下文做情感分类
+6. `aggregate_output`
+   - 构造 `CitationContext` 并更新 `SentimentSummary`
+
+适用原则：
+
+- 工作流顺序由代码固定，不交给自由推理决定。
+- LLM 负责高歧义判断，例如：
+  - 哪条 bibliography entry 是目标论文
+  - 哪个正文窗口是正确的引用上下文
+  - 该上下文属于什么情感标签
+- TeX 源优先走 bibliography / citation key 路径，普通文本再走通用窗口路径。
+- 单篇 paper 的失败应局部降级为 `unknown`，不能中断整批处理。
+
 ## 推荐主链路
 
 1. 从阶段 2 的 `citing_papers` 中选择可获取全文的论文
