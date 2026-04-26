@@ -21,6 +21,8 @@
 ## Git 与评审
 
 - commit 尽量保持范围清晰、描述准确。
+- commit 标题首行默认使用英文。
+- commit 正文和 git trailers 默认使用中文，除非用户明确要求使用其他语言。
 - 提交或发 PR 前，确认文档、示例、脚本和 history 是否已经反映最终状态。
 - 复杂或高风险改动，先落一份 execution plan 到 `docs/exec-plans/`。
 - 评审里尽量引用仓库内文件，不要依赖只有少数人知道的上下文。
