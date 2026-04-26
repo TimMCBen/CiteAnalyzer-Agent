@@ -127,6 +127,37 @@
 - 依赖：
   - 无
 
+#### 阶段 1 流程图
+
+```mermaid
+flowchart TD
+    user_input["用户自然语言请求"]
+    init_state["初始化 UserQuery / AnalysisState"]
+    parse_intent["解析请求意图"]
+    extract_clue["提取论文线索<br/>DOI / paper id / arXiv / 标题"]
+    extract_goal["提取分析目标与约束"]
+    validate_request{"是否为论文被引分析请求"}
+    invalid_request["返回 InvalidAnalysisRequestError"]
+    build_target["构造 TargetPaper"]
+    resolve_status{"线索是否足以直接定位"}
+    resolved["resolve_status = resolved"]
+    uncertain["resolve_status = uncertain"]
+    parsed_state["输出 parsed 状态"]
+
+    user_input --> init_state
+    init_state --> parse_intent
+    parse_intent --> extract_clue
+    extract_clue --> extract_goal
+    extract_goal --> validate_request
+    validate_request -- 否 --> invalid_request
+    validate_request -- 是 --> build_target
+    build_target --> resolve_status
+    resolve_status -- 是 --> resolved
+    resolve_status -- 否 --> uncertain
+    resolved --> parsed_state
+    uncertain --> parsed_state
+```
+
 #### 阶段 1 TODO
 
 - [x] 明确自然语言输入对象的最小字段结构

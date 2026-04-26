@@ -84,6 +84,33 @@
 - 每条记录来自哪些源
 - 当单一来源失败时，是否还能交付部分结果
 
+## 阶段 2 流程图
+
+```mermaid
+flowchart TD
+    target_input["TargetPaper / AnalysisState"]
+    resolve_target["Semantic Scholar 解析目标论文"]
+    fetch_citations["Semantic Scholar 拉取 citing papers"]
+    enrich_crossref["Crossref 补 DOI / venue / year / abstract"]
+    normalize["统一字段标准化"]
+    dedupe["按 DOI / title+year+first_author 去重"]
+    source_trace["生成 SourceTrace / FetchSummary"]
+    partial_failure{"是否存在局部失败"}
+    attach_state["写回 AnalysisState"]
+    stage2_output["输出 citing_papers / source_trace / fetch_summary"]
+
+    target_input --> resolve_target
+    resolve_target --> fetch_citations
+    fetch_citations --> enrich_crossref
+    enrich_crossref --> normalize
+    normalize --> dedupe
+    dedupe --> source_trace
+    source_trace --> partial_failure
+    partial_failure -- 是 --> attach_state
+    partial_failure -- 否 --> attach_state
+    attach_state --> stage2_output
+```
+
 ## 共享数据设计
 
 ### `CitingPaper`
