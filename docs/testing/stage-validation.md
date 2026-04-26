@@ -40,6 +40,26 @@
   - `stage7.py`
 - 当前状态：TODO，占位保留给后续阶段实现时补齐。
 
+- 阶段 5
+  - 当前原型能力：
+    - `arXiv-first` 全文抓取
+    - PDF / HTML / LaTeX 解析
+    - 本地落盘 `parsed txt + source.tar + extracted/`
+  - 当前验证：
+    - `python ./scripts/test_agent/stage5.py`
+    - `STAGE5_FETCH_LIVE=1 python ./scripts/test_agent/stage5.py`
+
+- 阶段 6
+  - 当前原型能力：
+    - `LangGraph` 工作流
+    - TeX bibliography / cite-key 路径
+    - GROBID `PDF -> TEI XML -> biblStruct/ref -> context` 路径
+    - 目标引文显式高亮 `**...**`
+  - 当前验证：
+    - `python ./scripts/test_agent/stage6.py`
+    - `STAGE6_REAL_CITING5=1 python ./scripts/test_agent/stage6.py`
+    - `STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py`
+
 ## 维护原则
 
 - 阶段测试脚本属于项目实现层，不应直接写进模板级 `CICD` 说明。

@@ -4,7 +4,7 @@
 
 `CiteAnalyzer-Agent` 是一个面向单篇目标论文的被引分析智能体项目。系统目标是输入一篇论文后，自动抓取施引文献，识别施引作者中的重点学者，分析引用语境与情感，并生成可视化分析报告。
 
-当前项目已经完成阶段 1 和阶段 2 的主链路落地，正在从“架构与计划收口”转向“按阶段持续实现和联调”的状态。当前最稳定的能力是目标论文输入理解与施引文献抓取，后续重点将转向学者识别、引用情感分析和报告生成。
+当前项目已经完成阶段 1 和阶段 2 的主链路落地，并在当前开发分支上推进到阶段 5 / 阶段 6 的原型实现。当前最稳定的能力是目标论文输入理解、施引文献抓取，以及面向真实论文全文的引用上下文定位实验路径。
 
 ## 目标功能
 
@@ -29,14 +29,16 @@ flowchart LR
     parse_stage["阶段 1<br/>输入理解与状态初始化"]
     fetch_stage["阶段 2<br/>施引文献抓取 / 补全 / 去重"]
     scholar_stage["阶段 4<br/>学者识别与影响力标注"]
-    sentiment_stage["阶段 5<br/>引用上下文提取与情感分析"]
-    report_stage["阶段 6<br/>汇总结果并生成 HTML 报告"]
+    fulltext_stage["阶段 5<br/>全文抓取与文本解析"]
+    sentiment_stage["阶段 6<br/>引用上下文提取与情感分析"]
+    report_stage["阶段 7<br/>汇总结果并生成 HTML 报告"]
     final_output["输出结果<br/>HTML 报告 + JSON"]
 
     paper_input --> parse_stage
     parse_stage --> fetch_stage
     fetch_stage --> scholar_stage
-    fetch_stage --> sentiment_stage
+    fetch_stage --> fulltext_stage
+    fulltext_stage --> sentiment_stage
     scholar_stage --> report_stage
     sentiment_stage --> report_stage
     report_stage --> final_output
@@ -58,6 +60,8 @@ flowchart LR
 - 阶段 1：自然语言输入理解与状态初始化
 - 阶段 2：`Semantic Scholar + Crossref` 主抓取链路
 - 单篇真实 DOI 的阶段 2 在线样本验证
+- 阶段 5 原型：`arXiv-first` 全文抓取、本地落盘、`source.tar + extracted/ + parsed txt`
+- 阶段 6 原型：`LangGraph` 工作流、TeX/bib/cite-key 路径、GROBID PDF 路径、真实 `citing-5` 冒烟测试
 - 关键边界约定
   - `Semantic Scholar + Crossref` 为主抓取链路
   - `Google Scholar` 作为补充源，不阻塞主流程
@@ -67,14 +71,15 @@ flowchart LR
 
 进行中：
 
-- 阶段 4 之前的文档收口、边界细化和阶段联调准备
+- 阶段 4 学者识别实现
+- 阶段 6 多上下文返回与更多真实 citing paper 回归
+- GROBID 路径向正式 stage6 主流程继续收口
 
-尚未开始：
+尚未完成：
 
-- 学者识别模块实现
-- 引用情感分析模块实现
+- 学者识别模块完整实现
 - HTML 报告生成实现
-- 端到端验证
+- 多篇真实样本的端到端验证
 
 ## 仓库结构
 
@@ -85,9 +90,9 @@ flowchart LR
 
 ## 当前建议的下一步
 
-1. 进入阶段 4，落地学者识别能力与作者画像补充。
-2. 为阶段 5 明确全文入口、引用句子提取和情感分类边界。
-3. 在更多真实 DOI 上补阶段 2 的在线回归验证。
+1. 继续推进阶段 4，落地学者识别能力与作者画像补充。
+2. 让阶段 6 对单篇 citing paper 返回多处引用上下文，而不是只保留一条主上下文。
+3. 在更多真实 PDF / TeX 论文上补 GROBID 和 TeX 路径的回归验证。
 
 ## 许可证
 

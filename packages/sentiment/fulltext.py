@@ -38,7 +38,7 @@ def select_text_source(
     save_dir: Optional[Path] = None,
 ) -> TextSourceSelection:
     document = (provided_documents or {}).get(citing_paper.canonical_id)
-    if document and document.text.strip():
+    if document and (document.text.strip() or document.raw_path):
         return TextSourceSelection(
             citing_paper_id=citing_paper.canonical_id,
             text=document.text,

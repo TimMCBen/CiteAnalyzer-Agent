@@ -190,6 +190,35 @@ flowchart TD
 - `service.py`
   - 对外暴露给总智能体的统一入口
 
+## 工作流实现建议
+
+阶段 5 / 当前分支上的引用情感分析模块建议采用 `LangGraph` 驱动的固定工作流，而不是自由式 ReAct。
+
+推荐节点：
+
+1. `load_fulltext_artifact`
+   - 加载阶段 5 已准备好的全文文本与本地产物路径
+2. `detect_source_kind`
+   - 判断当前来源是不是 `TeX/LaTeX`
+3. `tex_bibliography_matcher`
+   - 如果是 TeX，优先在 `.bib/.bbl/.tex` 中恢复目标论文条目与 citation key
+4. `body_citation_finder`
+   - 用 citation key / marker 或普通文本策略回正文定位引用上下文
+5. `sentiment_classifier`
+   - 用 `LLM zero-shot` 对上下文做情感分类
+6. `aggregate_output`
+   - 构造 `CitationContext` 并更新 `SentimentSummary`
+
+适用原则：
+
+- 工作流顺序由代码固定，不交给自由推理决定。
+- LLM 负责高歧义判断，例如：
+  - 哪条 bibliography entry 是目标论文
+  - 哪个正文窗口是正确的引用上下文
+  - 该上下文属于什么情感标签
+- TeX 源优先走 bibliography / citation key 路径，普通文本再走通用窗口路径。
+- 单篇 paper 的失败应局部降级为 `unknown`，不能中断整批处理。
+
 ## 推荐主链路
 
 1. 从阶段 2 的 `citing_papers` 中选择可获取全文的论文
@@ -199,6 +228,56 @@ flowchart TD
 5. 做情感分类
 6. 输出 `CitationContext`
 7. 汇总 `SentimentSummary`
+
+## TeX 引用定位细则
+
+当阶段 5 / 当前分支的引用情感分析模块处理的是来自 `arXiv e-print` 或其他 TeX/LaTeX 源的全文时，优先执行下面这条路径，而不是只看压平后的纯文本：
+
+1. 从阶段 5 的 `extracted_dir` 读取解压后的源文件。
+2. 优先检查：
+   - `.bib`
+   - `.bbl`
+   - `.tex`
+3. 先 grep 目标论文 DOI。
+4. 如果 DOI 缺失，再 grep 目标论文标题中的关键片段。
+5. 当在 bibliography / references 中命中目标论文后，恢复对应的 citation key 或 marker。
+   典型形式包括：
+   - `@article{foo2020,...}`
+   - `@inproceedings{foo2020,...}`
+   - `\bibitem{foo2020}`
+   - `[12]`
+6. 恢复 key / marker 后，再回正文 `.tex` 文件中搜索：
+   - `\cite{key}`
+   - `\citep{key}`
+   - `\citet{key}`
+   - 或与该条目绑定的数字 marker
+7. 把命中的正文句子或相邻段落作为候选引用上下文，再交给 LLM 做情感判断。
+
+执行原则：
+
+- 优先 DOI 精确命中，其次才是标题命中。
+- 优先 bibliography 中的目标条目，避免把正文中的顺带提及当成正式引用。
+- 如果已经恢复出 citation key，就优先使用 key 回正文定位，而不是退回纯语义猜测。
+- 如果 bibliography 中找不到目标论文，允许输出 `unknown`，但要保留失败原因。
+- 如果已经有源文件级证据，不要只依赖压平后的 `parsed txt`。
+
+## PDF 路径建议
+
+当阶段 5 / 当前分支上的引用情感分析模块面对的是 PDF 原文，而不是 TeX 源文件时，优先走 GROBID 路径：
+
+1. 将 PDF 提交给本地 GROBID 服务的 `processFulltextDocument`。
+2. 获取 TEI XML。
+3. 在 `listBibl/biblStruct` 中根据目标论文 DOI / 标题匹配目标参考文献条目。
+4. 恢复对应的 `xml:id`。
+5. 在正文中找到 `ref type="bibr"` 且 `target="#xml:id"` 的位置。
+6. 取该 `ref` 所在段落作为候选引用上下文。
+7. 再将该候选上下文交给 LLM 做情感判断。
+
+执行原则：
+
+- 优先使用 DOI 匹配 `biblStruct`，标题匹配作为兜底。
+- 正文上下文优先返回包含目标 `ref` 的完整段落，而不是只取短 token 片段。
+- GROBID 服务不可用时，才退回当前的普通文本窗口路径。
 
 ## 风险
 
@@ -241,6 +320,26 @@ flowchart TD
 - [ ] 规划 `packages/sentiment/` 模块边界
 - [ ] 规划 `scripts/test_agent/stage5.py` 验证入口
 - [ ] 将阶段 5 计划与父计划建立引用关系
+
+## 当前分支进展
+
+当前开发分支上已经完成的原型能力包括：
+
+- 阶段 5
+  - `arXiv-first` 全文抓取
+  - PDF / HTML / LaTeX 解析
+  - 本地落盘 `parsed txt + source.tar + extracted/`
+- 阶段 6
+  - `LangGraph` 工作流骨架
+  - TeX bibliography / cite-key 路径
+  - GROBID `PDF -> TEI XML -> 引用上下文` 路径
+  - 目标引文显式高亮后再交给 LLM 分类
+
+当前尚未完成的关键项：
+
+- 多上下文全部返回
+- 更多真实 citing paper 的批量回归
+- 学者识别与报告生成链路接入联调
 
 ## 决策记录
 
