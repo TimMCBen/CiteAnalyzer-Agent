@@ -27,8 +27,18 @@ def fetch_citation_candidates(
     crossref_client: CrossrefClientProtocol,
     max_results: int = 20,
 ) -> CitationFetchResult:
+    if not target_paper.title:
+        raise ValueError("target_paper.title is required for stage2 input")
+    if target_paper.resolve_status != "resolved":
+        raise ValueError("target_paper must be resolved before stage2 fetch")
+
     target_query = target_paper.doi or target_paper.canonical_id or target_paper.paper_query or "unknown"
-    summary = FetchSummary(target_query=target_query)
+    summary = FetchSummary(
+        target_query=target_query,
+        target_title=target_paper.title,
+        target_doi=target_paper.doi,
+        target_resolve_status=target_paper.resolve_status,
+    )
     errors: list[str] = []
     normalized_records: list[dict[str, object]] = []
     crossref_error_recorded = False

@@ -106,6 +106,9 @@ def assert_merge_across_sources() -> None:
     assert result.fetch_summary.merged_candidates == 2
     assert result.fetch_summary.deduped_candidates == 2
     assert result.fetch_summary.partial_failure is False
+    assert result.fetch_summary.target_title == "Sample Target Paper"
+    assert result.fetch_summary.target_doi == "10.1145/3368089.3409740"
+    assert result.fetch_summary.target_resolve_status == "resolved"
 
     merged = next(paper for paper in result.citing_papers if paper.doi == "10.1000/alpha")
     assert merged.source_names == ["crossref", "semantic_scholar"], f"unexpected source names: {merged.source_names}"
@@ -128,11 +131,36 @@ def assert_partial_failure() -> None:
     assert result.errors == ["crossref: crossref unavailable"], f"unexpected errors: {result.errors}"
 
 
+def assert_missing_title_rejected() -> None:
+    target_paper = TargetPaper(
+        canonical_id="paper-1",
+        paper_query="10.1145/3368089.3409740",
+        paper_query_type="doi",
+        title=None,
+        doi="10.1145/3368089.3409740",
+        source_ids={"doi": "10.1145/3368089.3409740"},
+        resolve_status="resolved",
+    )
+    try:
+        fetch_citation_candidates(
+            target_paper=target_paper,
+            semantic_scholar_client=FakeSemanticScholarClient(),
+            crossref_client=FakeCrossrefClient(),
+            max_results=10,
+        )
+    except ValueError as exc:
+        assert "target_paper.title" in str(exc), exc
+        return
+    raise AssertionError("expected stage2 to reject target paper without title")
+
+
 def main() -> None:
     assert_merge_across_sources()
     print("[PASS] stage2::merge_across_sources")
     assert_partial_failure()
     print("[PASS] stage2::partial_failure")
+    assert_missing_title_rejected()
+    print("[PASS] stage2::missing_title_rejected")
     maybe_run_live_smoke()
     print("stage2 validation passed")
 
@@ -152,7 +180,7 @@ def maybe_run_live_smoke() -> None:
             canonical_id=None,
             paper_query=target_doi,
             paper_query_type="doi",
-            title=None,
+            title="Towards automated verification of smart contract fairness",
             doi=target_doi,
             source_ids={"doi": target_doi},
             resolve_status="resolved",
