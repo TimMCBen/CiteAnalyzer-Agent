@@ -48,6 +48,7 @@
 1. 找全文
 2. 把全文变成可处理文本
 3. 标清来源和失败原因
+4. 把对应全文文本保存到本地
 
 它不负责引用定位和情感判断。
 
@@ -110,6 +111,7 @@ flowchart TD
 - `text`
 - `source_type`
 - `source_label`
+- `local_path`
 
 ### `TextSourceSelection`
 
@@ -146,7 +148,8 @@ flowchart TD
 3. 选择可用公开全文入口
 4. 解析出正文文本
 5. 输出结构化全文对象
-6. 供阶段 6 做引用定位与情感分类
+6. 将对应文章文本保存到 `downloaded-papers/stage5/`
+7. 供阶段 6 做引用定位与情感分类
 
 ## 风险
 

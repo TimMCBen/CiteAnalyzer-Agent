@@ -16,6 +16,7 @@ from packages.sentiment.models import FullTextDocument, TextSourceSelection
 
 REQUEST_TIMEOUT_SECONDS = 20
 TEXT_MIN_LENGTH = 80
+DEFAULT_STAGE5_DOWNLOAD_DIR = Path("downloaded-papers") / "stage5"
 
 
 def select_text_source(
@@ -23,6 +24,7 @@ def select_text_source(
     provided_documents: Optional[Mapping[str, FullTextDocument]] = None,
     allow_network: bool = True,
     search_arxiv_fallback: bool = True,
+    save_dir: Optional[Path] = None,
 ) -> TextSourceSelection:
     document = (provided_documents or {}).get(citing_paper.canonical_id)
     if document and document.text.strip():
@@ -31,17 +33,23 @@ def select_text_source(
             text=document.text,
             source_type=document.source_type,
             source_label=document.source_label,
+            local_path=document.local_path,
             evidence_note="text_loaded",
         )
 
     if allow_network:
-        fetched_document = fetch_fulltext_document(citing_paper, search_arxiv_fallback=search_arxiv_fallback)
+        fetched_document = fetch_fulltext_document(
+            citing_paper,
+            search_arxiv_fallback=search_arxiv_fallback,
+            save_dir=save_dir,
+        )
         if fetched_document and fetched_document.text.strip():
             return TextSourceSelection(
                 citing_paper_id=citing_paper.canonical_id,
                 text=fetched_document.text,
                 source_type=fetched_document.source_type,
                 source_label=fetched_document.source_label,
+                local_path=fetched_document.local_path,
                 evidence_note="text_fetched",
             )
 
@@ -51,6 +59,7 @@ def select_text_source(
             text=citing_paper.abstract,
             source_type="abstract",
             source_label="citing_paper.abstract",
+            local_path=None,
             evidence_note="fallback_to_abstract_only",
         )
 
@@ -59,17 +68,27 @@ def select_text_source(
         text=None,
         source_type="unknown",
         source_label=None,
+        local_path=None,
         evidence_note="no_text_available",
     )
 
 
-def fetch_fulltext_document(citing_paper: CitingPaper, search_arxiv_fallback: bool = True) -> Optional[FullTextDocument]:
+def fetch_fulltext_document(
+    citing_paper: CitingPaper,
+    search_arxiv_fallback: bool = True,
+    save_dir: Optional[Path] = None,
+) -> Optional[FullTextDocument]:
     for source_label, candidate in iter_fulltext_candidates(citing_paper, search_arxiv_fallback=search_arxiv_fallback):
         try:
             document = load_candidate_text(citing_paper.canonical_id, source_label, candidate)
         except Exception:
             continue
         if document and len(document.text.strip()) >= TEXT_MIN_LENGTH:
+            document.local_path = persist_fulltext_document(
+                citing_paper=citing_paper,
+                document=document,
+                save_dir=save_dir,
+            )
             return document
     return None
 
@@ -312,3 +331,24 @@ def normalize_for_title(text: str) -> str:
 
 def normalize_whitespace(text: str) -> str:
     return " ".join(text.split())
+
+
+def persist_fulltext_document(
+    citing_paper: CitingPaper,
+    document: FullTextDocument,
+    save_dir: Optional[Path] = None,
+) -> str:
+    base_dir = (save_dir or DEFAULT_STAGE5_DOWNLOAD_DIR).resolve()
+    base_dir.mkdir(parents=True, exist_ok=True)
+    slug = slugify(citing_paper.title)
+    filename = f"{citing_paper.canonical_id}__{slug}__{document.source_type}.txt"
+    path = base_dir / filename
+    path.write_text(document.text, encoding="utf-8")
+    return str(path)
+
+
+def slugify(text: str, limit: int = 80) -> str:
+    normalized = re.sub(r"[^a-zA-Z0-9]+", "_", text.strip()).strip("_").lower()
+    if not normalized:
+        return "untitled"
+    return normalized[:limit]

@@ -13,6 +13,7 @@ class FullTextDocument:
     text: str
     source_type: Literal["fulltext", "markdown", "latex", "html", "pdf", "abstract", "unknown"] = "unknown"
     source_label: Optional[str] = None
+    local_path: Optional[str] = None
 
 
 @dataclass
@@ -21,6 +22,7 @@ class TextSourceSelection:
     text: Optional[str]
     source_type: Literal["fulltext", "markdown", "latex", "html", "pdf", "abstract", "unknown"] = "unknown"
     source_label: Optional[str] = None
+    local_path: Optional[str] = None
     evidence_note: str = "no_text_available"
 
 

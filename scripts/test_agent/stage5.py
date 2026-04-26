@@ -143,20 +143,31 @@ def wrap_text(text: str, width: int) -> list[str]:
 def assert_stage5_local_fulltext_validation(sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
     target_paper, citing_papers = load_stage2_sample(sample_path)
     temp_dir = build_local_source_links(citing_papers, target_paper.doi or "")
+    save_dir = temp_dir / "saved"
     try:
         docs = {}
         for paper in citing_papers[:4]:
-            docs[paper.canonical_id] = fetch_fulltext_document(paper, search_arxiv_fallback=False)
+            docs[paper.canonical_id] = fetch_fulltext_document(
+                paper,
+                search_arxiv_fallback=False,
+                save_dir=save_dir,
+            )
+    finally:
+        pass
+
+    try:
+        assert docs["citing-1"] is not None and docs["citing-1"].source_type == "pdf"
+        assert docs["citing-2"] is not None and docs["citing-2"].source_type == "html"
+        assert docs["citing-3"] is not None and docs["citing-3"].source_type == "latex"
+        assert docs["citing-4"] is None
+        assert target_paper.doi in docs["citing-1"].text
+        assert target_paper.doi in docs["citing-2"].text
+        assert target_paper.doi in docs["citing-3"].text
+        assert docs["citing-1"].local_path and Path(docs["citing-1"].local_path).exists()
+        assert docs["citing-2"].local_path and Path(docs["citing-2"].local_path).exists()
+        assert docs["citing-3"].local_path and Path(docs["citing-3"].local_path).exists()
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
-
-    assert docs["citing-1"] is not None and docs["citing-1"].source_type == "pdf"
-    assert docs["citing-2"] is not None and docs["citing-2"].source_type == "html"
-    assert docs["citing-3"] is not None and docs["citing-3"].source_type == "latex"
-    assert docs["citing-4"] is None
-    assert target_paper.doi in docs["citing-1"].text
-    assert target_paper.doi in docs["citing-2"].text
-    assert target_paper.doi in docs["citing-3"].text
 
 
 def maybe_run_live_fetch_smoke() -> None:
@@ -174,6 +185,7 @@ def maybe_run_live_fetch_smoke() -> None:
     assert document is not None, "live arxiv fetch returned no document"
     assert document.source_type in {"latex", "html", "pdf"}, document
     assert len(document.text) > 1000, f"live arxiv fetch returned too little text: {len(document.text)}"
+    assert document.local_path and Path(document.local_path).exists(), "live arxiv fetch did not persist local text file"
     print("[PASS] stage5::live_fetch_smoke")
 
 

@@ -44,6 +44,7 @@
   - 覆盖：
     - 直接读取已保存的阶段 2 真实样本：`docs/generated/stage2-live-10.1145.3368089.3409740.json`
     - 使用本地 PDF / HTML / LaTeX 文件夹具验证全文抓取与文本解析
+    - 验证成功抓到的全文会落盘到本地
     - 覆盖无全文样本返回空结果
     - 可选 live smoke：
       - `STAGE5_FETCH_LIVE=1 python ./scripts/test_agent/stage5.py`
