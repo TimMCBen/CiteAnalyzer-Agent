@@ -33,6 +33,9 @@ class SourceTrace:
 @dataclass
 class FetchSummary:
     target_query: str
+    target_title: Optional[str] = None
+    target_doi: Optional[str] = None
+    target_resolve_status: Optional[str] = None
     semantic_scholar_candidates: int = 0
     crossref_candidates: int = 0
     merged_candidates: int = 0
