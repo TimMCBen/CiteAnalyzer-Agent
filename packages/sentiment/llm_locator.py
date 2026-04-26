@@ -221,7 +221,11 @@ def build_candidate_windows(body_text: str, citation_marker: Optional[str], max_
                 "text": " ".join(sentences[start_sentence:end_sentence]).strip(),
             }
         )
-    return dedupe_windows(fallback_windows)[:max_windows]
+    deduped = dedupe_windows(fallback_windows)
+    if len(deduped) <= max_windows:
+        return deduped
+    sampled_indexes = evenly_spaced_indexes(len(deduped), max_windows=max_windows)
+    return [deduped[index] for index in sampled_indexes]
 
 
 def dedupe_windows(windows: List[dict[str, int | str]]) -> List[dict[str, int | str]]:
@@ -372,3 +376,16 @@ def iter_source_files(root: Path, suffixes: set[str]) -> List[Path]:
             paths.append(path)
     paths.sort(key=lambda item: str(item))
     return paths
+
+
+def evenly_spaced_indexes(total: int, max_windows: int) -> List[int]:
+    if total <= max_windows:
+        return list(range(total))
+    if max_windows <= 1:
+        return [0]
+
+    indexes = {0, total - 1}
+    step = (total - 1) / float(max_windows - 1)
+    for slot in range(max_windows):
+        indexes.add(int(round(slot * step)))
+    return sorted(indexes)[:max_windows]

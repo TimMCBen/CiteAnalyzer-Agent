@@ -10,6 +10,8 @@ from packages.sentiment.models import CitationContext, FullTextDocument, Sentime
 from packages.sentiment.reference_locator import locate_reference_context
 from packages.shared.models import AnalysisState, TargetPaper
 
+VALID_SENTIMENT_LABELS = {"positive", "neutral", "critical", "unknown"}
+
 
 def analyze_citation_sentiments(
     target_paper: TargetPaper,
@@ -77,6 +79,10 @@ def analyze_citation_sentiments(
                     summary.classified_count += 1
                 else:
                     summary.unknown_count += 1
+            if label not in VALID_SENTIMENT_LABELS:
+                label = "unknown"
+                classifier_note = f"{classifier_note}; invalid_label_normalized_to_unknown"
+                summary.unknown_count += 1
             evidence_note = f"{reference_match.evidence_note}; {classifier_note}"
         else:
             label = "unknown"
