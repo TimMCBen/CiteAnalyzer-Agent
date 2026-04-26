@@ -7,7 +7,7 @@ from packages.sentiment.classifier import classify_sentiment
 from packages.sentiment.fulltext import select_text_source
 from packages.sentiment.models import CitationContext, FullTextDocument, SentimentAnalysisResult, SentimentSummary
 from packages.sentiment.reference_locator import locate_reference_context
-from packages.shared.models import TargetPaper
+from packages.shared.models import AnalysisState, TargetPaper
 
 
 def analyze_citation_sentiments(
@@ -68,3 +68,10 @@ def analyze_citation_sentiments(
         )
 
     return SentimentAnalysisResult(contexts=contexts, summary=summary)
+
+
+def attach_sentiment_result_to_state(state: AnalysisState, result: SentimentAnalysisResult) -> AnalysisState:
+    state["citation_contexts"] = result.contexts  # type: ignore[assignment]
+    state["sentiment_summary"] = result.summary  # type: ignore[assignment]
+    state["status"] = "citation_sentiments_analyzed"
+    return state

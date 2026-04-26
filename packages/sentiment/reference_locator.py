@@ -11,18 +11,29 @@ NON_ALNUM_PATTERN = re.compile(r"[^a-z0-9]+")
 
 
 def locate_reference_context(text: str, target_paper: TargetPaper, window_sentences: int = 1) -> ReferenceMatch:
-    normalized_text = normalize_for_matching(text)
     doi = (target_paper.doi or "").lower()
     title = target_paper.title or target_paper.paper_query or ""
 
     if doi:
-        index = normalized_text.find(normalize_for_matching(doi))
+        lowered_text = text.lower()
+        index = lowered_text.find(doi)
         if index >= 0:
             return build_reference_match(
                 text=text,
                 anchor_index=index,
                 matched_target_reference=f"doi:{doi}",
                 evidence_note="matched_by_doi",
+                window_sentences=window_sentences,
+            )
+
+        normalized_text = normalize_for_matching(text)
+        index = normalized_text.find(normalize_for_matching(doi))
+        if index >= 0:
+            return build_reference_match(
+                text=text,
+                anchor_index=index,
+                matched_target_reference=f"doi:{doi}",
+                evidence_note="matched_by_normalized_doi",
                 window_sentences=window_sentences,
             )
 

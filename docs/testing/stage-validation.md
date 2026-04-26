@@ -31,14 +31,21 @@
     - 可选 live smoke（通过 `STAGE2_LIVE=1` 与 `STAGE2_TARGET_DOI` 启用）
     - 已验证的真实样本：`10.1145/3368089.3409740`
 
-- 阶段 3 到阶段 7
-- 目录中已预留：
-  - `stage3.py`
-  - `stage4.py`
-  - `stage5.py`
-  - `stage6.py`
-  - `stage7.py`
-- 当前状态：TODO，占位保留给后续阶段实现时补齐。
+- 阶段 3、阶段 4、阶段 6、阶段 7
+  - 目录中已预留：
+    - `stage3.py`
+    - `stage4.py`
+    - `stage6.py`
+    - `stage7.py`
+  - 当前状态：TODO，占位保留给后续阶段实现时补齐。
+
+- 阶段 5
+  - 脚本：`scripts/test_agent/stage5.py`
+  - 覆盖：
+    - 直接读取已保存的阶段 2 真实样本：`docs/generated/stage2-live-10.1145.3368089.3409740.json`
+    - 使用本地注入的正文 / LaTeX / Markdown 夹具验证引用定位
+    - 覆盖 `positive` / `neutral` / `critical` / `unknown` 四类标签
+    - 覆盖缺全文和未定位到目标引用两种 `unknown` 降级路径
 
 ## 维护原则
 

@@ -52,5 +52,7 @@ class AnalysisState(TypedDict, total=False):
     citing_papers: List[Any]
     source_trace: List[Any]
     fetch_summary: Any
+    citation_contexts: List[Any]
+    sentiment_summary: Any
     errors: List[str]
     status: str
