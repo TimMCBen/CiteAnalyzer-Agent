@@ -29,6 +29,7 @@ class Stage6PaperState(TypedDict, total=False):
     bibliography_key: Optional[str]
     bibliography_path: Optional[str]
     reference_match: ReferenceMatch
+    grobid_note: str
     sentiment_label: str
     classifier_note: str
     citation_context: CitationContext
@@ -56,10 +57,14 @@ def run_stage6_workflow(
         raw_path = state["text_source"].raw_path
         if not raw_path:
             return state
-        grobid_match = locate_reference_context_from_grobid_pdf(
-            pdf_path=__import__("pathlib").Path(raw_path),
-            target_paper=state["target_paper"],
-        )
+        try:
+            grobid_match = locate_reference_context_from_grobid_pdf(
+                pdf_path=__import__("pathlib").Path(raw_path),
+                target_paper=state["target_paper"],
+            )
+        except Exception as exc:
+            state["grobid_note"] = f"grobid_unavailable:{exc.__class__.__name__}"
+            return state
         if grobid_match.context_text:
             state["reference_match"] = grobid_match
         return state
@@ -124,14 +129,17 @@ def run_stage6_workflow(
         reference_match = state["reference_match"]
         if not reference_match.context_text:
             state["sentiment_label"] = "unknown"
-            state["classifier_note"] = reference_match.evidence_note
+            state["classifier_note"] = append_grobid_note(reference_match.evidence_note, state.get("grobid_note"))
             return state
 
         try:
             label, classifier_note = classify_sentiment(reference_match.context_text, target_paper=state["target_paper"])
         except Exception as exc:
             state["sentiment_label"] = "unknown"
-            state["classifier_note"] = f"{reference_match.evidence_note}; llm_sentiment_failed:{exc.__class__.__name__}"
+            state["classifier_note"] = append_grobid_note(
+                f"{reference_match.evidence_note}; llm_sentiment_failed:{exc.__class__.__name__}",
+                state.get("grobid_note"),
+            )
             return state
 
         if label not in VALID_SENTIMENT_LABELS:
@@ -139,7 +147,10 @@ def run_stage6_workflow(
             classifier_note = f"{classifier_note}; invalid_label_normalized_to_unknown"
 
         state["sentiment_label"] = label
-        state["classifier_note"] = f"{reference_match.evidence_note}; {classifier_note}"
+        state["classifier_note"] = append_grobid_note(
+            f"{reference_match.evidence_note}; {classifier_note}",
+            state.get("grobid_note"),
+        )
         return state
 
     def aggregate_output(state: Stage6PaperState) -> Stage6PaperState:
@@ -184,3 +195,9 @@ def run_stage6_workflow(
         )
     )
     return final_state["citation_context"]
+
+
+def append_grobid_note(evidence_note: str, grobid_note: Optional[str]) -> str:
+    if not grobid_note:
+        return evidence_note
+    return f"{evidence_note}; {grobid_note}"

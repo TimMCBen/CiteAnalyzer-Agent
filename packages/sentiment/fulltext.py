@@ -118,41 +118,59 @@ def iter_fulltext_candidates(citing_paper: CitingPaper, search_arxiv_fallback: b
     scored: list[tuple[int, str, str]] = []
     seen: set[str] = set()
 
+    for label, url in citing_paper.source_links.items():
+        if not url:
+            continue
+        for candidate in expand_candidate_variants(url):
+            if candidate in seen:
+                continue
+            seen.add(candidate)
+            scored.append((score_candidate(candidate), label, candidate))
+
     if search_arxiv_fallback:
         for arxiv_url in search_arxiv_candidates_by_title(citing_paper.title):
-            if arxiv_url not in seen:
-                seen.add(arxiv_url)
-                scored.append((score_candidate(arxiv_url), "arxiv_search", arxiv_url))
-
-    for label, url in citing_paper.source_links.items():
-        if not url or url in seen:
-            continue
-        seen.add(url)
-        scored.append((score_candidate(url), label, url))
+            if arxiv_url in seen:
+                continue
+            seen.add(arxiv_url)
+            scored.append((score_candidate(arxiv_url), "arxiv_search", arxiv_url))
 
     for _, label, url in sorted(scored, key=lambda item: item[0]):
         yield label, url
 
 
+def expand_candidate_variants(candidate: str) -> list[str]:
+    lowered = candidate.lower()
+    arxiv_id = extract_arxiv_id(candidate)
+    if arxiv_id and ("arxiv.org/e-print/" in lowered or "arxiv.org/src/" in lowered):
+        return [
+            f"https://arxiv.org/pdf/{arxiv_id}.pdf",
+            f"https://arxiv.org/html/{arxiv_id}",
+            f"https://arxiv.org/abs/{arxiv_id}",
+        ]
+    return [candidate]
+
+
 def score_candidate(candidate: str) -> int:
     lowered = candidate.lower()
     if lowered.startswith("file://") or re.match(r"^[a-zA-Z]:[\\/]", candidate):
-        return 0
-    if "arxiv.org/e-print/" in lowered:
-        return 1
-    if "arxiv.org/src/" in lowered:
-        return 1
+        if lowered.endswith(".pdf"):
+            return 0
+        if lowered.endswith((".html", ".htm")):
+            return 1
+        if lowered.endswith((".tex", ".latex", ".md", ".markdown")):
+            return 5
+        return 10
     if lowered.endswith(".pdf"):
-        return 2
+        return 1
     if "arxiv.org/html/" in lowered:
-        return 3
+        return 2
     if "arxiv.org/abs/" in lowered:
-        return 4
+        return 3
     if lowered.endswith(".tex") or lowered.endswith(".md") or lowered.endswith(".html"):
-        return 5
+        return 10
     if "semanticscholar.org" in lowered:
         return 50
-    return 10
+    return 20
 
 
 def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str) -> LoadedDocumentPayload:
@@ -217,6 +235,14 @@ def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str)
 
     content_type = (response.headers.get("content-type") or "").lower()
     lowered = candidate.lower()
+    if "arxiv.org/e-print/" in lowered or "arxiv.org/src/" in lowered:
+        arxiv_id = extract_arxiv_id(candidate)
+        if arxiv_id:
+            return load_candidate_text(
+                citing_paper_id=citing_paper_id,
+                source_label=source_label,
+                candidate=f"https://arxiv.org/pdf/{arxiv_id}.pdf",
+            )
     if lowered.endswith(".pdf") or "application/pdf" in content_type:
         return LoadedDocumentPayload(
             document=FullTextDocument(
@@ -227,19 +253,6 @@ def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str)
             ),
             raw_bytes=response.content,
             raw_suffix=".pdf",
-        )
-    if "arxiv.org/e-print/" in lowered or "application/x-eprint-tar" in content_type:
-        extracted_text, extracted_files = extract_arxiv_source_bundle(response.content)
-        return LoadedDocumentPayload(
-            document=FullTextDocument(
-                citing_paper_id=citing_paper_id,
-                text=extracted_text,
-                source_type="latex",
-                source_label=candidate,
-            ),
-            raw_bytes=response.content,
-            raw_suffix=".tar",
-            extracted_files=extracted_files,
         )
     if lowered.endswith(".tex"):
         return LoadedDocumentPayload(
@@ -375,9 +388,9 @@ def search_arxiv_candidates_by_title(title: str) -> list[str]:
             continue
         urls.extend(
             [
-                f"https://arxiv.org/e-print/{arxiv_id}",
-                f"https://arxiv.org/html/{arxiv_id}",
                 f"https://arxiv.org/pdf/{arxiv_id}.pdf",
+                f"https://arxiv.org/html/{arxiv_id}",
+                f"https://arxiv.org/abs/{arxiv_id}",
             ]
         )
     return urls
