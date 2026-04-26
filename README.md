@@ -60,8 +60,8 @@ flowchart LR
 - 阶段 1：自然语言输入理解与状态初始化
 - 阶段 2：`Semantic Scholar + Crossref` 主抓取链路
 - 单篇真实 DOI 的阶段 2 在线样本验证
-- 阶段 5 原型：`arXiv-first` 全文抓取、本地落盘、`source.tar + extracted/ + parsed txt`
-- 阶段 6 原型：`LangGraph` 工作流、TeX/bib/cite-key 路径、GROBID PDF 路径、真实 `citing-5` 冒烟测试
+- 阶段 5 原型：`PDF-first` 全文抓取、本地落盘 `raw pdf/html + parsed txt`，不再把 tar 作为正式默认产物
+- 阶段 6 原型：`LangGraph` 工作流、`PDF -> GROBID -> context` 主路径、GROBID 不可用时的文本回退路径、真实 `citing-5` 冒烟测试
 - 关键边界约定
   - `Semantic Scholar + Crossref` 为主抓取链路
   - `Google Scholar` 作为补充源，不阻塞主流程
@@ -74,6 +74,7 @@ flowchart LR
 - 阶段 4 学者识别实现
 - 阶段 6 多上下文返回与更多真实 citing paper 回归
 - GROBID 路径向正式 stage6 主流程继续收口
+- 阶段 5/6 的 PDF-first 契约继续向总智能体联调收口
 
 尚未完成：
 
@@ -92,7 +93,7 @@ flowchart LR
 
 1. 继续推进阶段 4，落地学者识别能力与作者画像补充。
 2. 让阶段 6 对单篇 citing paper 返回多处引用上下文，而不是只保留一条主上下文。
-3. 在更多真实 PDF / TeX 论文上补 GROBID 和 TeX 路径的回归验证。
+3. 在更多真实 PDF 论文上补 GROBID 主路径回归，并为直接 LaTeX 来源保留兼容性验证。
 
 ## 许可证
 

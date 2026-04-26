@@ -3,7 +3,6 @@ from __future__ import annotations
 import io
 import shutil
 import re
-import tarfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, Mapping, Optional
@@ -326,36 +325,6 @@ def extract_latex_text(content: str) -> str:
     text = re.sub(r"\\[a-zA-Z]+\*?(?:\[[^\]]*\])?(?:\{([^{}]*)\})?", r" \1 ", text)
     text = re.sub(r"[{}]", " ", text)
     return normalize_whitespace(text)
-
-
-def extract_arxiv_source_text(content: bytes) -> str:
-    text, _ = extract_arxiv_source_bundle(content)
-    return text
-
-
-def extract_arxiv_source_bundle(content: bytes) -> tuple[str, dict[str, str]]:
-    extracted_files: dict[str, str] = {}
-    try:
-        with tarfile.open(fileobj=io.BytesIO(content), mode="r:*") as archive:
-            parts: list[str] = []
-            for member in sorted(archive.getmembers(), key=lambda item: item.name):
-                if not member.isfile():
-                    continue
-                lowered_name = member.name.lower()
-                if not lowered_name.endswith((".tex", ".bib", ".bbl", ".txt")):
-                    continue
-                extracted = archive.extractfile(member)
-                if extracted is None:
-                    continue
-                decoded = extracted.read().decode("utf-8", errors="ignore")
-                extracted_files[member.name] = decoded
-                if lowered_name.endswith(".tex"):
-                    parts.append(extract_latex_text(decoded))
-            return normalize_whitespace("\n".join(parts)), extracted_files
-    except tarfile.ReadError:
-        decoded = content.decode("utf-8", errors="ignore")
-        extracted_files["source.tex"] = decoded
-        return extract_latex_text(decoded), extracted_files
 
 
 def search_arxiv_candidates_by_title(title: str) -> list[str]:

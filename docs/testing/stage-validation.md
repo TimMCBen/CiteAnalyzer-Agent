@@ -42,9 +42,10 @@
 
 - 阶段 5
   - 当前原型能力：
-    - `arXiv-first` 全文抓取
+    - `PDF-first` 全文抓取
     - PDF / HTML / LaTeX 解析
-    - 本地落盘 `parsed txt + source.tar + extracted/`
+    - 本地落盘 `raw artifact + parsed txt`
+    - 不再把 `tar` / `extracted/` 视为默认正式产物
   - 当前验证：
     - `python ./scripts/test_agent/stage5.py`
     - `STAGE5_FETCH_LIVE=1 python ./scripts/test_agent/stage5.py`
@@ -52,8 +53,9 @@
 - 阶段 6
   - 当前原型能力：
     - `LangGraph` 工作流
-    - TeX bibliography / cite-key 路径
-    - GROBID `PDF -> TEI XML -> biblStruct/ref -> context` 路径
+    - GROBID `PDF -> TEI XML -> biblStruct/ref -> context` 主路径
+    - GROBID 不可用时的普通文本窗口回退
+    - 直接 TeX bibliography / cite-key 兼容路径
     - 目标引文显式高亮 `**...**`
   - 当前验证：
     - `python ./scripts/test_agent/stage6.py`

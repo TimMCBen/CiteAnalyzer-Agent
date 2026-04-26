@@ -326,13 +326,15 @@ flowchart TD
 当前开发分支上已经完成的原型能力包括：
 
 - 阶段 5
-  - `arXiv-first` 全文抓取
+  - `PDF-first` 全文抓取
   - PDF / HTML / LaTeX 解析
-  - 本地落盘 `parsed txt + source.tar + extracted/`
+  - 本地落盘 `raw artifact + parsed txt`
+  - 不再把 `tar` / `extracted/` 视为默认正式产物
 - 阶段 6
   - `LangGraph` 工作流骨架
-  - TeX bibliography / cite-key 路径
-  - GROBID `PDF -> TEI XML -> 引用上下文` 路径
+  - GROBID `PDF -> TEI XML -> 引用上下文` 主路径
+  - GROBID 不可用时的普通文本窗口回退
+  - 直接 TeX bibliography / cite-key 兼容路径
   - 目标引文显式高亮后再交给 LLM 分类
 
 当前尚未完成的关键项：
@@ -344,3 +346,4 @@ flowchart TD
 ## 决策记录
 
 - 2026-04-26：阶段 5 第一版明确允许 `unknown` 作为合法输出，而不是强制对所有引用做情感分类。
+- 2026-04-27：按用户最新选择切到方案 B，阶段 5 以 `PDF-first` 为主，不再把 `tar` 作为正式默认产物；阶段 6 以 GROBID PDF 路径为主，并保留直接 TeX 来源的兼容路径。
