@@ -200,6 +200,38 @@ flowchart TD
 6. 输出 `CitationContext`
 7. 汇总 `SentimentSummary`
 
+## TeX 引用定位细则
+
+当阶段 5 / 当前分支的引用情感分析模块处理的是来自 `arXiv e-print` 或其他 TeX/LaTeX 源的全文时，优先执行下面这条路径，而不是只看压平后的纯文本：
+
+1. 从阶段 5 的 `extracted_dir` 读取解压后的源文件。
+2. 优先检查：
+   - `.bib`
+   - `.bbl`
+   - `.tex`
+3. 先 grep 目标论文 DOI。
+4. 如果 DOI 缺失，再 grep 目标论文标题中的关键片段。
+5. 当在 bibliography / references 中命中目标论文后，恢复对应的 citation key 或 marker。
+   典型形式包括：
+   - `@article{foo2020,...}`
+   - `@inproceedings{foo2020,...}`
+   - `\bibitem{foo2020}`
+   - `[12]`
+6. 恢复 key / marker 后，再回正文 `.tex` 文件中搜索：
+   - `\cite{key}`
+   - `\citep{key}`
+   - `\citet{key}`
+   - 或与该条目绑定的数字 marker
+7. 把命中的正文句子或相邻段落作为候选引用上下文，再交给 LLM 做情感判断。
+
+执行原则：
+
+- 优先 DOI 精确命中，其次才是标题命中。
+- 优先 bibliography 中的目标条目，避免把正文中的顺带提及当成正式引用。
+- 如果已经恢复出 citation key，就优先使用 key 回正文定位，而不是退回纯语义猜测。
+- 如果 bibliography 中找不到目标论文，允许输出 `unknown`，但要保留失败原因。
+- 如果已经有源文件级证据，不要只依赖压平后的 `parsed txt`。
+
 ## 风险
 
 - 风险：很多论文拿不到全文
