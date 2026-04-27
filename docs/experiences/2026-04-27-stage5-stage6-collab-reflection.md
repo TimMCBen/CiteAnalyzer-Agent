@@ -38,34 +38,34 @@
 
 #### Option A：把这轮经验直接写进长期规范
 
-##### Pros
+##### Option A Pros
 
 - 后续最容易被看到
 
-##### Cons
+##### Option A Cons
 
 - 这轮经验还没有跨多个任务稳定复用
 - 会把局部协作经验直接升级为默认规则，风险过高
 
 #### Option B：先写入经验池，再由人决定是否升级
 
-##### Pros
+##### Option B Pros
 
 - 符合 `docs/EXPERIENCE_GOVERNANCE.md` 的机制
 - 能保留过程经验，又不污染仓库长期基线
 - 适合记录“今天这种多轮收口 + 文档同步”的方法论
 
-##### Cons
+##### Option B Cons
 
 - 默认可见性不如长期规范高
 
 #### Option C：只写 history，不做经验沉淀
 
-##### Pros
+##### Option C Pros
 
 - 改动最小
 
-##### Cons
+##### Option C Cons
 
 - history 更偏“做了什么”，不够承载“以后怎么协作更稳”
 
