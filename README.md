@@ -56,6 +56,7 @@ flowchart LR
 
 - 需要 **Python 3**
 - 如果要跑依赖 LLM 的能力，需要在项目根目录准备 `.env`
+- 当前仓库**还没有统一冻结的 Python 依赖清单**（例如 `requirements.txt` 或 `pyproject.toml`），因此首次运行前需要先在你的环境里补齐项目依赖
 
 ### `.env` 最小配置
 
