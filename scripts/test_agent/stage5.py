@@ -53,6 +53,7 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
     html_path = temp_dir / "citing-2.html"
     tex_path = temp_dir / "citing-3.tex"
     pdf_path = temp_dir / "citing-1.pdf"
+    pdf3_path = temp_dir / "citing-3.pdf"
 
     html_path.write_text(
         (
@@ -73,6 +74,7 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
         encoding="utf-8",
     )
     pdf_path.write_bytes(build_simple_pdf_bytes(f"Introduction. This PDF mentions {target_doi} to validate local PDF extraction."))
+    pdf3_path.write_bytes(build_simple_pdf_bytes(f"Method. This second PDF mentions {target_doi} and should be preferred over the paired tex source."))
 
     for paper in citing_papers:
         if paper.canonical_id == "citing-1":
@@ -82,7 +84,7 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
             paper.source_links = {"local_html": str(html_path)}
             paper.abstract = None
         elif paper.canonical_id == "citing-3":
-            paper.source_links = {"local_tex": str(tex_path)}
+            paper.source_links = {"local_tex": str(tex_path), "local_pdf": str(pdf3_path)}
             paper.abstract = None
         elif paper.canonical_id == "citing-4":
             paper.source_links = {}
@@ -155,7 +157,7 @@ def assert_stage5_local_fulltext_validation(sample_path: Path = DEFAULT_SAMPLE_P
 
         assert docs["citing-1"] is not None and docs["citing-1"].source_type == "pdf"
         assert docs["citing-2"] is not None and docs["citing-2"].source_type == "html"
-        assert docs["citing-3"] is not None and docs["citing-3"].source_type == "latex"
+        assert docs["citing-3"] is not None and docs["citing-3"].source_type == "pdf"
         assert docs["citing-4"] is None
         assert target_paper.doi in docs["citing-1"].text
         assert target_paper.doi in docs["citing-2"].text
@@ -180,11 +182,10 @@ def maybe_run_live_fetch_smoke() -> None:
     )
     document = fetch_fulltext_document(paper, search_arxiv_fallback=True)
     assert document is not None, "live arxiv fetch returned no document"
-    assert document.source_type in {"latex", "html", "pdf"}, document
+    assert document.source_type in {"pdf", "html"}, document
     assert len(document.text) > 1000, f"live arxiv fetch returned too little text: {len(document.text)}"
     assert document.local_path and Path(document.local_path).exists(), "live arxiv fetch did not persist local text file"
     assert document.raw_path and Path(document.raw_path).exists(), "live arxiv fetch did not preserve raw source"
-    assert document.extracted_dir and Path(document.extracted_dir).exists(), "live arxiv fetch did not extract source tree"
     print("[PASS] stage5::live_fetch_smoke")
 
 

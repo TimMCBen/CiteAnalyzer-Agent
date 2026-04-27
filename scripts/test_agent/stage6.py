@@ -52,8 +52,8 @@ def load_stage2_sample(sample_path: Path) -> tuple[TargetPaper, list[CitingPaper
 def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) -> Path:
     temp_dir = Path(tempfile.mkdtemp(prefix="stage6-fixtures-", dir=REPO_ROOT))
     html_path = temp_dir / "citing-2.html"
-    tex_path = temp_dir / "citing-3.tex"
     pdf_path = temp_dir / "citing-1.pdf"
+    pdf3_path = temp_dir / "citing-3.pdf"
     indirect_html_path = temp_dir / "citing-5.html"
 
     html_path.write_text(
@@ -65,17 +65,6 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
             "<h2>References</h2>"
             f"<p>[12] Target Work. {target_doi}. Towards Automated Verification of Smart Contract Fairness.</p>"
             "</article></body></html>"
-        ),
-        encoding="utf-8",
-    )
-    tex_path.write_text(
-        (
-            "\\section{Method}\n"
-            "Our analysis compares candidate approaches with prior baselines [7]. "
-            "However, [7] has a clear weakness: it does not model fairness constraints, cannot explain fund-stealing scenarios in DeFi protocols, and therefore misses a critical class of failures. "
-            "This limitation motivates our fairness validation design.\n"
-            "\\section{References}\n"
-            f"[7] Target Work. {target_doi}. Towards Automated Verification of Smart Contract Fairness.\n"
         ),
         encoding="utf-8",
     )
@@ -98,6 +87,13 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
             f"References. [5] Target Work. {target_doi}. Towards Automated Verification of Smart Contract Fairness."
         )
     )
+    pdf3_path.write_bytes(
+        build_simple_pdf_bytes(
+            "Method. Our analysis compares candidate approaches with prior baselines [7]. "
+            "However, [7] has a clear weakness: it does not model fairness constraints, cannot explain fund-stealing scenarios in DeFi protocols, and therefore misses a critical class of failures. "
+            f"References. [7] Target Work. {target_doi}. Towards Automated Verification of Smart Contract Fairness."
+        )
+    )
 
     for paper in citing_papers:
         if paper.canonical_id == "citing-1":
@@ -107,7 +103,7 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
             paper.source_links = {"local_html": str(html_path)}
             paper.abstract = None
         elif paper.canonical_id == "citing-3":
-            paper.source_links = {"local_tex": str(tex_path)}
+            paper.source_links = {"local_pdf": str(pdf3_path)}
             paper.abstract = None
         elif paper.canonical_id == "citing-4":
             paper.source_links = {}
@@ -196,10 +192,7 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
 
     assert evidence_notes["citing-1"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-1"]
     assert evidence_notes["citing-2"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-2"]
-    assert (
-        evidence_notes["citing-3"].startswith("matched_by_tex_bibliography_and_cite_key:")
-        or evidence_notes["citing-3"].startswith("matched_by_llm_reference_and_context:")
-    ), evidence_notes["citing-3"]
+    assert evidence_notes["citing-3"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-3"]
     assert evidence_notes["citing-4"] == "no_text_available", evidence_notes["citing-4"]
     assert evidence_notes["citing-5"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-5"]
     assert "llm_sentiment:" in evidence_notes["citing-1"], evidence_notes["citing-1"]
@@ -208,7 +201,7 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
     assert "llm_sentiment:" in evidence_notes["citing-5"], evidence_notes["citing-5"]
     assert source_types["citing-1"] == "pdf", source_types
     assert source_types["citing-2"] == "html", source_types
-    assert source_types["citing-3"] == "latex", source_types
+    assert source_types["citing-3"] == "pdf", source_types
     assert source_types["citing-4"] == "unknown", source_types
     assert source_types["citing-5"] == "html", source_types
 

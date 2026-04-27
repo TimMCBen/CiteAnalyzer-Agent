@@ -428,6 +428,10 @@ MVP 至少需要维护以下核心对象：
   - 共享模型与错误
 - `packages/citation_sources/`
   - 阶段 2 的抓取、标准化、去重和外部源客户端
+- `packages/sentiment/`
+  - 阶段 5 的全文抓取与文本落盘
+  - 阶段 6 的引用上下文定位与情感分析工作流
+  - 当前默认方向是 `PDF-first` artifact，与 `PDF -> GROBID -> context` 主路径；直接 TeX/LaTeX 来源只作为兼容增强链路保留
 
 ## 运行模式
 
