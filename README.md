@@ -50,6 +50,90 @@ flowchart LR
 - [架构文档](docs/ARCHITECTURE.md)
 - [测试文档](docs/testing/README.md)
 
+## 如何运行
+
+### 基础要求
+
+- 需要 **Python 3**
+- 如果要跑依赖 LLM 的能力，需要在项目根目录准备 `.env`
+- 当前仓库**还没有统一冻结的 Python 依赖清单**（例如 `requirements.txt` 或 `pyproject.toml`），因此首次运行前需要先在你的环境里补齐项目依赖
+
+### `.env` 最小配置
+
+当前分析链路会从 `.env` 读取这些变量：
+
+- `API_KEY`
+- `BASE_URL`
+- `MODEL`
+
+如果要启用 GROBID 路径，还可以显式配置：
+
+- `GROBID_API_URL`
+
+当前默认值见：
+
+- `apps/analyzer/config.py`
+
+其中：
+
+- `API_KEY` / `BASE_URL` / `MODEL` 是 LLM 必填项
+- `GROBID_API_URL` 默认回退到 `http://localhost:8070/api`
+
+### 项目级验证入口
+
+如果你只是想确认当前仓库可跑，最直接的入口是：
+
+```bash
+bash ./scripts/check-project.sh
+```
+
+这个命令会调用：
+
+```bash
+python ./scripts/test_agent/run.py
+```
+
+## 如何测试
+
+### 聚合验证
+
+```bash
+python ./scripts/test_agent/run.py
+```
+
+### 单阶段验证
+
+```bash
+python ./scripts/test_agent/stage1.py
+python ./scripts/test_agent/stage2.py
+python ./scripts/test_agent/stage5.py
+python ./scripts/test_agent/stage6.py
+```
+
+### 常用 live smoke
+
+阶段 5 真实抓取验证：
+
+```bash
+STAGE5_FETCH_LIVE=1 python ./scripts/test_agent/stage5.py
+```
+
+阶段 6 基于阶段 5 真实产物的验证：
+
+```bash
+STAGE6_REAL_CITING5=1 python ./scripts/test_agent/stage6.py
+```
+
+阶段 6 的 GROBID 路径验证：
+
+```bash
+STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
+```
+
+更细的阶段覆盖范围见：
+
+- [阶段验证说明](docs/testing/stage-validation.md)
+
 ## 当前开发进度
 
 已完成：
@@ -82,12 +166,66 @@ flowchart LR
 - HTML 报告生成实现
 - 多篇真实样本的端到端验证
 
-## 仓库结构
+## 文件目录
 
-- `docs/`：产品规格、架构、计划、历史记录
-- `scripts/`：仓库级自动化脚本
-- `downloaded-papers/`：本地下载论文和中间缓存
-- `apps/` / `packages/` / `infra/`：后续实现阶段逐步落地
+- `apps/analyzer/`
+  - 总智能体入口、配置与状态图编排
+- `packages/citation_sources/`
+  - 阶段 2 的施引文献抓取、标准化、去重与来源客户端
+- `packages/sentiment/`
+  - 阶段 5 / 6 的全文抓取、GROBID 路径、上下文定位与情感分析
+- `scripts/test_agent/`
+  - 各阶段验证脚本与聚合验证入口
+- `docs/`
+  - 产品规格、架构、测试说明、执行计划、history、经验池
+- `downloaded-papers/`
+  - 本地下载论文和中间缓存
+- `infra/`
+  - 预留给后续部署、环境定义与编排支撑
+
+更完整的边界说明见：
+
+- [架构文档](docs/ARCHITECTURE.md)
+
+## GROBID 安装（Docker）
+
+如果你要跑阶段 6 的 GROBID 主路径，可以先用 Docker 启一个本地服务。
+
+### 启动命令
+
+```bash
+docker run --rm -p 8070:8070 lfoppiano/grobid:0.8.1
+```
+
+如果你希望它后台运行：
+
+```bash
+docker run -d --name grobid -p 8070:8070 lfoppiano/grobid:0.8.1
+```
+
+### 健康检查
+
+服务起来后，检查：
+
+```bash
+curl http://localhost:8070/api/isalive
+```
+
+正常情况下应返回：
+
+```text
+true
+```
+
+### `.env` 配置
+
+如果你使用默认端口，可以在 `.env` 中写：
+
+```env
+GROBID_API_URL=http://localhost:8070/api
+```
+
+阶段 6 的 GROBID smoke 会使用这个地址。
 
 ## 当前建议的下一步
 
