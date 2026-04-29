@@ -31,9 +31,25 @@ def analyze_citation_sentiments(
             allow_network=allow_network,
             search_arxiv_fallback=search_arxiv_fallback,
         )
-        if text_source.text:
+        if text_source.text and text_source.source_type != "abstract":
             summary.fulltext_available += 1
-        else:
+        if not text_source.text:
+            contexts.append(
+                CitationContext(
+                    citing_paper_id=citing_paper.canonical_id,
+                    sentiment_label="unknown",
+                    context_text=None,
+                    mention_span=None,
+                    matched_target_reference=None,
+                    evidence_note=text_source.evidence_note,
+                    text_source_type=text_source.source_type,
+                    text_source_label=text_source.source_label,
+                )
+            )
+            summary.unknown_count += 1
+            summary.label_counts["unknown"] += 1
+            continue
+        if text_source.source_type == "abstract":
             contexts.append(
                 CitationContext(
                     citing_paper_id=citing_paper.canonical_id,

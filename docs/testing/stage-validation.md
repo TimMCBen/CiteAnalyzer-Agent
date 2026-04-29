@@ -20,23 +20,11 @@
   - OpenAlex 论文 ID 请求
   - 非论文被引分析请求
 
-### 阶段 2 到阶段 7
+### 阶段 3、阶段 4 与阶段 7
 
-- 阶段 2
-  - 脚本：`scripts/test_agent/stage2.py`
-  - 覆盖：
-    - 多源记录合并与去重
-    - 来源追踪输出
-    - 单来源失败时的部分结果降级
-    - 可选 live smoke（通过 `STAGE2_LIVE=1` 与 `STAGE2_TARGET_DOI` 启用）
-    - 已验证的真实样本：`10.1145/3368089.3409740`
-
-- 阶段 3 到阶段 7
 - 目录中已预留：
   - `stage3.py`
   - `stage4.py`
-  - `stage5.py`
-  - `stage6.py`
   - `stage7.py`
 - 当前状态：TODO，占位保留给后续阶段实现时补齐。
 
@@ -46,9 +34,13 @@
     - PDF / HTML / LaTeX 解析
     - 本地落盘 `raw artifact + parsed txt`
     - 不再把 `tar` / `extracted/` 视为默认正式产物
+    - 当全文不可获取时，返回恢复建议并在可用时退回摘要
   - 当前验证：
     - `python ./scripts/test_agent/stage5.py`
     - `STAGE5_FETCH_LIVE=1 python ./scripts/test_agent/stage5.py`
+  - 当前状态：
+    - 已实现本地夹具验证
+    - 已接入 `scripts/test_agent/run.py` 聚合验证
 
 - 阶段 6
   - 当前原型能力：
@@ -61,6 +53,9 @@
     - `python ./scripts/test_agent/stage6.py`
     - `STAGE6_REAL_CITING5=1 python ./scripts/test_agent/stage6.py`
     - `STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py`
+  - 当前状态：
+    - 已实现本地夹具验证
+    - 已接入 `scripts/test_agent/run.py` 聚合验证
 
 ## 维护原则
 

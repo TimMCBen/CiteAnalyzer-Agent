@@ -29,6 +29,13 @@ class LoadedDocumentPayload:
     source_file_path: Optional[Path] = None
 
 
+@dataclass
+class FullTextAttemptFailure:
+    source_label: str
+    candidate: str
+    reason: str
+
+
 def select_text_source(
     citing_paper: CitingPaper,
     provided_documents: Optional[Mapping[str, FullTextDocument]] = None,
@@ -36,6 +43,7 @@ def select_text_source(
     search_arxiv_fallback: bool = True,
     save_dir: Optional[Path] = None,
 ) -> TextSourceSelection:
+    attempt_failures: list[FullTextAttemptFailure] = []
     document = (provided_documents or {}).get(citing_paper.canonical_id)
     if document and (document.text.strip() or document.raw_path):
         return TextSourceSelection(
@@ -54,6 +62,7 @@ def select_text_source(
             citing_paper,
             search_arxiv_fallback=search_arxiv_fallback,
             save_dir=save_dir,
+            attempt_failures=attempt_failures,
         )
         if fetched_document and fetched_document.text.strip():
             return TextSourceSelection(
@@ -64,7 +73,7 @@ def select_text_source(
                 local_path=fetched_document.local_path,
                 raw_path=fetched_document.raw_path,
                 extracted_dir=fetched_document.extracted_dir,
-                evidence_note="text_fetched",
+                evidence_note=fetched_document.evidence_note or "text_fetched",
             )
 
     if citing_paper.abstract and citing_paper.abstract.strip():
@@ -76,7 +85,11 @@ def select_text_source(
             local_path=None,
             raw_path=None,
             extracted_dir=None,
-            evidence_note="fallback_to_abstract_only",
+            evidence_note=build_recovery_evidence_note(
+                base_note="fallback_to_abstract_only",
+                citing_paper=citing_paper,
+                attempt_failures=attempt_failures,
+            ),
         )
 
     return TextSourceSelection(
@@ -87,7 +100,11 @@ def select_text_source(
         local_path=None,
         raw_path=None,
         extracted_dir=None,
-        evidence_note="no_text_available",
+        evidence_note=build_recovery_evidence_note(
+            base_note="no_text_available",
+            citing_paper=citing_paper,
+            attempt_failures=attempt_failures,
+        ),
     )
 
 
@@ -95,14 +112,28 @@ def fetch_fulltext_document(
     citing_paper: CitingPaper,
     search_arxiv_fallback: bool = True,
     save_dir: Optional[Path] = None,
+    attempt_failures: Optional[list[FullTextAttemptFailure]] = None,
 ) -> Optional[FullTextDocument]:
     for source_label, candidate in iter_fulltext_candidates(citing_paper, search_arxiv_fallback=search_arxiv_fallback):
         try:
             payload = load_candidate_text(citing_paper.canonical_id, source_label, candidate)
-        except Exception:
+        except Exception as exc:
+            if attempt_failures is not None:
+                attempt_failures.append(
+                    FullTextAttemptFailure(
+                        source_label=source_label,
+                        candidate=candidate,
+                        reason=type(exc).__name__,
+                    )
+                )
             continue
         document = payload.document
         if document and len(document.text.strip()) >= TEXT_MIN_LENGTH:
+            document.evidence_note = build_recovery_evidence_note(
+                base_note="text_fetched",
+                citing_paper=citing_paper,
+                attempt_failures=attempt_failures or [],
+            )
             persist_fulltext_document(
                 citing_paper=citing_paper,
                 document=document,
@@ -110,6 +141,14 @@ def fetch_fulltext_document(
                 save_dir=save_dir,
             )
             return document
+        if attempt_failures is not None:
+            attempt_failures.append(
+                FullTextAttemptFailure(
+                    source_label=source_label,
+                    candidate=candidate,
+                    reason="text_too_short",
+                )
+            )
     return None
 
 
@@ -389,6 +428,39 @@ def normalize_for_title(text: str) -> str:
 
 def normalize_whitespace(text: str) -> str:
     return " ".join(text.split())
+
+
+def build_recovery_evidence_note(
+    base_note: str,
+    citing_paper: CitingPaper,
+    attempt_failures: list[FullTextAttemptFailure],
+) -> str:
+    parts = [base_note]
+    if attempt_failures:
+        sample = ",".join(
+            f"{failure.source_label}:{short_reason(failure.reason)}"
+            for failure in attempt_failures[:3]
+        )
+        parts.append(f"attempts={len(attempt_failures)}")
+        parts.append(f"failures={sample}")
+    parts.append(f"recovery={build_recovery_hint(citing_paper)}")
+    return "; ".join(parts)
+
+
+def short_reason(reason: str) -> str:
+    normalized = normalize_whitespace(reason).replace(" ", "_").lower()
+    return normalized[:60] or "unknown"
+
+
+def build_recovery_hint(citing_paper: CitingPaper) -> str:
+    hints: list[str] = []
+    if citing_paper.doi:
+        hints.append("check_doi_landing_page")
+    if citing_paper.title:
+        hints.append("search_title_for_author_pdf_or_preprint")
+    hints.append("attach_local_pdf_or_html_via_source_links")
+    hints.append("fallback_to_abstract_when_fulltext_unavailable")
+    return ",".join(hints)
 
 
 def persist_fulltext_document(

@@ -145,6 +145,7 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 - 阶段 2：`Semantic Scholar + Crossref` 主抓取链路
 - 单篇真实 DOI 的阶段 2 在线样本验证
 - 阶段 5 原型：`PDF-first` 全文抓取、本地落盘 `raw pdf/html + parsed txt`，不再把 tar 作为正式默认产物
+- 阶段 5 下载失败恢复：当论文正文拿不到时，会显式返回恢复建议（优先检查 DOI 落地页、作者 PDF / 预印本、或手动补 `source_links`），并在可用时退回摘要
 - 阶段 6 原型：`LangGraph` 工作流、`PDF -> GROBID -> context` 主路径、GROBID 不可用时的文本回退路径、真实 `citing-5` 冒烟测试
 - 关键边界约定
   - `Semantic Scholar + Crossref` 为主抓取链路
