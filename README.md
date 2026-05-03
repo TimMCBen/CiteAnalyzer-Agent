@@ -105,13 +105,13 @@ python ./scripts/test_agent/run.py
 
 - `stage1.py`
 - `stage2.py`
+- `stage4.py`
 - `stage5.py`
 - `stage6.py`
 
 并显式提示：
 
 - `stage3.py`
-- `stage4.py`
 - `stage7.py`
 - `e2e_mvp.py`
 
@@ -122,6 +122,7 @@ python ./scripts/test_agent/run.py
 ```bash
 python ./scripts/test_agent/stage1.py
 python ./scripts/test_agent/stage2.py
+python ./scripts/test_agent/stage4.py
 python ./scripts/test_agent/stage5.py
 python ./scripts/test_agent/stage6.py
 ```
@@ -129,7 +130,6 @@ python ./scripts/test_agent/stage6.py
 后续新增但当前仍为占位 / 待实现的入口：
 
 ```bash
-python ./scripts/test_agent/stage4.py
 python ./scripts/test_agent/stage7.py
 python ./scripts/test_agent/e2e_mvp.py
 ```
@@ -171,6 +171,7 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 - 阶段 5 原型：`PDF-first` 全文抓取、本地落盘 `raw pdf/html + parsed txt`，不再把 tar 作为正式默认产物
 - 阶段 5 下载失败恢复：当论文正文拿不到时，会显式返回恢复建议（优先检查 DOI 落地页、作者 PDF / 预印本、或手动补 `source_links`），并在可用时退回摘要
 - 阶段 6 原型：`LangGraph` 工作流、`PDF -> GROBID -> context` 主路径、GROBID 不可用时的文本回退路径、真实 `citing-5` 冒烟测试
+- 阶段 4 模块级实现：`packages/author_intel/`、`AuthorProfile` / `ScholarLabel`、`OpenAlex + DBLP` 画像补全链路、`stage4.py` 验证脚本
 - 关键边界约定
   - `Semantic Scholar + Crossref` 为主抓取链路
   - `Google Scholar` 作为补充源，不阻塞主流程
@@ -183,7 +184,7 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 
 进行中：
 
-- 阶段 4 学者识别实现
+- 阶段 4 接回 analyzer 总控状态图
 - 阶段 5 / 6 接回 analyzer 总控状态图
 - 阶段 7 报告生成实现
 - GROBID 路径向正式 stage6 主流程继续收口
@@ -201,6 +202,8 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
   - 总智能体入口、配置与状态图编排
 - `packages/citation_sources/`
   - 阶段 2 的施引文献抓取、标准化、去重与来源客户端
+- `packages/author_intel/`
+  - 阶段 4 的作者画像补全、弱标注与重量级学者规则
 - `packages/sentiment/`
   - 阶段 5 / 6 的全文抓取、GROBID 路径、上下文定位与情感分析
 - `scripts/test_agent/`
@@ -259,7 +262,7 @@ GROBID_API_URL=http://localhost:8070/api
 ## 当前建议的下一步
 
 1. 继续推进阶段 4，落地学者识别能力与作者画像补充。
-2. 把阶段 5 / 6 正式接回 analyzer 总控状态图，并固定单上下文 contract。
+2. 把阶段 4 / 5 / 6 正式接回 analyzer 总控状态图，并固定单上下文 contract。
 3. 实现阶段 7 报告生成与独立 `e2e_mvp.py` 真实样本验证入口。
 
 ## 许可证

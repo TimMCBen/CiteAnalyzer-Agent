@@ -285,18 +285,18 @@ flowchart TD
 
 #### 阶段 4 TODO
 
-- [ ] 明确 `AuthorProfile` 与 `ScholarLabel` 的最小字段结构
-- [ ] 定义学者识别智能体的状态输入输出接口
-- [ ] 搭建 `packages/author-intel/` 基础目录结构
-- [ ] 实现 `OpenAlex` 客户端封装
-- [ ] 实现 `DBLP` 客户端封装
-- [ ] 实现学者识别智能体的作者标准化与基础消歧策略
-- [ ] 实现高影响力作者候选判定
-- [ ] 实现重量级学者候选判定
-- [ ] 定义缺失 `h-index` 的弱标注策略
+- [x] 明确 `AuthorProfile` 与 `ScholarLabel` 的最小字段结构
+- [x] 定义学者识别智能体的状态输入输出接口
+- [x] 搭建 `packages/author-intel/` 基础目录结构
+- [x] 实现 `OpenAlex` 客户端封装
+- [x] 实现 `DBLP` 客户端封装
+- [x] 实现学者识别智能体的作者标准化与基础消歧策略
+- [x] 实现高影响力作者候选判定
+- [x] 实现重量级学者候选判定
+- [x] 定义缺失 `h-index` 的弱标注策略
 - [ ] 将学者识别智能体接入总智能体状态图
 - [ ] 用真实样本验证作者画像与标注结果
-- [ ] 添加 `scripts/test_agent/stage4.py` 阶段验证脚本
+- [x] 添加 `scripts/test_agent/stage4.py` 阶段验证脚本
 - [ ] 更新 execution plan 的阶段进度
 
 ### 阶段 5：全文抓取与文本产物准备
@@ -450,3 +450,4 @@ flowchart TD
 - 2026-04-25：实现路线调整为 `LangGraph` 做总控状态编排，`LangChain` 做工具与模型调用辅助。
 - 2026-04-29：冻结当前阶段编号基线为“阶段 5 = 全文抓取，阶段 6 = 引用定位与情感分析，阶段 7 = 报告生成”；端到端联调改为最终交付里程碑，不再占用编号阶段。
 - 2026-05-04：当前 MVP 收口阶段冻结 `stage6` 为单上下文 contract；`stage7.py` 仅承担报告级验证，真实样本总控验证移交 `scripts/test_agent/e2e_mvp.py`。
+- 2026-05-04：阶段 4 已完成模块级 contract、客户端封装、规则实现与 `stage4.py` 本地验证，剩余工作是接回 analyzer 总控状态图。

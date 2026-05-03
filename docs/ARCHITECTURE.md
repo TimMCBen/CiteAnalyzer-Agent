@@ -436,6 +436,8 @@ MVP 至少需要维护以下核心对象：
   - 阶段 2 状态图入口
 - `packages/shared/`
   - 共享模型与错误
+- `packages/author_intel/`
+  - 阶段 4 的作者画像补全、`OpenAlex + DBLP` 客户端和重量级学者规则
 - `packages/citation_sources/`
   - 阶段 2 的抓取、标准化、去重和外部源客户端
 - `packages/sentiment/`
@@ -456,8 +458,8 @@ MVP 优先支持本地单次分析模式：
 
 当前本地验证入口约定：
 
-- `scripts/test_agent/run.py` 当前只聚合 `stage1.py`、`stage2.py`、`stage5.py`、`stage6.py`
-- `stage4.py`、`stage7.py`、`e2e_mvp.py` 在对应阶段完成后再接入最终聚合入口
+- `scripts/test_agent/run.py` 当前聚合 `stage1.py`、`stage2.py`、`stage4.py`、`stage5.py`、`stage6.py`
+- `stage7.py` 与 `e2e_mvp.py` 在对应阶段完成后再接入最终聚合入口
 
 不要求：
 

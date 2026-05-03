@@ -247,15 +247,18 @@ flowchart TD
 
 ## 进度记录
 
-- [ ] 新建阶段 4 细化执行计划
-- [ ] 定义 `AuthorProfile` / `ScholarLabel`
-- [ ] 明确 `OpenAlex` 与 `DBLP` 的职责分工
-- [ ] 设计作者标准化与候选匹配策略
-- [ ] 设计启发式标签规则
-- [ ] 规划 `packages/author_intel/` 模块边界
-- [ ] 规划 `scripts/test_agent/stage4.py` 验证入口
-- [ ] 将阶段 4 计划与父计划建立引用关系
+- [x] 新建阶段 4 细化执行计划
+- [x] 定义 `AuthorProfile` / `ScholarLabel`
+- [x] 明确 `OpenAlex` 与 `DBLP` 的职责分工
+- [x] 设计作者标准化与候选匹配策略
+- [x] 设计启发式标签规则
+- [x] 规划 `packages/author_intel/` 模块边界
+- [x] 规划 `scripts/test_agent/stage4.py` 验证入口
+- [x] 将阶段 4 计划与父计划建立引用关系
+- [ ] 将阶段 4 结果接入 analyzer 总控状态图
+- [ ] 增加真实样本作者画像回归
 
 ## 决策记录
 
 - 2026-04-26：阶段 4 以“作者画像补全 + 启发式标签”作为目标，不在第一版引入跨领域标准化排名。
+- 2026-05-04：阶段 4 当前先完成模块级 contract、客户端封装、规则实现与本地夹具验证；接回 analyzer 总控状态图留到后续集成分支。

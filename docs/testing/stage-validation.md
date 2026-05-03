@@ -12,13 +12,13 @@
 
 - `stage1.py`
 - `stage2.py`
+- `stage4.py`
 - `stage5.py`
 - `stage6.py`
 
 并把以下入口显式标记为待接入：
 
 - `stage3.py`
-- `stage4.py`
 - `stage7.py`
 - `e2e_mvp.py`
 
@@ -34,18 +34,28 @@
   - OpenAlex 论文 ID 请求
   - 非论文被引分析请求
 
-### 阶段 3、阶段 4、阶段 7 与 E2E
+### 阶段 3、阶段 7 与 E2E
 
 - 目录中已预留：
   - `stage3.py`
-  - `stage4.py`
   - `stage7.py`
   - `e2e_mvp.py`
 - 当前状态：
   - `stage3.py`：TODO，占位保留给补充源探索
-  - `stage4.py`：TODO，占位保留给学者识别验证
   - `stage7.py`：TODO，占位保留给报告级 contract / fixture 验证
   - `e2e_mvp.py`：TODO，占位保留给真实样本总控验证
+
+### 阶段 4
+
+- 脚本：`scripts/test_agent/stage4.py`
+- 当前覆盖：
+  - `OpenAlex` 主画像链路
+  - `DBLP` 辅助补全链路
+  - 高影响力 / 重量级 / 弱标注规则
+  - 缺失 `h-index` 时的“证据不足”路径
+- 当前状态：
+  - 已实现本地夹具验证
+  - 已接入 `scripts/test_agent/run.py` 聚合验证
 
 - 阶段 5
   - 当前原型能力：

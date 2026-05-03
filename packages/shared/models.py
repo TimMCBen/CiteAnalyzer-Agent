@@ -43,6 +43,37 @@ class ParsedUserIntent:
     reason: Optional[str] = None
 
 
+@dataclass
+class AuthorProfile:
+    author_id: str
+    name: str
+    source_ids: Dict[str, str] = field(default_factory=dict)
+    affiliations: List[str] = field(default_factory=list)
+    fields: List[str] = field(default_factory=list)
+    h_index: Optional[int] = None
+    citation_count: Optional[int] = None
+    works_count: Optional[int] = None
+    evidence_sources: List[str] = field(default_factory=list)
+
+
+@dataclass
+class ScholarLabel:
+    author_id: str
+    label: Literal["high_impact_candidate", "heavyweight_candidate", "weak_signal_candidate"]
+    evidence: List[str] = field(default_factory=list)
+    confidence_note: Optional[str] = None
+    trigger_rules: List[str] = field(default_factory=list)
+
+
+@dataclass
+class AuthorSummary:
+    total_authors: int = 0
+    matched_profiles: int = 0
+    high_impact_candidates: int = 0
+    heavyweight_candidates: int = 0
+    weak_signal_candidates: int = 0
+
+
 class AnalysisState(TypedDict, total=False):
     raw_query: str
     request_type: str
@@ -52,5 +83,8 @@ class AnalysisState(TypedDict, total=False):
     citing_papers: List[Any]
     source_trace: List[Any]
     fetch_summary: Any
+    author_profiles: List[AuthorProfile]
+    scholar_labels: List[ScholarLabel]
+    author_summary: AuthorSummary
     errors: List[str]
     status: str
