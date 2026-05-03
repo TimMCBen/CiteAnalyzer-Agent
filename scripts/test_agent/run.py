@@ -14,6 +14,7 @@ PENDING_STAGE_SCRIPTS = [
     SCRIPT_DIR / "stage3.py",
     SCRIPT_DIR / "stage4.py",
     SCRIPT_DIR / "stage7.py",
+    SCRIPT_DIR / "e2e_mvp.py",
 ]
 
 

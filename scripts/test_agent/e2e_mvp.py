@@ -2,7 +2,7 @@ from __future__ import annotations
 
 
 def main() -> None:
-    print("TODO: implement stage7 reporting contract / fixture validation script")
+    print("TODO: implement real-sample analyzer end-to-end MVP validation script")
 
 
 if __name__ == "__main__":

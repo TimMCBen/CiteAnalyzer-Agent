@@ -8,6 +8,20 @@
 - 阶段聚合入口：`python ./scripts/test_agent/run.py`
 - 阶段 1 单独运行：`python ./scripts/test_agent/stage1.py`
 
+当前 `run.py` 仍只聚合：
+
+- `stage1.py`
+- `stage2.py`
+- `stage5.py`
+- `stage6.py`
+
+并把以下入口显式标记为待接入：
+
+- `stage3.py`
+- `stage4.py`
+- `stage7.py`
+- `e2e_mvp.py`
+
 ## 当前覆盖
 
 ### 阶段 1
@@ -20,13 +34,18 @@
   - OpenAlex 论文 ID 请求
   - 非论文被引分析请求
 
-### 阶段 3、阶段 4 与阶段 7
+### 阶段 3、阶段 4、阶段 7 与 E2E
 
 - 目录中已预留：
   - `stage3.py`
   - `stage4.py`
   - `stage7.py`
-- 当前状态：TODO，占位保留给后续阶段实现时补齐。
+  - `e2e_mvp.py`
+- 当前状态：
+  - `stage3.py`：TODO，占位保留给补充源探索
+  - `stage4.py`：TODO，占位保留给学者识别验证
+  - `stage7.py`：TODO，占位保留给报告级 contract / fixture 验证
+  - `e2e_mvp.py`：TODO，占位保留给真实样本总控验证
 
 - 阶段 5
   - 当前原型能力：
@@ -49,6 +68,7 @@
     - GROBID 不可用时的普通文本窗口回退
     - 直接 TeX bibliography / cite-key 兼容路径
     - 目标引文显式高亮 `**...**`
+    - 当前 MVP 契约冻结为“每篇 citing paper 只返回一条主 `CitationContext`”
   - 当前验证：
     - `python ./scripts/test_agent/stage6.py`
     - `STAGE6_REAL_CITING5=1 python ./scripts/test_agent/stage6.py`
@@ -62,3 +82,4 @@
 - 阶段测试脚本属于项目实现层，不应直接写进模板级 `CICD` 说明。
 - 新增项目测试入口时，优先更新本目录，再决定是否需要把入口接入 `scripts/check-project.sh`。
 - execution plan 中的阶段验证任务应和这里保持一致。
+- `stage7.py` 与 `e2e_mvp.py` 必须保持职责拆分：前者只做报告 contract 验证，后者只做真实样本总控验证。

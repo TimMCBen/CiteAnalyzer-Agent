@@ -359,7 +359,7 @@ flowchart TD
 - [x] 实现 `unknown` 降级与 `LLM zero-shot` 分类入口
 - [x] 添加 `scripts/test_agent/stage6.py` 阶段验证脚本
 - [x] 完成本地夹具验证
-- [ ] 返回多处引用上下文，而不是只保留一条主上下文
+- [ ] 在后续增强计划中评估多上下文返回；当前 MVP 收口冻结为单上下文
 - [ ] 增加更多真实 citing paper 回归
 - [ ] 将阶段 6 正式接入总智能体状态图
 - [ ] 更新 execution plan 的阶段进度
@@ -392,7 +392,7 @@ flowchart TD
 - [ ] 实现可视化报告智能体的 HTML 报告模板与导出逻辑
 - [ ] 将可视化报告智能体接入总智能体状态图
 - [ ] 用真实样本验证 HTML 报告输出
-- [ ] 明确 `scripts/test_agent/stage7.py` 的报告验证口径
+- [ ] 明确 `scripts/test_agent/stage7.py` 的报告 contract / fixture 验证口径
 - [ ] 更新 execution plan 的阶段进度
 
 ## 最终交付里程碑：端到端联调与收尾
@@ -410,7 +410,7 @@ flowchart TD
   - `bash ./scripts/ci.sh`
   - `python ./scripts/test_agent/run.py`
   - `python ./scripts/test_agent/stage1.py`
-  - 后续补充模块级运行命令和端到端执行命令
+  - 后续补充 `stage4.py`、`stage7.py` 与 `scripts/test_agent/e2e_mvp.py`
 - 手工检查：
   - 输入单篇目标论文后，能输出施引文献清单
   - 能输出重量级学者标注结果
@@ -449,3 +449,4 @@ flowchart TD
 - 2026-04-24：引用来源地图以施引作者所属机构的国家 / 地区信息为准，多机构时优先按第一作者机构统计。
 - 2026-04-25：实现路线调整为 `LangGraph` 做总控状态编排，`LangChain` 做工具与模型调用辅助。
 - 2026-04-29：冻结当前阶段编号基线为“阶段 5 = 全文抓取，阶段 6 = 引用定位与情感分析，阶段 7 = 报告生成”；端到端联调改为最终交付里程碑，不再占用编号阶段。
+- 2026-05-04：当前 MVP 收口阶段冻结 `stage6` 为单上下文 contract；`stage7.py` 仅承担报告级验证，真实样本总控验证移交 `scripts/test_agent/e2e_mvp.py`。

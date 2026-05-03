@@ -80,6 +80,11 @@ MVP 具备以下特点：
 - HTML 报告
 - 结构化 JSON 结果
 
+当前 MVP 收口约束：
+
+- 阶段 6 当前冻结为“每篇 citing paper 仅返回一条主 `CitationContext`”
+- 多上下文返回不进入本轮 MVP 闭环，留待后续增强
+
 边界：
 
 - 总智能体负责编排与状态推进，不负责承载每个分析步骤的具体实现细节
@@ -240,6 +245,11 @@ MVP 报告至少包含：
 - 重量级学者分布与代表作者列表
 - 引用情感分布
 - 主要观察结论与待人工关注项
+
+验证边界：
+
+- `scripts/test_agent/stage7.py` 只做报告级 contract / fixture 验证
+- 真实样本的全链路 analyzer 验证由独立 `scripts/test_agent/e2e_mvp.py` 承担
 
 引用来源地图定义：
 
@@ -443,6 +453,11 @@ MVP 优先支持本地单次分析模式：
 4. 总智能体按需调用 `学者识别智能体`
 5. 总智能体按文本可用性调用 `引用情感分析智能体`
 6. 总智能体调用 `可视化报告智能体` 生成 JSON 和 HTML 报告
+
+当前本地验证入口约定：
+
+- `scripts/test_agent/run.py` 当前只聚合 `stage1.py`、`stage2.py`、`stage5.py`、`stage6.py`
+- `stage4.py`、`stage7.py`、`e2e_mvp.py` 在对应阶段完成后再接入最终聚合入口
 
 不要求：
 

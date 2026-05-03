@@ -4,7 +4,7 @@
 
 `CiteAnalyzer-Agent` 是一个面向单篇目标论文的被引分析智能体项目。系统目标是输入一篇论文后，自动抓取施引文献，识别施引作者中的重点学者，分析引用语境与情感，并生成可视化分析报告。
 
-当前项目已经完成阶段 1 和阶段 2 的主链路落地，并在当前开发分支上推进到阶段 5 / 阶段 6 的原型实现。当前最稳定的能力是目标论文输入理解、施引文献抓取，以及面向真实论文全文的引用上下文定位实验路径。
+当前项目已经完成阶段 1 和阶段 2 的主链路落地，并在当前开发分支上推进到阶段 5 / 阶段 6 的原型实现。当前最稳定的能力是目标论文输入理解、施引文献抓取，以及面向真实论文全文的单上下文引用定位实验路径。
 
 ## 目标功能
 
@@ -101,6 +101,22 @@ python ./scripts/test_agent/run.py
 python ./scripts/test_agent/run.py
 ```
 
+这个入口当前聚合：
+
+- `stage1.py`
+- `stage2.py`
+- `stage5.py`
+- `stage6.py`
+
+并显式提示：
+
+- `stage3.py`
+- `stage4.py`
+- `stage7.py`
+- `e2e_mvp.py`
+
+尚未接入最终聚合验证。
+
 ### 单阶段验证
 
 ```bash
@@ -108,6 +124,14 @@ python ./scripts/test_agent/stage1.py
 python ./scripts/test_agent/stage2.py
 python ./scripts/test_agent/stage5.py
 python ./scripts/test_agent/stage6.py
+```
+
+后续新增但当前仍为占位 / 待实现的入口：
+
+```bash
+python ./scripts/test_agent/stage4.py
+python ./scripts/test_agent/stage7.py
+python ./scripts/test_agent/e2e_mvp.py
 ```
 
 ### 常用 live smoke
@@ -153,19 +177,23 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
   - `arXiv` 作为输入兼容入口
   - HTML 为当前默认报告输出方向
   - 重量级学者标注采用启发式规则
+  - 阶段 6 当前冻结为“每篇 citing paper 只返回一条主 `CitationContext`”
+  - `stage7.py` 只承担报告级 contract 验证
+  - `e2e_mvp.py` 预留为独立真实样本总控验证入口
 
 进行中：
 
 - 阶段 4 学者识别实现
-- 阶段 6 多上下文返回与更多真实 citing paper 回归
+- 阶段 5 / 6 接回 analyzer 总控状态图
+- 阶段 7 报告生成实现
 - GROBID 路径向正式 stage6 主流程继续收口
-- 阶段 5/6 的 PDF-first 契约继续向总智能体联调收口
+- `run.py` 向最终聚合验证入口收口
 
 尚未完成：
 
 - 学者识别模块完整实现
 - HTML 报告生成实现
-- 多篇真实样本的端到端验证
+- 独立真实样本 E2E 验证入口与回归
 
 ## 文件目录
 
@@ -231,8 +259,8 @@ GROBID_API_URL=http://localhost:8070/api
 ## 当前建议的下一步
 
 1. 继续推进阶段 4，落地学者识别能力与作者画像补充。
-2. 让阶段 6 对单篇 citing paper 返回多处引用上下文，而不是只保留一条主上下文。
-3. 在更多真实 PDF 论文上补 GROBID 主路径回归，并为直接 LaTeX 来源保留兼容性验证。
+2. 把阶段 5 / 6 正式接回 analyzer 总控状态图，并固定单上下文 contract。
+3. 实现阶段 7 报告生成与独立 `e2e_mvp.py` 真实样本验证入口。
 
 ## 许可证
 
