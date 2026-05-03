@@ -382,17 +382,17 @@ flowchart TD
 
 #### 阶段 7 TODO
 
-- [ ] 明确 `ReportArtifact` 最小字段结构
-- [ ] 定义可视化报告智能体的状态输入输出接口
-- [ ] 搭建 `packages/reporting/` 基础目录结构
-- [ ] 实现引用趋势图
-- [ ] 实现引用来源地图
-- [ ] 实现重量级学者分布
-- [ ] 实现引用情感分布
-- [ ] 实现可视化报告智能体的 HTML 报告模板与导出逻辑
-- [ ] 将可视化报告智能体接入总智能体状态图
-- [ ] 用真实样本验证 HTML 报告输出
-- [ ] 明确 `scripts/test_agent/stage7.py` 的报告 contract / fixture 验证口径
+- [x] 明确 `ReportArtifact` 最小字段结构
+- [x] 定义可视化报告智能体的状态输入输出接口
+- [x] 搭建 `packages/reporting/` 基础目录结构
+- [x] 实现引用趋势图
+- [x] 实现引用来源地图
+- [x] 实现重量级学者分布
+- [x] 实现引用情感分布
+- [x] 实现可视化报告智能体的 HTML 报告模板与导出逻辑
+- [x] 将可视化报告智能体接入总智能体状态图
+- [x] 用真实样本验证 HTML 报告输出
+- [x] 明确 `scripts/test_agent/stage7.py` 的报告 contract / fixture 验证口径
 - [ ] 更新 execution plan 的阶段进度
 
 ## 最终交付里程碑：端到端联调与收尾
@@ -428,16 +428,16 @@ flowchart TD
 ## 进度记录
 
 - [x] 完成产品规格与架构文档
-- [ ] 完成重写后的 active execution plan
+- [x] 完成重写后的 active execution plan
 - [x] 完成总智能体状态骨架
 - [ ] 完成文献爬取智能体主链路
 - [ ] 完成 `Google Scholar` 补充源探索
-- [ ] 完成学者识别智能体
-- [ ] 完成阶段 5 全文抓取链路
-- [ ] 完成阶段 6 引用情感分析智能体
-- [ ] 完成可视化报告智能体
-- [ ] 完成端到端验证
-- [ ] 更新 README、history 和相关文档
+- [x] 完成学者识别智能体
+- [x] 完成阶段 5 全文抓取链路
+- [x] 完成阶段 6 引用情感分析智能体
+- [x] 完成可视化报告智能体
+- [x] 完成端到端验证
+- [x] 更新 README、history 和相关文档
 
 ## 决策记录
 
@@ -452,3 +452,5 @@ flowchart TD
 - 2026-05-04：当前 MVP 收口阶段冻结 `stage6` 为单上下文 contract；`stage7.py` 仅承担报告级验证，真实样本总控验证移交 `scripts/test_agent/e2e_mvp.py`。
 - 2026-05-04：阶段 4 已完成模块级 contract、客户端封装、规则实现与 `stage4.py` 本地验证，剩余工作是接回 analyzer 总控状态图。
 - 2026-05-04：analyzer 总控默认入口已接回阶段 4 / 5 / 6，当前后续主线变为阶段 7 报告生成与独立 E2E 收口。
+- 2026-05-04：阶段 7 已完成最小 HTML / JSON 报告导出、报告节点接入总控状态图和 `stage7.py` 报告级 contract 验证。
+- 2026-05-04：`e2e_mvp.py` 已通过 fixture-backed 真实 stage2 样本驱动的 analyzer 全链路验证，并接入 `run.py` 聚合入口。

@@ -43,8 +43,8 @@
   - `packages/shared/`
   - `packages/sentiment/`
   - `packages/citation_sources/`
-  - `packages/author_intel/`（待实现）
-  - `packages/reporting/`（待实现）
+  - `packages/author_intel/`
+  - `packages/reporting/`
   - `scripts/test_agent/`
 - 已知约束：
   - `Google Scholar` 当前仅保留调试 / 人工核查定位，不进入首轮默认实现
@@ -293,12 +293,12 @@
 - [x] 冻结 stage6 单上下文契约
 - [x] 冻结 stage7 / E2E 验证边界
 - [x] 明确分支切分、owned files、verifier gate
-- [ ] baseline 分支落库并同步 canonical docs
+- [x] baseline 分支落库并同步 canonical docs
 - [x] 实现 stage4 author-intel
 - [x] 接回 stage4/5/6 到 analyzer 总控
-- [ ] 实现 stage7 reporting
-- [ ] 实现 `scripts/test_agent/e2e_mvp.py`
-- [ ] 完成真实样本 E2E 与文档收尾
+- [x] 实现 stage7 reporting
+- [x] 实现 `scripts/test_agent/e2e_mvp.py`
+- [x] 完成真实样本 E2E 与文档收尾
 
 ## 决策记录
 

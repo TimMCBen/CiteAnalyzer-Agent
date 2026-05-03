@@ -74,6 +74,15 @@ class AuthorSummary:
     weak_signal_candidates: int = 0
 
 
+@dataclass
+class ReportArtifact:
+    report_id: str
+    target_paper_id: str
+    summary: Dict[str, object] = field(default_factory=dict)
+    charts: Dict[str, object] = field(default_factory=dict)
+    export_paths: Dict[str, str] = field(default_factory=dict)
+
+
 class AnalysisState(TypedDict, total=False):
     raw_query: str
     request_type: str
@@ -89,5 +98,6 @@ class AnalysisState(TypedDict, total=False):
     author_summary: AuthorSummary
     citation_contexts: List[Any]
     sentiment_summary: Any
+    report_artifact: ReportArtifact
     errors: List[str]
     status: str

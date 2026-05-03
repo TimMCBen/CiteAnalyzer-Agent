@@ -108,14 +108,13 @@ python ./scripts/test_agent/run.py
 - `stage4.py`
 - `stage5.py`
 - `stage6.py`
+- `stage7.py`
 
 并显式提示：
 
 - `stage3.py`
-- `stage7.py`
-- `e2e_mvp.py`
 
-尚未接入最终聚合验证。
+`run.py` 当前已经聚合到 fixture-backed `e2e_mvp.py`，只剩 `stage3.py` 继续保持待接入状态。
 
 ### 单阶段验证
 
@@ -126,13 +125,13 @@ python ./scripts/test_agent/stage4.py
 python ./scripts/test_agent/stage5.py
 python ./scripts/test_agent/stage6.py
 python ./scripts/test_agent/stage56_integration.py
+python ./scripts/test_agent/stage7.py
 ```
 
 后续新增但当前仍为占位 / 待实现的入口：
 
 ```bash
-python ./scripts/test_agent/stage7.py
-python ./scripts/test_agent/e2e_mvp.py
+python ./scripts/test_agent/stage3.py
 ```
 
 ### 常用 live smoke
@@ -174,6 +173,8 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 - 阶段 6 原型：`LangGraph` 工作流、`PDF -> GROBID -> context` 主路径、GROBID 不可用时的文本回退路径、真实 `citing-5` 冒烟测试
 - 阶段 4 模块级实现：`packages/author_intel/`、`AuthorProfile` / `ScholarLabel`、`OpenAlex + DBLP` 画像补全链路、`stage4.py` 验证脚本
 - analyzer 总控现已接回阶段 4 / 5 / 6，并把 scholar / fulltext / sentiment 结果写回共享状态
+- 阶段 7 最小报告实现：HTML / JSON 报告导出、chart payload、`stage7.py` contract 验证
+- 独立 E2E 入口：`e2e_mvp.py` 通过已保存真实 stage2 样本和本地 fixture 跑通 analyzer 全链路
 - 关键边界约定
   - `Semantic Scholar + Crossref` 为主抓取链路
   - `Google Scholar` 作为补充源，不阻塞主流程
@@ -186,14 +187,12 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 
 进行中：
 
-- 阶段 7 报告生成实现
 - GROBID 路径向正式 stage6 主流程继续收口
-- `run.py` 向最终聚合验证入口收口
+- `stage3.py` 继续保留为补充源探索占位
 
 尚未完成：
 
-- HTML 报告生成实现
-- 独立真实样本 E2E 验证入口与回归
+- `Google Scholar` 补充源探索与对应验证脚本
 
 ## 文件目录
 
@@ -261,8 +260,8 @@ GROBID_API_URL=http://localhost:8070/api
 ## 当前建议的下一步
 
 1. 继续推进阶段 4，落地学者识别能力与作者画像补充。
-2. 实现阶段 7 报告生成，并消费当前 analyzer 输出的 author / fulltext / sentiment 状态。
-3. 实现独立 `e2e_mvp.py` 真实样本验证入口，并把 `run.py` 收口成最终聚合入口。
+2. 在更多真实样本上补 report 导出与降级说明回归。
+3. 视主链路 coverage 缺口，再决定是否推进 `stage3` 补充源探索。
 
 ## 许可证
 

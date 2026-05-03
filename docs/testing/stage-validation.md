@@ -15,6 +15,8 @@
 - `stage4.py`
 - `stage5.py`
 - `stage6.py`
+- `stage7.py`
+- `e2e_mvp.py`
 
 并已通过独立集成烟测：
 
@@ -23,8 +25,6 @@
 并把以下入口显式标记为待接入：
 
 - `stage3.py`
-- `stage7.py`
-- `e2e_mvp.py`
 
 ## 当前覆盖
 
@@ -46,8 +46,6 @@
   - `e2e_mvp.py`
 - 当前状态：
   - `stage3.py`：TODO，占位保留给补充源探索
-  - `stage7.py`：TODO，占位保留给报告级 contract / fixture 验证
-  - `e2e_mvp.py`：TODO，占位保留给真实样本总控验证
 
 ### 阶段 4
 
@@ -82,9 +80,21 @@
   - `apps/analyzer/nodes.py` 的 stage4 / stage5 / stage6 节点挂接
   - `packages/shared/models.py` 的 scholar / fulltext / sentiment 状态字段
   - analyzer 阶段 5 / 6 的逐篇调度 glue
+  - 当前状态：
+    - 已实现本地夹具烟测
+    - 当前尚未接入 `scripts/test_agent/run.py` 聚合验证
+
+### 阶段 7
+
+- 脚本：`scripts/test_agent/stage7.py`
+- 当前覆盖：
+  - `ReportArtifact` contract
+  - HTML / JSON 报告导出路径
+  - 趋势、来源、学者、情感、降级说明区块
+  - fixture 驱动的报告级验证
 - 当前状态：
-  - 已实现本地夹具烟测
-  - 当前尚未接入 `scripts/test_agent/run.py` 聚合验证
+  - 已实现本地夹具验证
+  - 已接入 `scripts/test_agent/run.py` 聚合验证
 
 - 阶段 6
   - 当前原型能力：
@@ -101,6 +111,17 @@
   - 当前状态：
     - 已实现本地夹具验证
     - 已接入 `scripts/test_agent/run.py` 聚合验证
+
+### E2E
+
+- 脚本：`scripts/test_agent/e2e_mvp.py`
+- 当前覆盖：
+  - `run_analysis()` 通过 analyzer 总控跑完整链路
+  - 使用已保存的真实 stage2 样本与本地 fixture 驱动 stage4 / stage5 / stage6 / stage7
+  - 报告产物导出路径、unknown 降级与最终 `report_generated` 状态
+- 当前状态：
+  - 已实现 fixture-backed 全链路验证
+  - 已接入 `scripts/test_agent/run.py` 聚合验证
 
 ## 维护原则
 
