@@ -6,7 +6,7 @@ from packages.author_intel.models import AuthorIntelResult
 from packages.author_intel.normalize import build_author_candidates
 from packages.author_intel.rules import build_scholar_label
 from packages.citation_sources.models import CitingPaper
-from packages.shared.models import AuthorProfile, AuthorSummary
+from packages.shared.models import AnalysisState, AuthorProfile, AuthorSummary
 
 
 class OpenAlexClientProtocol(Protocol):
@@ -62,6 +62,17 @@ def analyze_author_intel_with_live_clients(citing_papers: list[CitingPaper]) -> 
         openalex_client=OpenAlexClient(),
         dblp_client=DBLPClient(),
     )
+
+
+def attach_author_intel_result_to_state(state: AnalysisState, result: AuthorIntelResult) -> AnalysisState:
+    state["author_profiles"] = result.author_profiles  # type: ignore[assignment]
+    state["scholar_labels"] = result.scholar_labels  # type: ignore[assignment]
+    state["author_summary"] = result.author_summary  # type: ignore[assignment]
+    if result.errors:
+        state.setdefault("errors", [])
+        state["errors"].extend(result.errors)
+    state["status"] = "author_intel_analyzed"
+    return state
 
 
 def _needs_dblp_fallback(openalex_record: dict[str, object] | None) -> bool:

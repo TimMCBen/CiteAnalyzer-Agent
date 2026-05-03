@@ -294,8 +294,8 @@
 - [x] 冻结 stage7 / E2E 验证边界
 - [x] 明确分支切分、owned files、verifier gate
 - [ ] baseline 分支落库并同步 canonical docs
-- [ ] 实现 stage4 author-intel
-- [ ] 接回 stage4/5/6 到 analyzer 总控
+- [x] 实现 stage4 author-intel
+- [x] 接回 stage4/5/6 到 analyzer 总控
 - [ ] 实现 stage7 reporting
 - [ ] 实现 `scripts/test_agent/e2e_mvp.py`
 - [ ] 完成真实样本 E2E 与文档收尾

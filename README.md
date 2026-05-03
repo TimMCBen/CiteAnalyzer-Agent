@@ -4,7 +4,7 @@
 
 `CiteAnalyzer-Agent` 是一个面向单篇目标论文的被引分析智能体项目。系统目标是输入一篇论文后，自动抓取施引文献，识别施引作者中的重点学者，分析引用语境与情感，并生成可视化分析报告。
 
-当前项目已经完成阶段 1 和阶段 2 的主链路落地，并在当前开发分支上推进到阶段 5 / 阶段 6 的原型实现。当前最稳定的能力是目标论文输入理解、施引文献抓取，以及面向真实论文全文的单上下文引用定位实验路径。
+当前项目已经完成阶段 1 和阶段 2 的主链路落地，并在当前开发分支上把 analyzer 总控接回到阶段 4 / 5 / 6。当前最稳定的能力是目标论文输入理解、施引文献抓取、作者画像补全，以及面向真实论文全文的单上下文引用定位实验路径。
 
 ## 目标功能
 
@@ -125,6 +125,7 @@ python ./scripts/test_agent/stage2.py
 python ./scripts/test_agent/stage4.py
 python ./scripts/test_agent/stage5.py
 python ./scripts/test_agent/stage6.py
+python ./scripts/test_agent/stage56_integration.py
 ```
 
 后续新增但当前仍为占位 / 待实现的入口：
@@ -172,6 +173,7 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 - 阶段 5 下载失败恢复：当论文正文拿不到时，会显式返回恢复建议（优先检查 DOI 落地页、作者 PDF / 预印本、或手动补 `source_links`），并在可用时退回摘要
 - 阶段 6 原型：`LangGraph` 工作流、`PDF -> GROBID -> context` 主路径、GROBID 不可用时的文本回退路径、真实 `citing-5` 冒烟测试
 - 阶段 4 模块级实现：`packages/author_intel/`、`AuthorProfile` / `ScholarLabel`、`OpenAlex + DBLP` 画像补全链路、`stage4.py` 验证脚本
+- analyzer 总控现已接回阶段 4 / 5 / 6，并把 scholar / fulltext / sentiment 结果写回共享状态
 - 关键边界约定
   - `Semantic Scholar + Crossref` 为主抓取链路
   - `Google Scholar` 作为补充源，不阻塞主流程
@@ -184,15 +186,12 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 
 进行中：
 
-- 阶段 4 接回 analyzer 总控状态图
-- 阶段 5 / 6 接回 analyzer 总控状态图
 - 阶段 7 报告生成实现
 - GROBID 路径向正式 stage6 主流程继续收口
 - `run.py` 向最终聚合验证入口收口
 
 尚未完成：
 
-- 学者识别模块完整实现
 - HTML 报告生成实现
 - 独立真实样本 E2E 验证入口与回归
 
@@ -262,8 +261,8 @@ GROBID_API_URL=http://localhost:8070/api
 ## 当前建议的下一步
 
 1. 继续推进阶段 4，落地学者识别能力与作者画像补充。
-2. 把阶段 4 / 5 / 6 正式接回 analyzer 总控状态图，并固定单上下文 contract。
-3. 实现阶段 7 报告生成与独立 `e2e_mvp.py` 真实样本验证入口。
+2. 实现阶段 7 报告生成，并消费当前 analyzer 输出的 author / fulltext / sentiment 状态。
+3. 实现独立 `e2e_mvp.py` 真实样本验证入口，并把 `run.py` 收口成最终聚合入口。
 
 ## 许可证
 

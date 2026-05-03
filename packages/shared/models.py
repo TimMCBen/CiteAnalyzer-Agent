@@ -83,8 +83,11 @@ class AnalysisState(TypedDict, total=False):
     citing_papers: List[Any]
     source_trace: List[Any]
     fetch_summary: Any
+    fulltext_documents: Dict[str, Any]
     author_profiles: List[AuthorProfile]
     scholar_labels: List[ScholarLabel]
     author_summary: AuthorSummary
+    citation_contexts: List[Any]
+    sentiment_summary: Any
     errors: List[str]
     status: str

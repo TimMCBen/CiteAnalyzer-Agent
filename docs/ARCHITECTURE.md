@@ -433,7 +433,8 @@ MVP 至少需要维护以下核心对象：
 
 - `apps/analyzer/`
   - 阶段 1 输入理解
-  - 阶段 2 状态图入口
+  - 阶段 2 文献抓取入口
+  - 当前默认总控入口已接回阶段 4 / 5 / 6
 - `packages/shared/`
   - 共享模型与错误
 - `packages/author_intel/`
@@ -459,6 +460,7 @@ MVP 优先支持本地单次分析模式：
 当前本地验证入口约定：
 
 - `scripts/test_agent/run.py` 当前聚合 `stage1.py`、`stage2.py`、`stage4.py`、`stage5.py`、`stage6.py`
+- `scripts/test_agent/stage56_integration.py` 独立验证 analyzer 对阶段 4 / 5 / 6 的状态挂接
 - `stage7.py` 与 `e2e_mvp.py` 在对应阶段完成后再接入最终聚合入口
 
 不要求：

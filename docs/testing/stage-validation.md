@@ -16,6 +16,10 @@
 - `stage5.py`
 - `stage6.py`
 
+并已通过独立集成烟测：
+
+- `stage56_integration.py`
+
 并把以下入口显式标记为待接入：
 
 - `stage3.py`
@@ -71,6 +75,17 @@
     - 已实现本地夹具验证
     - 已接入 `scripts/test_agent/run.py` 聚合验证
 
+### 阶段 5 / 阶段 6 总控接回
+
+- 脚本：`scripts/test_agent/stage56_integration.py`
+- 当前覆盖：
+  - `apps/analyzer/nodes.py` 的 stage4 / stage5 / stage6 节点挂接
+  - `packages/shared/models.py` 的 scholar / fulltext / sentiment 状态字段
+  - analyzer 阶段 5 / 6 的逐篇调度 glue
+- 当前状态：
+  - 已实现本地夹具烟测
+  - 当前尚未接入 `scripts/test_agent/run.py` 聚合验证
+
 - 阶段 6
   - 当前原型能力：
     - `LangGraph` 工作流
@@ -93,3 +108,4 @@
 - 新增项目测试入口时，优先更新本目录，再决定是否需要把入口接入 `scripts/check-project.sh`。
 - execution plan 中的阶段验证任务应和这里保持一致。
 - `stage7.py` 与 `e2e_mvp.py` 必须保持职责拆分：前者只做报告 contract 验证，后者只做真实样本总控验证。
+- analyzer 集成烟测可以独立存在于聚合入口之外，只要其职责和断言点在本文件中写清。
