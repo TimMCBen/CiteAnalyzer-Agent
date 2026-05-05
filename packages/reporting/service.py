@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from collections import Counter
@@ -138,21 +138,39 @@ def _render_html(
     charts: dict[str, object],
     citation_contexts: list[CitationContext],
 ) -> str:
-    def render_list(items: list[str]) -> str:
+    def render_list(items: list[str], empty_text: str = "None") -> str:
         if not items:
-            return "<li>None</li>"
+            return f"<li>{empty_text}</li>"
         return "".join(f"<li>{item}</li>" for item in items)
+
+    def render_map(items: dict[str, object], empty_text: str = "No data") -> str:
+        if not items:
+            return f"<li>{empty_text}</li>"
+        return "".join(
+            f"<li><span>{key}</span><strong>{value}</strong></li>"
+            for key, value in items.items()
+        )
 
     contexts_html = "".join(
         (
             "<article class='context-card'>"
-            f"<h3>{context.citing_paper_id}</h3>"
-            f"<p><strong>sentiment:</strong> {context.sentiment_label}</p>"
+            f"<div class='context-head'><h3>{context.citing_paper_id}</h3><span class='sentiment-tag'>{context.sentiment_label}</span></div>"
             f"<p><strong>evidence:</strong> {context.evidence_note}</p>"
             f"<p>{context.context_text or 'No context available.'}</p>"
             "</article>"
         )
         for context in citation_contexts
+    )
+
+    summary_metrics = [
+        ("Citations", summary.get("citation_count", 0)),
+        ("Heavyweight", summary.get("heavyweight_candidates", 0)),
+        ("High Impact", summary.get("high_impact_candidates", 0)),
+        ("Unknown Sentiment", summary.get("unknown_sentiments", 0)),
+    ]
+    metric_cards = "".join(
+        f"<article class='card stat-card'><span>{label}</span><strong>{value}</strong></article>"
+        for label, value in summary_metrics
     )
 
     return f"""<!doctype html>
@@ -161,37 +179,68 @@ def _render_html(
   <meta charset="utf-8" />
   <title>CiteAnalyzer Report - {target_paper.title or 'Unknown Target'}</title>
   <style>
-    body {{ font-family: Arial, sans-serif; margin: 2rem; color: #1f2937; }}
-    section {{ margin-bottom: 2rem; }}
-    .grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }}
-    .card {{ border: 1px solid #d1d5db; border-radius: 12px; padding: 1rem; background: #f9fafb; }}
-    .context-card {{ border-top: 1px solid #e5e7eb; padding-top: 1rem; margin-top: 1rem; }}
-    pre {{ white-space: pre-wrap; word-break: break-word; }}
+    :root {{
+      --bg: #f4efe6;
+      --panel: #fffaf2;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #dfd1ba;
+      --accent: #9f4f2b;
+      --accent-soft: #f3e0ce;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{ font-family: Georgia, "Times New Roman", serif; margin: 0; padding: 2rem; color: var(--ink); background: linear-gradient(180deg, #efe4cf 0%, var(--bg) 100%); }}
+    section {{ margin-bottom: 1.5rem; }}
+    h1, h2, h3, p {{ margin-top: 0; }}
+    .hero {{ border: 1px solid var(--line); border-radius: 20px; padding: 2rem; background: radial-gradient(circle at top left, #fff7eb 0%, var(--panel) 60%); box-shadow: 0 12px 30px rgba(95, 63, 38, 0.08); }}
+    .hero p {{ color: var(--muted); margin-bottom: 0; }}
+    .page-nav {{ display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0 1.5rem; }}
+    .page-nav a {{ color: var(--accent); text-decoration: none; padding: 0.55rem 0.9rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(255, 255, 255, 0.72); }}
+    .metric-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }}
+    .card {{ border: 1px solid var(--line); border-radius: 16px; padding: 1rem; background: rgba(255, 250, 242, 0.96); }}
+    .stat-card span {{ display: block; color: var(--muted); font-size: 0.95rem; margin-bottom: 0.35rem; }}
+    .stat-card strong {{ font-size: 1.85rem; color: var(--accent); }}
+    .list-card ul, .attention-list, .finding-list, .data-list {{ padding-left: 1.2rem; margin: 0; }}
+    .data-list li {{ display: flex; justify-content: space-between; gap: 1rem; padding: 0.2rem 0; }}
+    .data-list span {{ color: var(--muted); }}
+    .attention-list li {{ color: var(--accent); }}
+    .context-list {{ border: 1px solid var(--line); border-radius: 18px; padding: 1.25rem; background: rgba(255, 250, 242, 0.92); }}
+    .context-card {{ border-top: 1px solid var(--line); padding-top: 1rem; margin-top: 1rem; }}
+    .context-card:first-child {{ border-top: 0; margin-top: 0; padding-top: 0; }}
+    .context-head {{ display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }}
+    .sentiment-tag {{ color: var(--accent); font-weight: 700; text-transform: capitalize; }}
   </style>
 </head>
 <body>
-  <section>
+  <section class="hero" id="overview">
     <h1>{target_paper.title or 'Unknown Target Paper'}</h1>
     <p><strong>DOI:</strong> {target_paper.doi or 'N/A'}</p>
   </section>
-  <section class="grid">
-    <div class="card"><h2>Summary</h2><pre>{json.dumps(summary, ensure_ascii=False, indent=2)}</pre></div>
-    <div class="card"><h2>Year Trend</h2><pre>{json.dumps(charts['year_trend'], ensure_ascii=False, indent=2)}</pre></div>
-    <div class="card"><h2>Source Map</h2><pre>{json.dumps(charts['source_map'], ensure_ascii=False, indent=2)}</pre></div>
-    <div class="card"><h2>Scholar Distribution</h2><pre>{json.dumps(charts['scholar_distribution'], ensure_ascii=False, indent=2)}</pre></div>
-    <div class="card"><h2>Sentiment Distribution</h2><pre>{json.dumps(charts['sentiment_distribution'], ensure_ascii=False, indent=2)}</pre></div>
+  <nav class="page-nav">
+    <a href="#overview">Overview</a>
+    <a href="#metrics">Metrics</a>
+    <a href="#findings">Findings</a>
+    <a href="#attention">Attention</a>
+    <a href="#contexts">Contexts</a>
+  </nav>
+  <section class="metric-grid" id="metrics">
+    {metric_cards}
+    <article class="card list-card"><h2>Year Trend</h2><ul class="data-list">{render_map(charts['year_trend'])}</ul></article>
+    <article class="card list-card"><h2>Source Map</h2><ul class="data-list">{render_map(charts['source_map'])}</ul></article>
+    <article class="card list-card"><h2>Scholar Distribution</h2><ul class="data-list">{render_map(charts['scholar_distribution'])}</ul></article>
+    <article class="card list-card"><h2>Sentiment Distribution</h2><ul class="data-list">{render_map(charts['sentiment_distribution'])}</ul></article>
   </section>
-  <section>
+  <section id="findings">
     <h2>Key Findings</h2>
-    <ul>{render_list(list(summary.get('key_findings', [])))}</ul>
+    <ul class="finding-list">{render_list(list(summary.get('key_findings', [])), 'No findings generated')}</ul>
   </section>
-  <section>
+  <section id="attention">
     <h2>Manual Attention Items</h2>
-    <ul>{render_list(list(summary.get('manual_attention_items', [])))}</ul>
+    <ul class="attention-list">{render_list(list(summary.get('manual_attention_items', [])), 'No manual attention items')}</ul>
   </section>
-  <section>
+  <section id="contexts">
     <h2>Citation Contexts</h2>
-    {contexts_html or '<p>No contexts available.</p>'}
+    <div class="context-list">{contexts_html or '<p>No contexts available.</p>'}</div>
   </section>
 </body>
 </html>
@@ -200,3 +249,4 @@ def _render_html(
 
 def _slugify(value: str) -> str:
     return "".join(ch.lower() if ch.isalnum() else "-" for ch in value).strip("-") or "report"
+

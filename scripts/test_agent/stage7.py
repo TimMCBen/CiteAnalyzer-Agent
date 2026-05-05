@@ -107,6 +107,11 @@ def assert_stage7_reporting_contract() -> None:
         assert "Key Findings" in html
         assert "Manual Attention Items" in html
         assert "Citation Contexts" in html
+        assert 'class="hero"' in html
+        assert 'class="page-nav"' in html
+        assert 'class="metric-grid"' in html
+        assert 'class="attention-list"' in html
+        assert 'class="context-list"' in html
     finally:
         shutil.rmtree(output_dir, ignore_errors=True)
 
