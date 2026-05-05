@@ -272,6 +272,7 @@
   - `python scripts/test_agent/stage4.py`
   - `python scripts/test_agent/stage5.py`
   - `python scripts/test_agent/stage6.py`
+  - `python scripts/test_agent/stage56_integration.py`
   - `python scripts/test_agent/stage7.py`
   - `python scripts/test_agent/e2e_mvp.py`
   - `python scripts/test_agent/run.py`

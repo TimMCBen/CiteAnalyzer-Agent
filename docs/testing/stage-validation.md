@@ -15,6 +15,7 @@
 - `stage4.py`
 - `stage5.py`
 - `stage6.py`
+- `stage56_integration.py`
 - `stage7.py`
 - `e2e_mvp.py`
 
@@ -82,7 +83,7 @@
   - analyzer 阶段 5 / 6 的逐篇调度 glue
   - 当前状态：
     - 已实现本地夹具烟测
-    - 当前尚未接入 `scripts/test_agent/run.py` 聚合验证
+    - 已接入 `scripts/test_agent/run.py` 聚合验证
 
 ### 阶段 7
 
@@ -91,6 +92,7 @@
   - `ReportArtifact` contract
   - HTML / JSON 报告导出路径
   - 趋势、来源、学者、情感、降级说明区块
+  - `fetch_summary` / `source_trace` / `state.errors` / 弱标注 `confidence_note` 的报告暴露
   - fixture 驱动的报告级验证
 - 当前状态：
   - 已实现本地夹具验证

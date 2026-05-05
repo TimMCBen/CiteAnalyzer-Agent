@@ -460,8 +460,9 @@ MVP 优先支持本地单次分析模式：
 
 当前本地验证入口约定：
 
-- `scripts/test_agent/run.py` 当前聚合 `stage1.py`、`stage2.py`、`stage4.py`、`stage5.py`、`stage6.py`、`stage7.py`、`e2e_mvp.py`
-- `scripts/test_agent/stage56_integration.py` 独立验证 analyzer 对阶段 4 / 5 / 6 的状态挂接
+- `scripts/check-project.sh` 是项目级默认入口；在 bash / WSL 场景检测到 `python.exe` 时，优先复用它来对齐已安装依赖的 Python 环境
+- `scripts/test_agent/run.py` 当前聚合 `stage1.py`、`stage2.py`、`stage4.py`、`stage5.py`、`stage6.py`、`stage56_integration.py`、`stage7.py`、`e2e_mvp.py`
+- `scripts/test_agent/stage56_integration.py` 既可单独运行，也已并入默认聚合入口，用于验证 analyzer 对阶段 4 / 5 / 6 的状态挂接
 - `stage3.py` 仍保留为补充源探索占位，不在当前 MVP 默认聚合入口中
 
 不要求：

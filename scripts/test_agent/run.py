@@ -11,6 +11,7 @@ STAGE2_SCRIPT = SCRIPT_DIR / "stage2.py"
 STAGE4_SCRIPT = SCRIPT_DIR / "stage4.py"
 STAGE5_SCRIPT = SCRIPT_DIR / "stage5.py"
 STAGE6_SCRIPT = SCRIPT_DIR / "stage6.py"
+STAGE56_INTEGRATION_SCRIPT = SCRIPT_DIR / "stage56_integration.py"
 STAGE7_SCRIPT = SCRIPT_DIR / "stage7.py"
 E2E_SCRIPT = SCRIPT_DIR / "e2e_mvp.py"
 PENDING_STAGE_SCRIPTS = [
@@ -24,6 +25,7 @@ def main() -> None:
     subprocess.run([sys.executable, str(STAGE4_SCRIPT)], check=True)
     subprocess.run([sys.executable, str(STAGE5_SCRIPT)], check=True)
     subprocess.run([sys.executable, str(STAGE6_SCRIPT)], check=True)
+    subprocess.run([sys.executable, str(STAGE56_INTEGRATION_SCRIPT)], check=True)
     subprocess.run([sys.executable, str(STAGE7_SCRIPT)], check=True)
     subprocess.run([sys.executable, str(E2E_SCRIPT)], check=True)
 

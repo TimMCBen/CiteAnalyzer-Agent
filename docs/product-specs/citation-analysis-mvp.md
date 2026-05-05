@@ -258,7 +258,7 @@
 - 报告应标记数据缺失和低置信度部分。
 - `stage7.py` 仅验证报告 contract 与报告产物，不承担真实样本总控联调。
 - 真实样本总控联调由独立 `scripts/test_agent/e2e_mvp.py` 验证入口承担。
-- 当前聚合验证入口 `scripts/test_agent/run.py` 允许执行 `e2e_mvp.py`，而 `Google Scholar` 对应的 `stage3.py` 仍是占位入口。
+- 当前聚合验证入口 `scripts/test_agent/run.py` 会执行 `stage56_integration.py`、`stage7.py` 与 `e2e_mvp.py`，而 `Google Scholar` 对应的 `stage3.py` 仍是占位入口。
 
 ### 性能与时效
 

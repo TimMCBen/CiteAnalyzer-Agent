@@ -108,6 +108,7 @@ python ./scripts/test_agent/run.py
 - `stage4.py`
 - `stage5.py`
 - `stage6.py`
+- `stage56_integration.py`
 - `stage7.py`
 
 并显式提示：
@@ -173,8 +174,9 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 - 阶段 6 原型：`LangGraph` 工作流、`PDF -> GROBID -> context` 主路径、GROBID 不可用时的文本回退路径、真实 `citing-5` 冒烟测试
 - 阶段 4 模块级实现：`packages/author_intel/`、`AuthorProfile` / `ScholarLabel`、`OpenAlex + DBLP` 画像补全链路、`stage4.py` 验证脚本
 - analyzer 总控现已接回阶段 4 / 5 / 6，并把 scholar / fulltext / sentiment 结果写回共享状态
-- 阶段 7 最小报告实现：HTML / JSON 报告导出、chart payload、`stage7.py` contract 验证
+- 阶段 7 报告实现：HTML / JSON 报告导出、chart payload、上游 partial failure / weak-signal / state error 的降级提示
 - 独立 E2E 入口：`e2e_mvp.py` 通过已保存真实 stage2 样本和本地 fixture 跑通 analyzer 全链路
+- `run.py` 当前已聚合 `stage56_integration.py`，默认项目级入口 `bash ./scripts/check-project.sh` 在 bash/WSL 环境会优先复用可用的 `python.exe`
 - 关键边界约定
   - `Semantic Scholar + Crossref` 为主抓取链路
   - `Google Scholar` 作为补充源，不阻塞主流程
@@ -187,12 +189,13 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 
 进行中：
 
-- GROBID 路径向正式 stage6 主流程继续收口
+- OpenAlex / DBLP、PDF / HTML、GROBID 相关 live smoke 覆盖仍偏少，需要继续补真实样本回归
 - `stage3.py` 继续保留为补充源探索占位
 
 尚未完成：
 
 - `Google Scholar` 补充源探索与对应验证脚本
+- 统一冻结的 Python 依赖清单与跨解释器环境说明
 
 ## 文件目录
 
@@ -259,9 +262,9 @@ GROBID_API_URL=http://localhost:8070/api
 
 ## 当前建议的下一步
 
-1. 继续推进阶段 4，落地学者识别能力与作者画像补充。
-2. 在更多真实样本上补 report 导出与降级说明回归。
-3. 视主链路 coverage 缺口，再决定是否推进 `stage3` 补充源探索。
+1. 为 OpenAlex / DBLP、更多 PDF / HTML 全文样本补 live smoke，缩小当前测试评分里“真实回归偏少”的缺口。
+2. 梳理并冻结最小可运行 Python 依赖清单，减少 PowerShell / bash / WSL 解释器分叉带来的验证噪音。
+3. 在主链路 live coverage 达标后，再决定是否推进 `stage3` 的 `Google Scholar` 补充源探索。
 
 ## 许可证
 

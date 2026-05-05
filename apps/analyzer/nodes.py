@@ -206,6 +206,9 @@ def generate_report_node(state: AnalysisState) -> AnalysisState:
         author_summary=author_summary,
         citation_contexts=citation_contexts,
         sentiment_summary=sentiment_summary,
+        fetch_summary=state.get("fetch_summary"),
+        source_trace=state.get("source_trace") if isinstance(state.get("source_trace"), list) else None,
+        state_errors=state.get("errors") if isinstance(state.get("errors"), list) else None,
     )
     return attach_report_artifact_to_state(state, artifact)
 

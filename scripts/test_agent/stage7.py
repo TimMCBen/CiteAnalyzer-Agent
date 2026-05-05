@@ -11,6 +11,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from packages.citation_sources.models import CitingPaper
+from packages.citation_sources.models import FetchSummary, SourceTrace
 from packages.reporting.service import build_report_artifact
 from packages.sentiment.models import CitationContext, SentimentSummary
 from packages.shared.models import AuthorProfile, AuthorSummary, ScholarLabel, TargetPaper
@@ -52,40 +53,63 @@ def assert_stage7_reporting_contract() -> None:
             scholar_labels=[
                 ScholarLabel(
                     author_id="author-1",
-                    label="heavyweight_candidate",
-                    evidence=["h_index=42", "citation_frequency=2"],
-                    confidence_note="matched_openalex_or_dblp_profile",
-                    trigger_rules=["h_index>=30", "frequency>=2"],
+                    label="weak_signal_candidate",
+                    evidence=["institution=Tsinghua University"],
+                    confidence_note="evidence_insufficient",
+                    trigger_rules=["frequency>=1"],
                 )
             ],
             author_summary=AuthorSummary(
                 total_authors=1,
                 matched_profiles=1,
-                heavyweight_candidates=1,
+                weak_signal_candidates=1,
             ),
             citation_contexts=[
                 CitationContext(
                     citing_paper_id="citing-1",
-                    sentiment_label="neutral",
-                    context_text="We use the target work as background.",
-                    matched_target_reference="fixture-reference",
-                    evidence_note="fixture",
-                    text_source_type="html",
-                    text_source_label="fixture",
+                    sentiment_label="unknown",
+                    context_text=None,
+                    matched_target_reference=None,
+                    evidence_note="no_fulltext_available",
+                    text_source_type="unknown",
+                    text_source_label=None,
                 )
             ],
             sentiment_summary=SentimentSummary(
                 total_candidates=1,
-                fulltext_available=1,
-                context_found=1,
-                classified_count=1,
+                fulltext_available=0,
+                context_found=0,
+                classified_count=0,
+                unknown_count=1,
                 label_counts={
                     "positive": 0,
-                    "neutral": 1,
+                    "neutral": 0,
                     "critical": 0,
-                    "unknown": 0,
+                    "unknown": 1,
                 },
             ),
+            fetch_summary=FetchSummary(
+                target_query="10.1000/target",
+                target_title="Target Paper",
+                target_doi="10.1000/target",
+                target_resolve_status="resolved",
+                semantic_scholar_candidates=1,
+                crossref_candidates=0,
+                merged_candidates=1,
+                deduped_candidates=1,
+                partial_failure=True,
+                notes=["crossref_timeout"],
+            ),
+            source_trace=[
+                SourceTrace(
+                    candidate_id="citing-1",
+                    source_name="semantic_scholar",
+                    source_record_id="S1",
+                    query_used="10.1000/target",
+                    fetched_at="2026-05-05T00:00:00Z",
+                )
+            ],
+            state_errors=["stage5:citing-1:no_fulltext"],
             output_dir=output_dir,
         )
 
@@ -97,6 +121,12 @@ def assert_stage7_reporting_contract() -> None:
         payload = json.loads(json_path.read_text(encoding="utf-8"))
         assert payload["summary"]["target_title"] == "Target Paper", payload
         assert payload["summary"]["key_findings"], payload["summary"]
+        assert payload["summary"]["partial_failure"] is True, payload["summary"]
+        assert payload["summary"]["source_trace_count"] == 1, payload["summary"]
+        assert payload["summary"]["source_trace_sources"] == ["semantic_scholar"], payload["summary"]
+        assert any("crossref_timeout" in item for item in payload["summary"]["manual_attention_items"]), payload["summary"]
+        assert any("stage5:citing-1:no_fulltext" in item for item in payload["summary"]["manual_attention_items"]), payload["summary"]
+        assert any("evidence_insufficient" in item for item in payload["summary"]["manual_attention_items"]), payload["summary"]
         assert "year_trend" in payload["charts"], payload["charts"]
         assert "source_map" in payload["charts"], payload["charts"]
         assert "scholar_distribution" in payload["charts"], payload["charts"]
