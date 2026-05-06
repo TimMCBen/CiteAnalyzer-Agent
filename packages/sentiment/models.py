@@ -16,6 +16,7 @@ class FullTextDocument:
     local_path: Optional[str] = None
     raw_path: Optional[str] = None
     extracted_dir: Optional[str] = None
+    evidence_note: Optional[str] = None
 
 
 @dataclass

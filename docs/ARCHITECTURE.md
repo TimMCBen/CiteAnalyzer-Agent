@@ -80,6 +80,11 @@ MVP 具备以下特点：
 - HTML 报告
 - 结构化 JSON 结果
 
+当前 MVP 收口约束：
+
+- 阶段 6 当前冻结为“每篇 citing paper 仅返回一条主 `CitationContext`”
+- 多上下文返回不进入本轮 MVP 闭环，留待后续增强
+
 边界：
 
 - 总智能体负责编排与状态推进，不负责承载每个分析步骤的具体实现细节
@@ -241,11 +246,17 @@ MVP 报告至少包含：
 - 引用情感分布
 - 主要观察结论与待人工关注项
 
+验证边界：
+
+- `scripts/test_agent/stage7.py` 只做报告级 contract / fixture 验证
+- 真实样本的全链路 analyzer 验证由独立 `scripts/test_agent/e2e_mvp.py` 承担
+
 引用来源地图定义：
 
-- 引用来源地图基于施引作者所属机构的国家 / 地区信息生成，用于展示目标论文影响力的地理来源分布
-- 若一篇施引论文存在多个作者机构，第一版优先按第一作者机构统计
-- 若机构信息缺失，则该记录不纳入地图统计
+- 当前最小实现先按作者画像中的首条机构文本做聚合，用于展示来源分布近似结果
+- 若一篇施引论文存在多个作者机构，第一版优先按首条机构文本统计
+- 若机构信息缺失，则该记录不纳入来源分布统计
+- 国家 / 地区级标准化地图保留为后续增强项，不作为当前最小报告实现的承诺
 
 边界：
 
@@ -423,9 +434,12 @@ MVP 至少需要维护以下核心对象：
 
 - `apps/analyzer/`
   - 阶段 1 输入理解
-  - 阶段 2 状态图入口
+  - 阶段 2 文献抓取入口
+  - 当前默认总控入口已接回阶段 4 / 5 / 6
 - `packages/shared/`
   - 共享模型与错误
+- `packages/author_intel/`
+  - 阶段 4 的作者画像补全、`OpenAlex + DBLP` 客户端和重量级学者规则
 - `packages/citation_sources/`
   - 阶段 2 的抓取、标准化、去重和外部源客户端
 - `packages/sentiment/`
@@ -443,6 +457,13 @@ MVP 优先支持本地单次分析模式：
 4. 总智能体按需调用 `学者识别智能体`
 5. 总智能体按文本可用性调用 `引用情感分析智能体`
 6. 总智能体调用 `可视化报告智能体` 生成 JSON 和 HTML 报告
+
+当前本地验证入口约定：
+
+- `scripts/check-project.sh` 是项目级默认入口；在 bash / WSL 场景检测到 `python.exe` 时，优先复用它来对齐已安装依赖的 Python 环境
+- `scripts/test_agent/run.py` 当前聚合 `stage1.py`、`stage2.py`、`stage4.py`、`stage5.py`、`stage6.py`、`stage56_integration.py`、`stage7.py`、`e2e_mvp.py`
+- `scripts/test_agent/stage56_integration.py` 既可单独运行，也已并入默认聚合入口，用于验证 analyzer 对阶段 4 / 5 / 6 的状态挂接
+- `stage3.py` 仍保留为补充源探索占位，不在当前 MVP 默认聚合入口中
 
 不要求：
 

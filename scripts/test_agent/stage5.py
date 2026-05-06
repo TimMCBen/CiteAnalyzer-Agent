@@ -12,7 +12,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from packages.citation_sources.models import CitingPaper
-from packages.sentiment.fulltext import fetch_fulltext_document
+from packages.sentiment.fulltext import fetch_fulltext_document, select_text_source
 from packages.shared.models import TargetPaper
 
 DEFAULT_SAMPLE_PATH = REPO_ROOT / "docs" / "generated" / "stage2-live-10.1145.3368089.3409740.json"
@@ -169,6 +169,29 @@ def assert_stage5_local_fulltext_validation(sample_path: Path = DEFAULT_SAMPLE_P
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
+def assert_stage5_unavailable_paper_guidance(sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
+    target_paper, citing_papers = load_stage2_sample(sample_path)
+    _ = target_paper
+    unavailable = next(paper for paper in citing_papers if paper.canonical_id == "citing-4")
+    unavailable.doi = target_paper.doi
+    unavailable.source_links = {"missing_local_pdf": str(REPO_ROOT / "downloaded-papers" / "missing-citing-4.pdf")}
+    unavailable.abstract = "Short abstract fallback for unavailable fulltext."
+
+    selection = select_text_source(
+        unavailable,
+        provided_documents=None,
+        allow_network=True,
+        search_arxiv_fallback=False,
+    )
+
+    assert selection.source_type == "abstract", selection
+    assert selection.text == unavailable.abstract, selection
+    assert "fallback_to_abstract_only" in selection.evidence_note, selection.evidence_note
+    assert "recovery=" in selection.evidence_note, selection.evidence_note
+    assert "attach_local_pdf_or_html_via_source_links" in selection.evidence_note, selection.evidence_note
+    assert "check_doi_landing_page" in selection.evidence_note, selection.evidence_note
+
+
 def maybe_run_live_fetch_smoke() -> None:
     live_mode = str(os.getenv("STAGE5_FETCH_LIVE", "")).strip().lower()
     if live_mode not in {"1", "true", "yes"}:
@@ -192,6 +215,8 @@ def maybe_run_live_fetch_smoke() -> None:
 def main() -> None:
     assert_stage5_local_fulltext_validation()
     print("[PASS] stage5::local_fulltext_validation")
+    assert_stage5_unavailable_paper_guidance()
+    print("[PASS] stage5::unavailable_paper_guidance")
     maybe_run_live_fetch_smoke()
     print("stage5 validation passed")
 

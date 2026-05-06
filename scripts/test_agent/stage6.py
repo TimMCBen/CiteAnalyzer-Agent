@@ -166,6 +166,15 @@ def wrap_text(text: str, width: int) -> list[str]:
 
 def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
     target_paper, citing_papers = load_stage2_sample(sample_path)
+    citing_papers.append(
+        CitingPaper(
+            canonical_id="citing-6",
+            title="Unavailable paper with abstract only",
+            doi=target_paper.doi,
+            abstract="This abstract mentions smart contract fairness but provides no downloadable fulltext artifact.",
+            source_links={"missing_local_pdf": str(REPO_ROOT / "downloaded-papers" / "missing-citing-6.pdf")},
+        )
+    )
     temp_dir = build_local_source_links(citing_papers, target_paper.doi or "")
     try:
         result = analyze_citation_sentiments(
@@ -183,18 +192,23 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
     evidence_notes = {context.citing_paper_id: context.evidence_note for context in result.contexts}
     source_types = {context.citing_paper_id: context.text_source_type for context in result.contexts}
 
-    assert len(result.contexts) == 5, f"expected 5 citation contexts, got {len(result.contexts)}"
+    assert len(result.contexts) == 6, f"expected 6 citation contexts, got {len(result.contexts)}"
     assert labels["citing-1"] == "positive", labels
     assert labels["citing-2"] == "neutral", labels
     assert labels["citing-3"] == "critical", labels
     assert labels["citing-4"] == "unknown", labels
     assert labels["citing-5"] in {"neutral", "positive"}, labels
+    assert labels["citing-6"] == "unknown", labels
 
     assert evidence_notes["citing-1"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-1"]
     assert evidence_notes["citing-2"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-2"]
     assert evidence_notes["citing-3"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-3"]
-    assert evidence_notes["citing-4"] == "no_text_available", evidence_notes["citing-4"]
+    assert evidence_notes["citing-4"].startswith("no_text_available"), evidence_notes["citing-4"]
+    assert "recovery=" in evidence_notes["citing-4"], evidence_notes["citing-4"]
+    assert "attach_local_pdf_or_html_via_source_links" in evidence_notes["citing-4"], evidence_notes["citing-4"]
     assert evidence_notes["citing-5"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-5"]
+    assert evidence_notes["citing-6"].startswith("fallback_to_abstract_only"), evidence_notes["citing-6"]
+    assert "recovery=" in evidence_notes["citing-6"], evidence_notes["citing-6"]
     assert "llm_sentiment:" in evidence_notes["citing-1"], evidence_notes["citing-1"]
     assert "llm_sentiment:" in evidence_notes["citing-2"], evidence_notes["citing-2"]
     assert "llm_sentiment:" in evidence_notes["citing-3"], evidence_notes["citing-3"]
@@ -204,15 +218,16 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
     assert source_types["citing-3"] == "pdf", source_types
     assert source_types["citing-4"] == "unknown", source_types
     assert source_types["citing-5"] == "html", source_types
+    assert source_types["citing-6"] == "abstract", source_types
 
     summary = result.summary
-    assert summary.total_candidates == 5, summary
+    assert summary.total_candidates == 6, summary
     assert summary.fulltext_available == 4, summary
     assert summary.context_found == 4, summary
     assert summary.classified_count == 4, summary
-    assert summary.unknown_count == 1, summary
+    assert summary.unknown_count == 2, summary
     assert summary.label_counts["critical"] == 1, summary.label_counts
-    assert summary.label_counts["unknown"] == 1, summary.label_counts
+    assert summary.label_counts["unknown"] == 2, summary.label_counts
     assert summary.label_counts["neutral"] + summary.label_counts["positive"] == 3, summary.label_counts
 
 

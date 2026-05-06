@@ -4,7 +4,7 @@
 
 `CiteAnalyzer-Agent` 是一个面向单篇目标论文的被引分析智能体项目。系统目标是输入一篇论文后，自动抓取施引文献，识别施引作者中的重点学者，分析引用语境与情感，并生成可视化分析报告。
 
-当前项目已经完成阶段 1 和阶段 2 的主链路落地，并在当前开发分支上推进到阶段 5 / 阶段 6 的原型实现。当前最稳定的能力是目标论文输入理解、施引文献抓取，以及面向真实论文全文的引用上下文定位实验路径。
+当前项目已经完成阶段 1 和阶段 2 的主链路落地，并在当前开发分支上把 analyzer 总控接回到阶段 4 / 5 / 6。当前最稳定的能力是目标论文输入理解、施引文献抓取、作者画像补全，以及面向真实论文全文的单上下文引用定位实验路径。
 
 ## 目标功能
 
@@ -101,13 +101,38 @@ python ./scripts/test_agent/run.py
 python ./scripts/test_agent/run.py
 ```
 
+这个入口当前聚合：
+
+- `stage1.py`
+- `stage2.py`
+- `stage4.py`
+- `stage5.py`
+- `stage6.py`
+- `stage56_integration.py`
+- `stage7.py`
+
+并显式提示：
+
+- `stage3.py`
+
+`run.py` 当前已经聚合到 fixture-backed `e2e_mvp.py`，只剩 `stage3.py` 继续保持待接入状态。
+
 ### 单阶段验证
 
 ```bash
 python ./scripts/test_agent/stage1.py
 python ./scripts/test_agent/stage2.py
+python ./scripts/test_agent/stage4.py
 python ./scripts/test_agent/stage5.py
 python ./scripts/test_agent/stage6.py
+python ./scripts/test_agent/stage56_integration.py
+python ./scripts/test_agent/stage7.py
+```
+
+后续新增但当前仍为占位 / 待实现的入口：
+
+```bash
+python ./scripts/test_agent/stage3.py
 ```
 
 ### 常用 live smoke
@@ -145,26 +170,32 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 - 阶段 2：`Semantic Scholar + Crossref` 主抓取链路
 - 单篇真实 DOI 的阶段 2 在线样本验证
 - 阶段 5 原型：`PDF-first` 全文抓取、本地落盘 `raw pdf/html + parsed txt`，不再把 tar 作为正式默认产物
+- 阶段 5 下载失败恢复：当论文正文拿不到时，会显式返回恢复建议（优先检查 DOI 落地页、作者 PDF / 预印本、或手动补 `source_links`），并在可用时退回摘要
 - 阶段 6 原型：`LangGraph` 工作流、`PDF -> GROBID -> context` 主路径、GROBID 不可用时的文本回退路径、真实 `citing-5` 冒烟测试
+- 阶段 4 模块级实现：`packages/author_intel/`、`AuthorProfile` / `ScholarLabel`、`OpenAlex + DBLP` 画像补全链路、`stage4.py` 验证脚本
+- analyzer 总控现已接回阶段 4 / 5 / 6，并把 scholar / fulltext / sentiment 结果写回共享状态
+- 阶段 7 报告实现：HTML / JSON 报告导出、chart payload、上游 partial failure / weak-signal / state error 的降级提示
+- 独立 E2E 入口：`e2e_mvp.py` 通过已保存真实 stage2 样本和本地 fixture 跑通 analyzer 全链路
+- `run.py` 当前已聚合 `stage56_integration.py`，默认项目级入口 `bash ./scripts/check-project.sh` 在 bash/WSL 环境会优先复用可用的 `python.exe`
 - 关键边界约定
   - `Semantic Scholar + Crossref` 为主抓取链路
   - `Google Scholar` 作为补充源，不阻塞主流程
   - `arXiv` 作为输入兼容入口
   - HTML 为当前默认报告输出方向
   - 重量级学者标注采用启发式规则
+  - 阶段 6 当前冻结为“每篇 citing paper 只返回一条主 `CitationContext`”
+  - `stage7.py` 只承担报告级 contract 验证
+  - `e2e_mvp.py` 预留为独立真实样本总控验证入口
 
 进行中：
 
-- 阶段 4 学者识别实现
-- 阶段 6 多上下文返回与更多真实 citing paper 回归
-- GROBID 路径向正式 stage6 主流程继续收口
-- 阶段 5/6 的 PDF-first 契约继续向总智能体联调收口
+- OpenAlex / DBLP、PDF / HTML、GROBID 相关 live smoke 覆盖仍偏少，需要继续补真实样本回归
+- `stage3.py` 继续保留为补充源探索占位
 
 尚未完成：
 
-- 学者识别模块完整实现
-- HTML 报告生成实现
-- 多篇真实样本的端到端验证
+- `Google Scholar` 补充源探索与对应验证脚本
+- 统一冻结的 Python 依赖清单与跨解释器环境说明
 
 ## 文件目录
 
@@ -172,6 +203,8 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
   - 总智能体入口、配置与状态图编排
 - `packages/citation_sources/`
   - 阶段 2 的施引文献抓取、标准化、去重与来源客户端
+- `packages/author_intel/`
+  - 阶段 4 的作者画像补全、弱标注与重量级学者规则
 - `packages/sentiment/`
   - 阶段 5 / 6 的全文抓取、GROBID 路径、上下文定位与情感分析
 - `scripts/test_agent/`
@@ -229,9 +262,9 @@ GROBID_API_URL=http://localhost:8070/api
 
 ## 当前建议的下一步
 
-1. 继续推进阶段 4，落地学者识别能力与作者画像补充。
-2. 让阶段 6 对单篇 citing paper 返回多处引用上下文，而不是只保留一条主上下文。
-3. 在更多真实 PDF 论文上补 GROBID 主路径回归，并为直接 LaTeX 来源保留兼容性验证。
+1. 为 OpenAlex / DBLP、更多 PDF / HTML 全文样本补 live smoke，缩小当前测试评分里“真实回归偏少”的缺口。
+2. 梳理并冻结最小可运行 Python 依赖清单，减少 PowerShell / bash / WSL 解释器分叉带来的验证噪音。
+3. 在主链路 live coverage 达标后，再决定是否推进 `stage3` 的 `Google Scholar` 补充源探索。
 
 ## 许可证
 

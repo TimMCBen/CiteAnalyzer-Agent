@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from typing import Dict, Optional
 
 try:
@@ -16,9 +17,13 @@ except ImportError:
             return kwargs["default_factory"]()
         return default
 
+from packages.author_intel import attach_author_intel_result_to_state, analyze_author_intel_with_live_clients
 from apps.analyzer.config import build_llm
 from apps.analyzer.resolve import resolve_target_paper_metadata
 from packages.citation_sources.service import attach_fetch_result_to_state, fetch_citation_candidates_with_live_clients
+from packages.reporting import attach_report_artifact_to_state, build_report_artifact
+from packages.sentiment import FullTextDocument, analyze_citation_sentiments, attach_sentiment_result_to_state
+from packages.sentiment.fulltext import fetch_fulltext_document
 from packages.shared.errors import InvalidAnalysisRequestError
 from packages.shared.models import AnalysisState, ParsedUserIntent, TargetPaper, UserQuery
 
@@ -114,6 +119,98 @@ def resolve_target_paper_node(state: AnalysisState) -> AnalysisState:
             f"target_paper_{resolved.paper_query_type}_resolution_failed"
         )
     return state
+
+
+def analyze_author_intel_node(state: AnalysisState) -> AnalysisState:
+    citing_papers = state.get("citing_papers")
+    if not isinstance(citing_papers, list) or not citing_papers:
+        raise RuntimeError("citing_papers are required before stage4 author-intel analysis")
+
+    result = analyze_author_intel_with_live_clients(citing_papers)
+    return attach_author_intel_result_to_state(state, result)
+
+
+def fetch_fulltext_documents_node(state: AnalysisState) -> AnalysisState:
+    citing_papers = state.get("citing_papers")
+    if not isinstance(citing_papers, list) or not citing_papers:
+        raise RuntimeError("citing_papers are required before stage5 fulltext fetch")
+
+    save_dir = Path("downloaded-papers") / "stage5"
+    fulltext_documents: dict[str, FullTextDocument] = {}
+    errors: list[str] = []
+
+    for citing_paper in citing_papers:
+        try:
+            document = fetch_fulltext_document(
+                citing_paper,
+                search_arxiv_fallback=True,
+                save_dir=save_dir,
+            )
+        except Exception as exc:  # pragma: no cover - network/runtime path
+            errors.append(f"stage5:{citing_paper.canonical_id}:{exc}")
+            continue
+        if document is not None:
+            fulltext_documents[citing_paper.canonical_id] = document
+
+    state["fulltext_documents"] = fulltext_documents  # type: ignore[assignment]
+    if errors:
+        state.setdefault("errors", [])
+        state["errors"].extend(errors)
+    state["status"] = "fulltext_documents_fetched"
+    return state
+
+
+def analyze_citation_sentiments_node(state: AnalysisState) -> AnalysisState:
+    target_paper = state.get("target_paper")
+    citing_papers = state.get("citing_papers")
+    fulltext_documents = state.get("fulltext_documents")
+
+    if not isinstance(target_paper, TargetPaper):
+        raise RuntimeError("target_paper is required before stage6 sentiment analysis")
+    if not isinstance(citing_papers, list) or not citing_papers:
+        raise RuntimeError("citing_papers are required before stage6 sentiment analysis")
+
+    result = analyze_citation_sentiments(
+        target_paper=target_paper,
+        citing_papers=citing_papers,
+        fulltext_documents=fulltext_documents if isinstance(fulltext_documents, dict) else None,
+        allow_network=True,
+        search_arxiv_fallback=True,
+    )
+    return attach_sentiment_result_to_state(state, result)
+
+
+def generate_report_node(state: AnalysisState) -> AnalysisState:
+    target_paper = state.get("target_paper")
+    citing_papers = state.get("citing_papers")
+    author_profiles = state.get("author_profiles")
+    scholar_labels = state.get("scholar_labels")
+    author_summary = state.get("author_summary")
+    citation_contexts = state.get("citation_contexts")
+    sentiment_summary = state.get("sentiment_summary")
+
+    if not isinstance(target_paper, TargetPaper):
+        raise RuntimeError("target_paper is required before stage7 report generation")
+    if not isinstance(citing_papers, list):
+        raise RuntimeError("citing_papers are required before stage7 report generation")
+    if not isinstance(author_profiles, list) or not isinstance(scholar_labels, list):
+        raise RuntimeError("author_intel outputs are required before stage7 report generation")
+    if author_summary is None or not isinstance(citation_contexts, list) or sentiment_summary is None:
+        raise RuntimeError("sentiment outputs are required before stage7 report generation")
+
+    artifact = build_report_artifact(
+        target_paper=target_paper,
+        citing_papers=citing_papers,
+        author_profiles=author_profiles,
+        scholar_labels=scholar_labels,
+        author_summary=author_summary,
+        citation_contexts=citation_contexts,
+        sentiment_summary=sentiment_summary,
+        fetch_summary=state.get("fetch_summary"),
+        source_trace=state.get("source_trace") if isinstance(state.get("source_trace"), list) else None,
+        state_errors=state.get("errors") if isinstance(state.get("errors"), list) else None,
+    )
+    return attach_report_artifact_to_state(state, artifact)
 
 
 def parse_with_llm(raw_query: str) -> ParsedUserIntent:

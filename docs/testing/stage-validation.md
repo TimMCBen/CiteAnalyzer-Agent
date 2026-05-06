@@ -8,6 +8,25 @@
 - 阶段聚合入口：`python ./scripts/test_agent/run.py`
 - 阶段 1 单独运行：`python ./scripts/test_agent/stage1.py`
 
+当前 `run.py` 仍只聚合：
+
+- `stage1.py`
+- `stage2.py`
+- `stage4.py`
+- `stage5.py`
+- `stage6.py`
+- `stage56_integration.py`
+- `stage7.py`
+- `e2e_mvp.py`
+
+并已通过独立集成烟测：
+
+- `stage56_integration.py`
+
+并把以下入口显式标记为待接入：
+
+- `stage3.py`
+
 ## 当前覆盖
 
 ### 阶段 1
@@ -20,49 +39,26 @@
   - OpenAlex 论文 ID 请求
   - 非论文被引分析请求
 
-### 阶段 2 到阶段 8
+### 阶段 3、阶段 7 与 E2E
 
-- 阶段 2
-  - 脚本：`scripts/test_agent/stage2.py`
-  - 覆盖：
-    - 多源记录合并与去重
-    - 来源追踪输出
-    - 单来源失败时的部分结果降级
-    - 可选 live smoke（通过 `STAGE2_LIVE=1` 与 `STAGE2_TARGET_DOI` 启用）
-    - 已验证的真实样本：`10.1145/3368089.3409740`
+- 目录中已预留：
+  - `stage3.py`
+  - `stage7.py`
+  - `e2e_mvp.py`
+- 当前状态：
+  - `stage3.py`：TODO，占位保留给补充源探索
 
-- 阶段 3、阶段 4、阶段 7、阶段 8
-  - 目录中已预留：
-    - `stage3.py`
-    - `stage4.py`
-    - `stage7.py`
-    - `stage8.py`
-  - 当前状态：TODO，占位保留给后续阶段实现时补齐。
+### 阶段 4
 
-- 阶段 5
-  - 脚本：`scripts/test_agent/stage5.py`
-  - 覆盖：
-    - 直接读取已保存的阶段 2 真实样本：`docs/generated/stage2-live-10.1145.3368089.3409740.json`
-    - 使用本地 PDF / HTML / LaTeX 文件夹具验证全文抓取与文本解析
-    - 验证成功抓到的全文会落盘到本地
-    - 覆盖无全文样本返回空结果
-    - 可选 live smoke：
-      - `STAGE5_FETCH_LIVE=1 python ./scripts/test_agent/stage5.py`
-      - 验证真实 `arXiv` 优先全文抓取与解析入口
-
-- 阶段 6
-  - 脚本：`scripts/test_agent/stage6.py`
-  - 覆盖：
-    - 直接读取已保存的阶段 2 真实样本：`docs/generated/stage2-live-10.1145.3368089.3409740.json`
-    - 使用本地 PDF / HTML / LaTeX 文件夹具走真实解析链路
-    - 默认直接调用真实 LLM 做参考文献匹配、正文窗口定位和情感分类
-    - 覆盖 `positive` / `neutral` / `critical` / `unknown` 四类标签
-    - 覆盖“先在参考文献中识别目标条目，再回正文定位引文号”的主链路
-    - 可选 live smoke：
-      - `STAGE6_LIVE=1 python ./scripts/test_agent/stage6.py`
-      - 验证真实 LLM zero-shot 引文定位
-      - `STAGE6_FETCH_LIVE=1 python ./scripts/test_agent/stage6.py`
-      - 验证真实 `arXiv` 优先全文抓取与解析入口
+- 脚本：`scripts/test_agent/stage4.py`
+- 当前覆盖：
+  - `OpenAlex` 主画像链路
+  - `DBLP` 辅助补全链路
+  - 高影响力 / 重量级 / 弱标注规则
+  - 缺失 `h-index` 时的“证据不足”路径
+- 当前状态：
+  - 已实现本地夹具验证
+  - 已接入 `scripts/test_agent/run.py` 聚合验证
 
 - 阶段 5
   - 当前原型能力：
@@ -70,9 +66,37 @@
     - PDF / HTML / LaTeX 解析
     - 本地落盘 `raw artifact + parsed txt`
     - 不再把 `tar` / `extracted/` 视为默认正式产物
+    - 当全文不可获取时，返回恢复建议并在可用时退回摘要
   - 当前验证：
     - `python ./scripts/test_agent/stage5.py`
     - `STAGE5_FETCH_LIVE=1 python ./scripts/test_agent/stage5.py`
+  - 当前状态：
+    - 已实现本地夹具验证
+    - 已接入 `scripts/test_agent/run.py` 聚合验证
+
+### 阶段 5 / 阶段 6 总控接回
+
+- 脚本：`scripts/test_agent/stage56_integration.py`
+- 当前覆盖：
+  - `apps/analyzer/nodes.py` 的 stage4 / stage5 / stage6 节点挂接
+  - `packages/shared/models.py` 的 scholar / fulltext / sentiment 状态字段
+  - analyzer 阶段 5 / 6 的逐篇调度 glue
+  - 当前状态：
+    - 已实现本地夹具烟测
+    - 已接入 `scripts/test_agent/run.py` 聚合验证
+
+### 阶段 7
+
+- 脚本：`scripts/test_agent/stage7.py`
+- 当前覆盖：
+  - `ReportArtifact` contract
+  - HTML / JSON 报告导出路径
+  - 趋势、来源、学者、情感、降级说明区块
+  - `fetch_summary` / `source_trace` / `state.errors` / 弱标注 `confidence_note` 的报告暴露
+  - fixture 驱动的报告级验证
+- 当前状态：
+  - 已实现本地夹具验证
+  - 已接入 `scripts/test_agent/run.py` 聚合验证
 
 - 阶段 6
   - 当前原型能力：
@@ -81,13 +105,30 @@
     - GROBID 不可用时的普通文本窗口回退
     - 直接 TeX bibliography / cite-key 兼容路径
     - 目标引文显式高亮 `**...**`
+    - 当前 MVP 契约冻结为“每篇 citing paper 只返回一条主 `CitationContext`”
   - 当前验证：
     - `python ./scripts/test_agent/stage6.py`
     - `STAGE6_REAL_CITING5=1 python ./scripts/test_agent/stage6.py`
     - `STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py`
+  - 当前状态：
+    - 已实现本地夹具验证
+    - 已接入 `scripts/test_agent/run.py` 聚合验证
+
+### E2E
+
+- 脚本：`scripts/test_agent/e2e_mvp.py`
+- 当前覆盖：
+  - `run_analysis()` 通过 analyzer 总控跑完整链路
+  - 使用已保存的真实 stage2 样本与本地 fixture 驱动 stage4 / stage5 / stage6 / stage7
+  - 报告产物导出路径、unknown 降级与最终 `report_generated` 状态
+- 当前状态：
+  - 已实现 fixture-backed 全链路验证
+  - 已接入 `scripts/test_agent/run.py` 聚合验证
 
 ## 维护原则
 
 - 阶段测试脚本属于项目实现层，不应直接写进模板级 `CICD` 说明。
 - 新增项目测试入口时，优先更新本目录，再决定是否需要把入口接入 `scripts/check-project.sh`。
 - execution plan 中的阶段验证任务应和这里保持一致。
+- `stage7.py` 与 `e2e_mvp.py` 必须保持职责拆分：前者只做报告 contract 验证，后者只做真实样本总控验证。
+- analyzer 集成烟测可以独立存在于聚合入口之外，只要其职责和断言点在本文件中写清。
