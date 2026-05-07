@@ -11,3 +11,5 @@
 ## 初始文档
 
 - `core-beliefs.md`
+- `citation-analysis-maps.md`
+  - 当前阶段主链路的用户视角流程图、状态演化图和代码路径图
