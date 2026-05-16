@@ -16,9 +16,10 @@ from packages.citation_sources.models import CitationFetchResult
 from packages.shared.models import TargetPaper
 from scripts.test_agent.stage4 import FakeDBLPClient, FakeOpenAlexClient
 from scripts.test_agent.stage6 import DEFAULT_SAMPLE_PATH, build_local_source_links, load_stage2_sample
+from scripts.test_agent.stage_logging import StageLogger
 
 
-def assert_e2e_mvp_real_sample() -> None:
+def assert_e2e_mvp_real_sample():
     target_paper, citing_papers = load_stage2_sample(DEFAULT_SAMPLE_PATH)
     temp_dir = build_local_source_links(citing_papers, target_paper.doi or "")
 
@@ -79,12 +80,23 @@ def assert_e2e_mvp_real_sample() -> None:
     assert Path(state["report_artifact"].export_paths["html"]).exists()
     assert Path(state["report_artifact"].export_paths["json"]).exists()
     assert state["sentiment_summary"].unknown_count >= 1, state["sentiment_summary"]
+    return state
 
 
 def main() -> None:
-    assert_e2e_mvp_real_sample()
-    print("[PASS] e2e::fixture_backed_real_sample")
-    print("e2e MVP validation passed")
+    logger = StageLogger("e2e")
+    logger.start()
+    state = assert_e2e_mvp_real_sample()
+    logger.pass_case(
+        "fixture_backed_real_sample",
+        detail=(
+            f"sample_path={DEFAULT_SAMPLE_PATH} status={state['status']} "
+            f"html={state['report_artifact'].export_paths['html']} "
+            f"json={state['report_artifact'].export_paths['json']} "
+            f"unknown={state['sentiment_summary'].unknown_count} errors={len(state['errors'])}"
+        ),
+    )
+    logger.done("e2e MVP validation passed")
 
 
 if __name__ == "__main__":

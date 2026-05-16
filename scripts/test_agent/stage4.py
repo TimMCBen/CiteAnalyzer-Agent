@@ -9,6 +9,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from packages.author_intel.service import analyze_author_intel
 from packages.citation_sources.models import CitingPaper
+from scripts.test_agent.stage_logging import StageLogger
 
 
 class FakeOpenAlexClient:
@@ -95,7 +96,7 @@ def build_citing_papers() -> list[CitingPaper]:
     ]
 
 
-def assert_stage4_labels() -> None:
+def assert_stage4_labels():
     result = analyze_author_intel(
         citing_papers=build_citing_papers(),
         openalex_client=FakeOpenAlexClient(),
@@ -129,12 +130,23 @@ def assert_stage4_labels() -> None:
     assert result.author_summary.heavyweight_candidates == 1
     assert result.author_summary.high_impact_candidates == 1
     assert result.author_summary.weak_signal_candidates == 2
+    return result
 
 
 def main() -> None:
-    assert_stage4_labels()
-    print("[PASS] stage4::author_intel_validation")
-    print("stage4 validation passed")
+    logger = StageLogger("stage4")
+    logger.start()
+    result = assert_stage4_labels()
+    logger.pass_case(
+        "author_intel_validation",
+        detail=(
+            f"citing_papers={len(build_citing_papers())} authors={len(result.author_profiles)} "
+            f"heavyweight={result.author_summary.heavyweight_candidates} "
+            f"high_impact={result.author_summary.high_impact_candidates} "
+            f"weak_signal={result.author_summary.weak_signal_candidates} missing_h_index_covered=True"
+        ),
+    )
+    logger.done("stage4 validation passed")
 
 
 if __name__ == "__main__":

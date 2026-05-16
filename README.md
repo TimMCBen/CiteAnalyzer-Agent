@@ -93,6 +93,12 @@ bash ./scripts/check-project.sh
 python ./scripts/test_agent/run.py
 ```
 
+如果需要查看每个阶段的详细日志，可以通过环境变量开启：
+
+```bash
+CITE_ANALYZER_STAGE_LOG=detail bash ./scripts/check-project.sh
+```
+
 ## 如何测试
 
 ### 聚合验证
@@ -101,8 +107,20 @@ python ./scripts/test_agent/run.py
 python ./scripts/test_agent/run.py
 ```
 
+聚合入口支持两种日志模式：
+
+```bash
+python ./scripts/test_agent/run.py --log brief
+python ./scripts/test_agent/run.py --log detail
+```
+
+- `brief` 是默认模式，只输出阶段级摘要、通过 / 跳过 / 失败信息。
+- `detail` 会额外输出样本路径、候选数量、产物路径、降级信息等调试细节。
+- 日志中会使用少量 emoji 和分段符号方便阅读，但 `START` / `PASS` / `FAIL` / `SKIP` / `DETAIL` 等稳定文本会始终保留。
+
 这个入口当前聚合：
 
+- `import_contract.py`
 - `stage1.py`
 - `stage2.py`
 - `stage4.py`
@@ -110,12 +128,14 @@ python ./scripts/test_agent/run.py
 - `stage6.py`
 - `stage56_integration.py`
 - `stage7.py`
+- `e2e_mvp.py`
 
 并显式提示：
 
 - `stage3.py`
 
 `run.py` 当前已经聚合到 fixture-backed `e2e_mvp.py`，只剩 `stage3.py` 继续保持待接入状态。
+其中 `import_contract.py` 会先验证阶段 1 的导入链不会因为阶段 5 的可选依赖而提前失败。
 
 ### 单阶段验证
 
@@ -129,10 +149,23 @@ python ./scripts/test_agent/stage56_integration.py
 python ./scripts/test_agent/stage7.py
 ```
 
+单阶段详细日志可通过环境变量开启：
+
+```bash
+CITE_ANALYZER_STAGE_LOG=detail python ./scripts/test_agent/stage6.py
+```
+
+PowerShell 写法：
+
+```powershell
+$env:CITE_ANALYZER_STAGE_LOG="detail"; python ./scripts/test_agent/stage6.py
+```
+
 后续新增但当前仍为占位 / 待实现的入口：
 
 ```bash
 python ./scripts/test_agent/stage3.py
+python ./scripts/test_agent/stage8.py
 ```
 
 ### 常用 live smoke

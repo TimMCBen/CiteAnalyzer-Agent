@@ -22,8 +22,7 @@ from apps.analyzer.config import build_llm
 from apps.analyzer.resolve import resolve_target_paper_metadata
 from packages.citation_sources.service import attach_fetch_result_to_state, fetch_citation_candidates_with_live_clients
 from packages.reporting import attach_report_artifact_to_state, build_report_artifact
-from packages.sentiment import FullTextDocument, analyze_citation_sentiments, attach_sentiment_result_to_state
-from packages.sentiment.fulltext import fetch_fulltext_document
+from packages.sentiment.models import FullTextDocument
 from packages.shared.errors import InvalidAnalysisRequestError
 from packages.shared.models import AnalysisState, ParsedUserIntent, TargetPaper, UserQuery
 
@@ -39,6 +38,24 @@ class IntentExtractionModel(BaseModel):
     analysis_goal: Optional[str] = Field(default=None, description="What the user wants to know about the paper")
     constraints: Dict[str, str] = Field(default_factory=dict, description="Optional constraints like time range or output focus")
     reason: Optional[str] = Field(default=None, description="Reason when the request is unsupported or uncertain")
+
+
+def fetch_fulltext_document(*args, **kwargs):
+    from packages.sentiment.fulltext import fetch_fulltext_document as impl
+
+    return impl(*args, **kwargs)
+
+
+def analyze_citation_sentiments(*args, **kwargs):
+    from packages.sentiment.service import analyze_citation_sentiments as impl
+
+    return impl(*args, **kwargs)
+
+
+def attach_sentiment_result_to_state(*args, **kwargs):
+    from packages.sentiment.service import attach_sentiment_result_to_state as impl
+
+    return impl(*args, **kwargs)
 
 
 def initialize_state(user_query: UserQuery) -> AnalysisState:

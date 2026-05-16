@@ -10,6 +10,7 @@ if str(REPO_ROOT) not in sys.path:
 from packages.citation_sources.service import fetch_citation_candidates
 from packages.citation_sources.clients import CrossrefClient, SemanticScholarClient
 from packages.shared.models import TargetPaper
+from scripts.test_agent.stage_logging import StageLogger
 
 
 class FakeSemanticScholarClient:
@@ -92,7 +93,7 @@ def build_target_paper() -> TargetPaper:
     )
 
 
-def assert_merge_across_sources() -> None:
+def assert_merge_across_sources():
     result = fetch_citation_candidates(
         target_paper=build_target_paper(),
         semantic_scholar_client=FakeSemanticScholarClient(),
@@ -115,9 +116,10 @@ def assert_merge_across_sources() -> None:
     enriched = next(paper for paper in result.citing_papers if paper.doi == "10.1000/beta")
     assert enriched.source_names == ["crossref", "semantic_scholar"], f"unexpected source names: {enriched.source_names}"
     assert len(result.source_trace) == 2, f"expected 2 source traces, got {len(result.source_trace)}"
+    return result
 
 
-def assert_partial_failure() -> None:
+def assert_partial_failure():
     result = fetch_citation_candidates(
         target_paper=build_target_paper(),
         semantic_scholar_client=FakeSemanticScholarClient(),
@@ -129,6 +131,7 @@ def assert_partial_failure() -> None:
     assert result.fetch_summary.partial_failure is True
     assert any("crossref" in note.lower() for note in result.fetch_summary.notes), result.fetch_summary.notes
     assert result.errors == ["crossref: crossref unavailable"], f"unexpected errors: {result.errors}"
+    return result
 
 
 def assert_missing_title_rejected() -> None:
@@ -155,20 +158,39 @@ def assert_missing_title_rejected() -> None:
 
 
 def main() -> None:
-    assert_merge_across_sources()
-    print("[PASS] stage2::merge_across_sources")
-    assert_partial_failure()
-    print("[PASS] stage2::partial_failure")
+    logger = StageLogger("stage2")
+    logger.start()
+    merge_result = assert_merge_across_sources()
+    logger.pass_case(
+        "merge_across_sources",
+        detail=stage2_result_detail(merge_result, live_enabled=False),
+    )
+    partial_result = assert_partial_failure()
+    logger.pass_case(
+        "partial_failure",
+        detail=stage2_result_detail(partial_result, live_enabled=False),
+    )
     assert_missing_title_rejected()
-    print("[PASS] stage2::missing_title_rejected")
-    maybe_run_live_smoke()
-    print("stage2 validation passed")
+    logger.pass_case("missing_title_rejected", detail="raised=ValueError field=target_paper.title")
+    maybe_run_live_smoke(logger)
+    logger.done("stage2 validation passed")
 
 
-def maybe_run_live_smoke() -> None:
+def stage2_result_detail(result, live_enabled: bool) -> str:
+    summary = result.fetch_summary
+    return (
+        f"live_enabled={live_enabled} target={summary.target_doi or summary.target_title} "
+        f"semantic_scholar={summary.semantic_scholar_candidates} crossref={summary.crossref_candidates} "
+        f"merged={summary.merged_candidates} deduped={summary.deduped_candidates} "
+        f"partial_failure={summary.partial_failure} errors={len(result.errors)}"
+    )
+
+
+def maybe_run_live_smoke(logger: StageLogger) -> None:
     os = __import__("os")
     live_mode = str(os.getenv("STAGE2_LIVE", "")).strip().lower()
     if live_mode not in {"1", "true", "yes"}:
+        logger.detail("live_enabled=False env=STAGE2_LIVE")
         return
 
     target_doi = str(os.getenv("STAGE2_TARGET_DOI", "")).strip()
@@ -193,7 +215,7 @@ def maybe_run_live_smoke() -> None:
     assert (
         result.fetch_summary.semantic_scholar_candidates > 0 or result.fetch_summary.deduped_candidates > 0
     ), f"live smoke returned no citation candidates: errors={result.errors!r}"
-    print("[PASS] stage2::live_smoke")
+    logger.pass_case("live_smoke", detail=stage2_result_detail(result, live_enabled=True))
 
 
 if __name__ == "__main__":

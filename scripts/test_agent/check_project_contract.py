@@ -6,6 +6,13 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CHECK_PROJECT_SCRIPT = REPO_ROOT / "scripts" / "check-project.sh"
 
+import sys
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.test_agent.stage_logging import StageLogger
+
 
 def assert_check_project_prefers_python_exe_before_python3() -> None:
     script_text = CHECK_PROJECT_SCRIPT.read_text(encoding="utf-8")
@@ -22,10 +29,23 @@ def assert_check_project_prefers_python_exe_before_python3() -> None:
     assert wslpath_conversion in script_text or cygpath_conversion in script_text
 
 
+def assert_check_project_does_not_override_stage_log_env() -> None:
+    script_text = CHECK_PROJECT_SCRIPT.read_text(encoding="utf-8")
+    assert "CITE_ANALYZER_STAGE_LOG=" not in script_text
+    assert '"${python_cmd}" "${run_script}"' in script_text
+
+
 def main() -> None:
+    logger = StageLogger("check_project_contract")
+    logger.start()
     assert_check_project_prefers_python_exe_before_python3()
-    print("[PASS] check_project_contract::prefers_python_exe_before_python3")
-    print("check-project contract validation passed")
+    logger.pass_case(
+        "prefers_python_exe_before_python3",
+        detail="checks=python.exe_order,wslpath_or_cygpath",
+    )
+    assert_check_project_does_not_override_stage_log_env()
+    logger.pass_case("preserves_stage_log_env", detail="CITE_ANALYZER_STAGE_LOG not assigned by shell wrapper")
+    logger.done("check-project contract validation passed")
 
 
 if __name__ == "__main__":

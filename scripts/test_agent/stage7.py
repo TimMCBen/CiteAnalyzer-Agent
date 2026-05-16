@@ -15,9 +15,10 @@ from packages.citation_sources.models import FetchSummary, SourceTrace
 from packages.reporting.service import build_report_artifact
 from packages.sentiment.models import CitationContext, SentimentSummary
 from packages.shared.models import AuthorProfile, AuthorSummary, ScholarLabel, TargetPaper
+from scripts.test_agent.stage_logging import StageLogger
 
 
-def assert_stage7_reporting_contract() -> None:
+def assert_stage7_reporting_contract() -> dict[str, object]:
     output_dir = Path(tempfile.mkdtemp(prefix="stage7-report-", dir=REPO_ROOT))
     try:
         artifact = build_report_artifact(
@@ -142,14 +143,29 @@ def assert_stage7_reporting_contract() -> None:
         assert 'class="metric-grid"' in html
         assert 'class="attention-list"' in html
         assert 'class="context-list"' in html
+        return {
+            "output_dir": str(output_dir),
+            "html_path": str(html_path),
+            "json_path": str(json_path),
+            "chart_keys": sorted(payload["charts"].keys()),
+            "manual_attention_count": len(payload["summary"]["manual_attention_items"]),
+        }
     finally:
         shutil.rmtree(output_dir, ignore_errors=True)
 
 
 def main() -> None:
-    assert_stage7_reporting_contract()
-    print("[PASS] stage7::reporting_contract")
-    print("stage7 validation passed")
+    logger = StageLogger("stage7")
+    logger.start()
+    detail = assert_stage7_reporting_contract()
+    logger.pass_case(
+        "reporting_contract",
+        detail=(
+            f"output_dir={detail['output_dir']} html={detail['html_path']} json={detail['json_path']} "
+            f"charts={detail['chart_keys']} manual_attention_count={detail['manual_attention_count']}"
+        ),
+    )
+    logger.done("stage7 validation passed")
 
 
 if __name__ == "__main__":
