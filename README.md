@@ -99,6 +99,18 @@ python ./scripts/test_agent/run.py
 CITE_ANALYZER_STAGE_LOG=detail bash ./scripts/check-project.sh
 ```
 
+正式 analyzer 运行链路也支持中文 runtime 日志：
+
+```bash
+CITE_ANALYZER_RUNTIME_LOG=detail python ./scripts/test_agent/e2e_real_smoke.py --target https://arxiv.org/abs/2504.19162 --max-citations 3 --log detail
+```
+
+`e2e_real_smoke.py` 会访问外部学术 API，是 opt-in live smoke，不包含在默认 `check-project.sh` 中。稳定的 runtime 日志 contract 使用本地 fake/fixture：
+
+```bash
+python ./scripts/test_agent/runtime_logging_contract.py
+```
+
 ## 如何测试
 
 ### 聚合验证
@@ -169,6 +181,12 @@ python ./scripts/test_agent/stage8.py
 ```
 
 ### 常用 live smoke
+
+正式 analyzer 中文日志 live smoke：
+
+```bash
+python ./scripts/test_agent/e2e_real_smoke.py --target https://arxiv.org/abs/2504.19162 --max-citations 3 --log detail
+```
 
 阶段 5 真实抓取验证：
 

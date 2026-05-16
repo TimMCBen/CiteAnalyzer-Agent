@@ -6,6 +6,7 @@ from packages.citation_sources.dedupe import merge_normalized_records
 from packages.citation_sources.models import CitationFetchResult, FetchSummary
 from packages.citation_sources.normalize import normalize_source_record
 from packages.shared.models import AnalysisState, TargetPaper
+from packages.shared.runtime_logging import get_runtime_logger
 
 
 class SemanticScholarClientProtocol(Protocol):
@@ -47,10 +48,21 @@ def fetch_citation_candidates(
         paper_ref = semantic_scholar_client.resolve_target_paper(target_paper)
         raw_records = semantic_scholar_client.fetch_citations(paper_ref, max_results=max_results)
         summary.semantic_scholar_candidates = len(raw_records)
+        get_runtime_logger().detail(
+            "semantic_scholar.citations",
+            "Semantic Scholar 返回施引记录",
+            count=len(raw_records),
+            max_results=max_results,
+        )
     except Exception as exc:
         errors.append(f"semantic_scholar: {exc}")
         summary.partial_failure = True
         summary.notes.append(f"semantic_scholar failed: {exc}")
+        get_runtime_logger().warn(
+            "semantic_scholar.citations",
+            "Semantic Scholar 施引抓取失败",
+            error_type=exc.__class__.__name__,
+        )
         raw_records = []
 
     for record in raw_records:
@@ -62,6 +74,11 @@ def fetch_citation_candidates(
             if not crossref_error_recorded:
                 summary.notes.append(f"crossref failed: {exc}")
                 errors.append(f"crossref: {exc}")
+                get_runtime_logger().warn(
+                    "crossref.enrich",
+                    "Crossref 元数据补全失败，将保留 Semantic Scholar 原始记录",
+                    error_type=exc.__class__.__name__,
+                )
                 crossref_error_recorded = True
             enriched_record = working_record
         else:
@@ -78,6 +95,13 @@ def fetch_citation_candidates(
 
     if not deduped_papers and errors:
         summary.notes.append("no citation candidates survived source failures")
+    elif not deduped_papers:
+        summary.notes.append("no citation candidates returned")
+        get_runtime_logger().skip(
+            "stage2",
+            "Semantic Scholar 当前返回 0 篇施引文献",
+            reason="no_citing_papers",
+        )
 
     return CitationFetchResult(
         citing_papers=deduped_papers,

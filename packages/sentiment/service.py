@@ -8,6 +8,7 @@ from packages.sentiment.fulltext import select_text_source
 from packages.sentiment.models import CitationContext, FullTextDocument, SentimentAnalysisResult, SentimentSummary
 from packages.sentiment.workflow import run_stage6_workflow
 from packages.shared.models import AnalysisState, TargetPaper
+from packages.shared.runtime_logging import get_runtime_logger
 
 VALID_SENTIMENT_LABELS = {"positive", "neutral", "critical", "unknown"}
 
@@ -34,6 +35,12 @@ def analyze_citation_sentiments(
         if text_source.text and text_source.source_type != "abstract":
             summary.fulltext_available += 1
         if not text_source.text:
+            get_runtime_logger().warn(
+                "sentiment.unknown",
+                "没有可用文本，无法判断引用情感",
+                citing_paper_id=citing_paper.canonical_id,
+                reason=text_source.evidence_note,
+            )
             contexts.append(
                 CitationContext(
                     citing_paper_id=citing_paper.canonical_id,
@@ -50,6 +57,12 @@ def analyze_citation_sentiments(
             summary.label_counts["unknown"] += 1
             continue
         if text_source.source_type == "abstract":
+            get_runtime_logger().warn(
+                "sentiment.unknown",
+                "仅有摘要文本，无法可靠定位目标论文引用上下文",
+                citing_paper_id=citing_paper.canonical_id,
+                reason=text_source.evidence_note,
+            )
             contexts.append(
                 CitationContext(
                     citing_paper_id=citing_paper.canonical_id,
@@ -83,13 +96,30 @@ def analyze_citation_sentiments(
 
         if citation_context.context_text:
             summary.context_found += 1
+            get_runtime_logger().detail(
+                "sentiment.context",
+                "已找到引用上下文",
+                citing_paper_id=citing_paper.canonical_id,
+                source_type=citation_context.text_source_type,
+            )
         if citation_context.sentiment_label not in VALID_SENTIMENT_LABELS:
             citation_context.sentiment_label = "unknown"
             citation_context.evidence_note = f"{citation_context.evidence_note}; invalid_label_normalized_to_unknown"
+            get_runtime_logger().warn(
+                "sentiment.unknown",
+                "情感分类标签无效，已归一化为 unknown",
+                citing_paper_id=citing_paper.canonical_id,
+            )
         if citation_context.sentiment_label != "unknown":
             summary.classified_count += 1
         else:
             summary.unknown_count += 1
+            get_runtime_logger().warn(
+                "sentiment.unknown",
+                "引用情感无法判断",
+                citing_paper_id=citing_paper.canonical_id,
+                reason=citation_context.evidence_note,
+            )
         summary.label_counts[citation_context.sentiment_label] += 1
         contexts.append(citation_context)
 

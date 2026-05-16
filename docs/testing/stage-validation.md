@@ -19,6 +19,15 @@
 
 日志允许少量 emoji 和分段符号辅助阅读，但自动化检查只依赖 `START` / `PASS` / `FAIL` / `SKIP` / `DETAIL` 等稳定文本 token。
 
+正式 analyzer 运行日志：
+
+- 运行链路使用 `CITE_ANALYZER_RUNTIME_LOG=quiet|brief|detail` 控制中文 runtime 日志，默认 `brief`。
+- `CITE_ANALYZER_RUNTIME_LOG` 服务 `apps/analyzer/` 正式分析入口；`CITE_ANALYZER_STAGE_LOG` 只服务 `scripts/test_agent/` 阶段验证入口。
+- RuntimeLogger contract：`python ./scripts/test_agent/runtime_logging_contract.py`
+- opt-in live smoke：`python ./scripts/test_agent/e2e_real_smoke.py --target https://arxiv.org/abs/2504.19162 --max-citations 3 --log detail`
+- `e2e_real_smoke.py` 依赖外部 API 和当前网络，不接入默认 `run.py`、`check-project.sh` 或默认 CI。
+- 0 施引路径由 `runtime_logging_contract.py` 的 fake/fixture 稳定验证；不要把实时外部数据库的当前施引数作为固定验收。
+
 当前 `run.py` 仍只聚合：
 
 - `import_contract.py`
@@ -144,6 +153,29 @@
 - 当前状态：
   - 已实现 fixture-backed 全链路验证
   - 已接入 `scripts/test_agent/run.py` 聚合验证
+
+### Runtime Logger
+
+- 脚本：`scripts/test_agent/runtime_logging_contract.py`
+- 当前覆盖：
+  - Semantic Scholar 默认字段不包含 `authors.name` / `citingPaper.authors.name`
+  - arXiv 版本号在 Semantic Scholar client 边界归一化
+  - runtime logger 对 API key / authorization 等敏感字段脱敏
+  - 0 施引 fake 样本最终生成 HTML / JSON 报告，且不写入 `state.errors`
+  - OpenAlex 单作者异常输出 `WARN` 且标注 `impact=single_author`
+  - GROBID 命中 / 未命中输出中文日志
+- 当前状态：
+  - 已实现 fake/fixture contract
+  - 不访问真实外部 API
+
+- 脚本：`scripts/test_agent/e2e_real_smoke.py`
+- 当前覆盖：
+  - 正式 analyzer live 路径的中文 runtime 日志
+  - `--max-citations` 控制真实 Semantic Scholar 请求规模
+  - 最终报告 HTML / JSON 产物存在
+- 当前状态：
+  - opt-in live smoke
+  - 不接入默认聚合入口
 
 ## 维护原则
 

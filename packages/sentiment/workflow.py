@@ -15,6 +15,7 @@ from packages.sentiment.llm_locator import (
 from packages.sentiment.models import CitationContext, ReferenceMatch, TextSourceSelection
 from packages.sentiment.reference_locator import locate_reference_context
 from packages.shared.models import TargetPaper
+from packages.shared.runtime_logging import get_runtime_logger
 
 VALID_SENTIMENT_LABELS = {"positive", "neutral", "critical", "unknown"}
 
@@ -64,9 +65,30 @@ def run_stage6_workflow(
             )
         except Exception as exc:
             state["grobid_note"] = f"grobid_unavailable:{exc.__class__.__name__}"
+            get_runtime_logger().warn(
+                "grobid.match",
+                "GROBID 不可用或处理失败，已降级到文本/LLM 定位",
+                citing_paper_id=state["citing_paper"].canonical_id,
+                error_type=exc.__class__.__name__,
+                impact="single_paper",
+            )
             return state
         if grobid_match.context_text:
             state["reference_match"] = grobid_match
+            get_runtime_logger().stage_done(
+                "grobid.match",
+                "GROBID 命中目标论文参考文献结构",
+                citing_paper_id=state["citing_paper"].canonical_id,
+                evidence=grobid_match.evidence_note,
+            )
+        else:
+            get_runtime_logger().warn(
+                "grobid.match",
+                "GROBID 未命中目标论文参考文献结构，已降级到文本/LLM 定位",
+                citing_paper_id=state["citing_paper"].canonical_id,
+                evidence=grobid_match.evidence_note,
+                impact="single_paper",
+            )
         return state
 
     def tex_bibliography_matcher(state: Stage6PaperState) -> Stage6PaperState:

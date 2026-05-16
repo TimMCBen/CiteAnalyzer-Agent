@@ -4,6 +4,8 @@ import json
 from typing import Any
 from urllib import parse, request
 
+from packages.shared.runtime_logging import get_runtime_logger
+
 
 class OpenAlexClient:
     BASE_URL = "https://api.openalex.org"
@@ -13,6 +15,7 @@ class OpenAlexClient:
         if not query:
             return None
 
+        get_runtime_logger().detail("openalex.lookup", "正在查询 OpenAlex 作者画像", author=query)
         url = (
             f"{self.BASE_URL}/authors?"
             f"{parse.urlencode({'search': query, 'per-page': '3'})}"
@@ -30,11 +33,18 @@ class OpenAlexClient:
 
         results = payload.get("results")
         if not isinstance(results, list) or not results:
+            get_runtime_logger().detail("openalex.lookup", "OpenAlex 未返回作者候选", author=query)
             return None
 
         best = results[0]
         if not isinstance(best, dict):
             return None
+        get_runtime_logger().detail(
+            "openalex.lookup",
+            "OpenAlex 返回作者候选",
+            author=query,
+            matched_name=best.get("display_name"),
+        )
         return {
             "author_id": str(best.get("id") or "").strip(),
             "name": str(best.get("display_name") or query).strip(),

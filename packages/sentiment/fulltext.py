@@ -14,6 +14,7 @@ from bs4 import BeautifulSoup
 from pypdf import PdfReader
 from packages.citation_sources.models import CitingPaper
 from packages.sentiment.models import FullTextDocument, TextSourceSelection
+from packages.shared.runtime_logging import get_runtime_logger
 
 REQUEST_TIMEOUT_SECONDS = 20
 TEXT_MIN_LENGTH = 80
@@ -46,6 +47,12 @@ def select_text_source(
     attempt_failures: list[FullTextAttemptFailure] = []
     document = (provided_documents or {}).get(citing_paper.canonical_id)
     if document and (document.text.strip() or document.raw_path):
+        get_runtime_logger().detail(
+            "fulltext.select",
+            "使用已提供的全文文档",
+            citing_paper_id=citing_paper.canonical_id,
+            source_type=document.source_type,
+        )
         return TextSourceSelection(
             citing_paper_id=citing_paper.canonical_id,
             text=document.text,
@@ -65,6 +72,12 @@ def select_text_source(
             attempt_failures=attempt_failures,
         )
         if fetched_document and fetched_document.text.strip():
+            get_runtime_logger().detail(
+                "fulltext.select",
+                "通过网络获取到全文",
+                citing_paper_id=citing_paper.canonical_id,
+                source_type=fetched_document.source_type,
+            )
             return TextSourceSelection(
                 citing_paper_id=citing_paper.canonical_id,
                 text=fetched_document.text,
@@ -77,6 +90,12 @@ def select_text_source(
             )
 
     if citing_paper.abstract and citing_paper.abstract.strip():
+        get_runtime_logger().warn(
+            "fulltext.select",
+            "未找到可用全文，已降级为摘要文本，情感将标记为 unknown",
+            citing_paper_id=citing_paper.canonical_id,
+            impact="single_paper",
+        )
         return TextSourceSelection(
             citing_paper_id=citing_paper.canonical_id,
             text=citing_paper.abstract,
@@ -92,6 +111,12 @@ def select_text_source(
             ),
         )
 
+    get_runtime_logger().warn(
+        "fulltext.select",
+        "未找到全文或摘要，无法判断该施引论文的引用情感",
+        citing_paper_id=citing_paper.canonical_id,
+        impact="single_paper",
+    )
     return TextSourceSelection(
         citing_paper_id=citing_paper.canonical_id,
         text=None,
@@ -118,6 +143,13 @@ def fetch_fulltext_document(
         try:
             payload = load_candidate_text(citing_paper.canonical_id, source_label, candidate)
         except Exception as exc:
+            get_runtime_logger().detail(
+                "fulltext.fetch",
+                "全文候选抓取失败，继续尝试下一个来源",
+                citing_paper_id=citing_paper.canonical_id,
+                source=source_label,
+                error_type=type(exc).__name__,
+            )
             if attempt_failures is not None:
                 attempt_failures.append(
                     FullTextAttemptFailure(
@@ -129,6 +161,13 @@ def fetch_fulltext_document(
             continue
         document = payload.document
         if document and len(document.text.strip()) >= TEXT_MIN_LENGTH:
+            get_runtime_logger().detail(
+                "fulltext.fetch",
+                "全文候选可用",
+                citing_paper_id=citing_paper.canonical_id,
+                source=source_label,
+                source_type=document.source_type,
+            )
             document.evidence_note = build_recovery_evidence_note(
                 base_note="text_fetched",
                 citing_paper=citing_paper,
@@ -142,6 +181,12 @@ def fetch_fulltext_document(
             )
             return document
         if attempt_failures is not None:
+            get_runtime_logger().detail(
+                "fulltext.fetch",
+                "全文候选文本过短，继续尝试下一个来源",
+                citing_paper_id=citing_paper.canonical_id,
+                source=source_label,
+            )
             attempt_failures.append(
                 FullTextAttemptFailure(
                     source_label=source_label,
