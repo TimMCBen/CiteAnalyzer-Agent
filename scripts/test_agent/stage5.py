@@ -12,7 +12,10 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from packages.citation_sources.models import CitingPaper
+from packages.paper_identity.models import CandidateWork
 from packages.sentiment.fulltext import fetch_fulltext_document, select_text_source
+from packages.sentiment.fulltext import reset_arxiv_metadata_client_for_testing, search_arxiv_candidates_by_title
+from packages.sentiment.fulltext import set_arxiv_metadata_client_for_testing
 from packages.shared.models import TargetPaper
 from scripts.test_agent.stage_logging import StageLogger
 
@@ -202,6 +205,48 @@ def assert_stage5_unavailable_paper_guidance(sample_path: Path = DEFAULT_SAMPLE_
     return selection.evidence_note
 
 
+class FakeArxivMetadataClient:
+    def __init__(self) -> None:
+        self.calls = 0
+        self.cache_hits = 0
+        self.request_count = 0
+        self._cache: dict[str, list[CandidateWork]] = {}
+
+    def search_by_title(self, title: str, *, max_results: int = 3) -> list[CandidateWork]:
+        normalized = title.lower().strip()
+        if normalized in self._cache:
+            self.cache_hits += 1
+            return list(self._cache[normalized])
+        self.calls += 1
+        self.request_count += 1
+        self._cache[normalized] = [
+            CandidateWork(
+                source="arxiv",
+                work_id="https://arxiv.org/abs/2504.19162",
+                title=title,
+                arxiv_id="2504.19162",
+            )
+        ]
+        return list(self._cache[normalized])
+
+
+def assert_stage5_arxiv_search_uses_shared_cache() -> dict[str, int]:
+    fake_client = FakeArxivMetadataClient()
+    set_arxiv_metadata_client_for_testing(fake_client)
+    try:
+        title = "SPC: Evolving Self-Play Critic via Adversarial Games for LLM Reasoning"
+        first = search_arxiv_candidates_by_title(title)
+        second = search_arxiv_candidates_by_title(title)
+
+        assert first == second, (first, second)
+        assert len(first) == 3, first
+        assert fake_client.calls == 1, fake_client.calls
+        assert fake_client.cache_hits == 1, fake_client.cache_hits
+        return {"calls": fake_client.calls, "cache_hits": fake_client.cache_hits, "urls": len(first)}
+    finally:
+        reset_arxiv_metadata_client_for_testing()
+
+
 def maybe_run_live_fetch_smoke(logger: StageLogger) -> None:
     live_mode = str(os.getenv("STAGE5_FETCH_LIVE", "")).strip().lower()
     if live_mode not in {"1", "true", "yes"}:
@@ -239,6 +284,8 @@ def main() -> None:
     )
     evidence_note = assert_stage5_unavailable_paper_guidance()
     logger.pass_case("unavailable_paper_guidance", detail=f"evidence_note={evidence_note}")
+    arxiv_cache = assert_stage5_arxiv_search_uses_shared_cache()
+    logger.pass_case("arxiv_search_shared_cache", detail=str(arxiv_cache))
     maybe_run_live_fetch_smoke(logger)
     logger.done("stage5 validation passed")
 

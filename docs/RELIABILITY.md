@@ -29,5 +29,8 @@ CI/CD 流程结构和 release 自动化的默认方案，统一写在 `docs/CICD
 - Semantic Scholar 客户端保留自己的 1 秒 1 次限流和重试逻辑，不应在调用层再包一层重试。
 - GROBID `/isalive` 可短重试；`/processFulltextDocument` 是大文件 POST，只允许极少次数重试。
 - OpenAlex / DBLP 作者画像查询有单请求重试和阶段级失败预算，避免批量作者场景被系统性网络失败拖慢。
+- 论文身份核验 sidecar 的 OpenAlex work 查询使用缓存和短重试；真实批量测评可通过 `OPENALEX_API_KEY` / `OPENALEX_MAILTO` 进入认证或 polite 路径；失败只标记该论文身份为 `error/lookup_failed`，不能被 GPT 当作“不存在”。
+- arXiv metadata 查询统一经过 `ArxivMetadataClient`，默认 `>= 3.1s/request`，并维护同运行 ID 缓存、标题正缓存和标题负缓存。
+- Stage5 的 arXiv 标题全文候选搜索只消费共享 metadata client，不再直接绕过限速发 `requests.get()`；加速来自减少重复请求，而不是并发打 arXiv API。
 - 重试 detail 日志使用 `retry.wait`，耗尽时使用 `retry.exhausted`，字段应包含 `service`、`operation`、`attempt`、`max_attempts`、`delay_s`、`reason`、`impact`。
 - 重试契约由 `scripts/test_agent/network_retry_contract.py` 覆盖，并已接入 `scripts/test_agent/run.py` 聚合入口。

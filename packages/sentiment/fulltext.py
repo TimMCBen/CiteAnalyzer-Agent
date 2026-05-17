@@ -6,13 +6,13 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, Mapping, Optional
-from urllib.parse import quote, urlparse
-from xml.etree import ElementTree
+from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
 from pypdf import PdfReader
 from packages.citation_sources.models import CitingPaper
+from packages.paper_identity.clients.arxiv import ArxivMetadataClient, arxiv_candidate_urls
 from packages.sentiment.models import FullTextDocument, TextSourceSelection
 from packages.shared.network_retry import RetryPolicy, retry_call
 from packages.shared.runtime_logging import get_runtime_logger
@@ -30,16 +30,7 @@ FULLTEXT_DOWNLOAD_RETRY = RetryPolicy(
     overall_budget_seconds=8.0,
     impact="single_fulltext_candidate",
 )
-ARXIV_FULLTEXT_SEARCH_RETRY = RetryPolicy(
-    service="arXiv",
-    operation="全文候选搜索",
-    max_attempts=2,
-    base_delay_seconds=0.5,
-    max_delay_seconds=1.5,
-    jitter_seconds=0.1,
-    overall_budget_seconds=3.0,
-    impact="single_citing_paper",
-)
+_ARXIV_METADATA_CLIENT = ArxivMetadataClient()
 
 
 @dataclass
@@ -435,10 +426,8 @@ def search_arxiv_candidates_by_title(title: str) -> list[str]:
     if not title.strip():
         return []
 
-    query = quote(title.strip())
-    url = f"http://export.arxiv.org/api/query?search_query=ti:%22{query}%22&start=0&max_results=3"
     try:
-        response = _get_with_retry(url, ARXIV_FULLTEXT_SEARCH_RETRY)
+        works = _ARXIV_METADATA_CLIENT.search_by_title(title, max_results=3)
     except Exception as exc:
         get_runtime_logger().detail(
             "fulltext.arxiv_search",
@@ -447,30 +436,31 @@ def search_arxiv_candidates_by_title(title: str) -> list[str]:
         )
         return []
 
-    try:
-        root = ElementTree.fromstring(response.text)
-    except ElementTree.ParseError:
-        return []
-
     normalized_title = normalize_for_title(title)
-    namespace = {"atom": "http://www.w3.org/2005/Atom"}
     urls: list[str] = []
-    for entry in root.findall("atom:entry", namespace):
-        entry_title = entry.findtext("atom:title", default="", namespaces=namespace)
-        if not titles_look_related(normalized_title, normalize_for_title(entry_title)):
+    for work in works:
+        if not titles_look_related(normalized_title, normalize_for_title(work.title)):
             continue
-        entry_id = entry.findtext("atom:id", default="", namespaces=namespace).strip()
-        arxiv_id = extract_arxiv_id(entry_id)
-        if not arxiv_id:
-            continue
-        urls.extend(
-            [
-                f"https://arxiv.org/pdf/{arxiv_id}.pdf",
-                f"https://arxiv.org/html/{arxiv_id}",
-                f"https://arxiv.org/abs/{arxiv_id}",
-            ]
-        )
+        urls.extend(arxiv_candidate_urls(work))
+    get_runtime_logger().detail(
+        "fulltext.arxiv_search",
+        "arXiv 全文候选搜索完成",
+        title=title,
+        candidates=len(urls),
+        cache_hits=_ARXIV_METADATA_CLIENT.cache_hits,
+        requests=_ARXIV_METADATA_CLIENT.request_count,
+    )
     return urls
+
+
+def set_arxiv_metadata_client_for_testing(client: ArxivMetadataClient) -> None:
+    global _ARXIV_METADATA_CLIENT
+    _ARXIV_METADATA_CLIENT = client
+
+
+def reset_arxiv_metadata_client_for_testing() -> None:
+    global _ARXIV_METADATA_CLIENT
+    _ARXIV_METADATA_CLIENT = ArxivMetadataClient()
 
 
 def _get_with_retry(url: str, policy: RetryPolicy) -> requests.Response:

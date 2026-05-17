@@ -447,6 +447,8 @@ MVP 至少需要维护以下核心对象：
   - 阶段 4 的作者画像补全、`OpenAlex + DBLP` 客户端和重量级学者规则
 - `packages/citation_sources/`
   - 阶段 2 的抓取、标准化、去重和外部源客户端
+- `packages/paper_identity/`
+  - 论文身份核验 sidecar、OpenAlex work-first 证据生成、arXiv metadata 缓存/限速和 GPT 复核入口
 - `packages/sentiment/`
   - 阶段 5 的全文抓取与文本落盘
   - 阶段 6 的引用上下文定位与情感分析工作流

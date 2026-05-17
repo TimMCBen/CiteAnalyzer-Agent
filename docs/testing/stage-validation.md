@@ -33,6 +33,7 @@
 - `import_contract.py`
 - `llm_prompt_contract.py`
 - `network_retry_contract.py`
+- `paper_identity.py`
 - `stage1.py`
 - `stage2.py`
 - `stage4.py`
@@ -91,6 +92,22 @@
   - 已实现本地夹具验证
   - 已接入 `scripts/test_agent/run.py` 聚合验证
 
+### 论文身份核验 sidecar
+
+- 脚本：`scripts/test_agent/paper_identity.py`
+- 当前覆盖：
+  - DOI 命中且标题一致时输出高置信身份核验
+  - DOI 标题错配时标记 `present_mismatch`，不盲信 DOI work
+  - OpenAlex 标题搜索命中时输出 `title_hit_verified`
+  - 作者数异常会把高置信降为中置信并要求 GPT 复核
+  - OpenAlex / arXiv 查询失败时输出 `error`，不让 GPT 凭空升置信
+  - arXiv metadata client 的同运行正缓存、负缓存和限速等待
+  - `resolve_paper_identity()` sidecar 会优先复用 arXiv ID hint，不重复标题搜索
+- 当前状态：
+  - 已实现 fake/fixture contract
+  - 已接入 `scripts/test_agent/run.py` 聚合验证
+  - 默认不调用真实 GPT 或真实外部 API
+
 - 阶段 5
   - 当前原型能力：
     - `PDF-first` 全文抓取
@@ -98,9 +115,11 @@
     - 本地落盘 `raw artifact + parsed txt`
     - 不再把 `tar` / `extracted/` 视为默认正式产物
     - 当全文不可获取时，返回恢复建议并在可用时退回摘要
+    - arXiv 标题补充搜索复用 `paper_identity` metadata client 的同运行缓存和限速
   - 当前验证：
     - `python ./scripts/test_agent/stage5.py`
     - `STAGE5_FETCH_LIVE=1 python ./scripts/test_agent/stage5.py`
+    - `stage5.py` 中的 `arxiv_search_shared_cache` 使用 fake client 验证 Stage5 不绕过共享缓存
   - 当前状态：
     - 已实现本地夹具验证
     - 已接入 `scripts/test_agent/run.py` 聚合验证
@@ -198,6 +217,22 @@
 - 当前状态：
   - opt-in live smoke
   - 不接入默认聚合入口
+
+### 论文身份 100 篇测评
+
+- 脚手架：
+  - `scripts/eval/paper_identity_build_dataset.py`
+  - `scripts/eval/paper_identity_run_pipeline.py`
+  - `scripts/eval/paper_identity_run_llm_baseline.py`
+  - `scripts/eval/paper_identity_score.py`
+- 当前约定：
+  - `build_dataset` 只从已有 Stage2 / 报告 JSON 提取施引论文并生成 gold 模板，不把 GPT 输出当 gold
+  - `run_pipeline` 运行“程序规则 + 可选 GPT 复核”的正常方案
+  - `run_llm_baseline` 使用同一 evidence packet 调真实 GPT baseline，不允许 baseline 自由联网扩展候选集
+  - `score` 输出 identity accuracy、selected work accuracy、DOI mismatch precision/recall、abstention、LLM/API 调用数
+- 当前状态：
+  - 默认聚合入口不运行 100 篇 live 测评
+  - 真实测评需要人工完成 gold，并显式运行 `scripts/eval/` 下命令
 
 ## 维护原则
 
