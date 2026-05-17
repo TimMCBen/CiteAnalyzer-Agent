@@ -384,7 +384,7 @@ RuntimeLogger 稳定 contract：
 - 输出包含 `引用情感` 和 `报告路径`。
 - 输出不包含 API key 前缀或完整密钥。
 - 对 live smoke 只断言摘要字段和日志语义，不断言实时施引数量必须固定。
- 
+
 0 施引断言只属于 `runtime_logging_contract.py`：
 
 - 输出包含 `Semantic Scholar 当前返回 0 篇施引文献`。
