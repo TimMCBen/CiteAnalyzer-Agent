@@ -1,3 +1,4 @@
+"""Country resolution helpers for report generation."""
 from __future__ import annotations
 
 import json
@@ -21,6 +22,7 @@ except ImportError:
 
 @dataclass(frozen=True)
 class CountryResolution:
+    """Store country resolution information used by report generation."""
     institution: str
     country: str
     country_code: str | None
@@ -42,11 +44,13 @@ class CountryResolution:
 
 
 class CountryResolverProtocol(Protocol):
+    """Define the protocol expected by report generation services."""
     def resolve(self, institution: str) -> CountryResolution:
         ...
 
 
 class LLMCountryResolutionModel(BaseModel):
+    """Validate structured LLM country resolution data for report generation."""
     country: str = Field(description="Country or region name in English, or Unknown if not enough evidence.")
     country_code: Optional[str] = Field(default=None, description="ISO 3166-1 alpha-2 code when known, otherwise null.")
     confidence: str = Field(description="high, medium, or low")
@@ -70,7 +74,9 @@ COUNTRY_RULES: tuple[tuple[tuple[str, ...], str, str], ...] = (
 
 
 class RuleBasedCountryResolver:
+    """Store rule based country resolver information used by report generation."""
     def resolve(self, institution: str) -> CountryResolution:
+        """Resolve resolve for rule based country resolver."""
         normalized = f" {institution.strip().casefold()} "
         if not normalized.strip():
             return unknown_country_resolution(institution, method="rule", evidence="机构字段为空。")
@@ -90,7 +96,9 @@ class RuleBasedCountryResolver:
 
 
 class LLMCountryResolver:
+    """Store LLM country resolver information used by report generation."""
     def resolve(self, institution: str) -> CountryResolution:
+        """Resolve resolve for LLM country resolver."""
         from apps.analyzer.config import build_llm, invoke_llm_with_retry
 
         llm = build_llm()
@@ -127,6 +135,7 @@ class LLMCountryResolver:
 
 
 class HybridCountryResolver:
+    """Store hybrid country resolver information used by report generation."""
     def __init__(
         self,
         rule_resolver: CountryResolverProtocol | None = None,
@@ -139,6 +148,7 @@ class HybridCountryResolver:
         self._use_llm = use_llm
 
     def resolve(self, institution: str) -> CountryResolution:
+        """Resolve resolve for hybrid country resolver."""
         rule_result = self._rule_resolver.resolve(institution)
         if rule_result.country != "Unknown" and rule_result.confidence == "high":
             return rule_result
@@ -163,6 +173,7 @@ def unknown_country_resolution(
     evidence: str,
     needs_review: bool = True,
 ) -> CountryResolution:
+    """Build an unresolved country-resolution result for report generation."""
     return CountryResolution(
         institution=institution,
         country="Unknown",
@@ -175,6 +186,7 @@ def unknown_country_resolution(
 
 
 def normalize_confidence(value: str) -> str:
+    """Normalize confidence for report generation."""
     normalized = value.strip().casefold()
     if normalized in {"high", "medium", "low"}:
         return normalized
@@ -182,4 +194,5 @@ def normalize_confidence(value: str) -> str:
 
 
 def trace_to_json(trace: list[CountryResolution]) -> str:
+    """Serialize country-resolution trace data for reports for report generation."""
     return json.dumps([item.to_dict() for item in trace], ensure_ascii=False, indent=2)

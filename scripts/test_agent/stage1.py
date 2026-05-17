@@ -1,3 +1,4 @@
+"""Command-line validation helpers for stage1."""
 from __future__ import annotations
 
 import sys
@@ -95,6 +96,7 @@ def assert_invalid_case(case: dict[str, str]) -> None:
 
 
 def parse_query(raw_query: str):
+    """Parse query for stage validation."""
     original_parse_with_llm = nodes.parse_with_llm
     original_resolve_target_paper_metadata = nodes.resolve_target_paper_metadata
 
@@ -156,6 +158,7 @@ def parse_query(raw_query: str):
 
 
 def main() -> None:
+    """Run this module as a command-line validation or utility entry point."""
     logger = StageLogger("stage1")
     logger.start()
     for case in CASES:

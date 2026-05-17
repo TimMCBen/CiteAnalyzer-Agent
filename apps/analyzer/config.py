@@ -1,3 +1,4 @@
+"""Configuration helpers for analyzer LLM, GROBID, and local environment settings."""
 from __future__ import annotations
 
 import os
@@ -14,6 +15,7 @@ LOCAL_ENV_PATH = REPO_ROOT / ".env"
 
 @dataclass(frozen=True)
 class LLMEnvConfig:
+    """Store LLM environment settings used to construct analyzer model clients."""
     api_key: str
     base_url: str
     model: str
@@ -32,6 +34,7 @@ LLM_RETRY_POLICY = RetryPolicy(
 
 
 def load_local_env(*, override: bool = False) -> None:
+    """Load local env for the analyzer pipeline."""
     try:
         from dotenv import load_dotenv
     except ImportError:
@@ -40,6 +43,7 @@ def load_local_env(*, override: bool = False) -> None:
 
 
 def get_llm_env_config(*, override: bool = False) -> LLMEnvConfig:
+    """Return LLM env config for the analyzer pipeline."""
     load_local_env(override=override)
 
     api_key = (os.getenv("API_KEY") or "").strip()
@@ -56,6 +60,7 @@ def get_llm_env_config(*, override: bool = False) -> LLMEnvConfig:
 
 
 def build_llm() -> Any:
+    """Build LLM for the analyzer pipeline."""
     try:
         from langchain_openai import ChatOpenAI
     except ImportError as exc:
@@ -66,6 +71,7 @@ def build_llm() -> Any:
 
 
 def invoke_llm_with_retry(structured_llm: Any, messages: list[dict[str, str]], operation: str) -> Any:
+    """Invoke LLM with retry for the analyzer pipeline."""
     policy = RetryPolicy(
         service=LLM_RETRY_POLICY.service,
         operation=operation,
@@ -80,5 +86,6 @@ def invoke_llm_with_retry(structured_llm: Any, messages: list[dict[str, str]], o
 
 
 def get_grobid_api_url() -> str:
+    """Return GROBID api url for the analyzer pipeline."""
     load_local_env()
     return (os.getenv("GROBID_API_URL") or "http://localhost:8070/api").strip().rstrip("/")

@@ -1,3 +1,4 @@
+"""Command-line validation helpers for network retry contract."""
 from __future__ import annotations
 
 import contextlib
@@ -78,7 +79,9 @@ def assert_retry_after_controls_delay() -> None:
     sleeps: list[float] = []
 
     class Headers(dict):
+        """Store headers information used by stage validation."""
         def get(self, key, default=None):
+            """Return get for headers."""
             return super().get(key, default)
 
     def rate_limited() -> str:
@@ -155,6 +158,7 @@ def assert_openalex_client_retries_tls_disconnect() -> None:
     original_urlopen = openalex_module.request.urlopen
 
     class FakeResponse:
+        """Test double that simulates fake response behavior."""
         status = 200
 
         def __enter__(self):
@@ -164,6 +168,7 @@ def assert_openalex_client_retries_tls_disconnect() -> None:
             return None
 
         def read(self) -> bytes:
+            """Read read for fake response."""
             return (
                 b'{"results":[{"id":"https://openalex.org/A1","display_name":"Lei Bai",'
                 b'"summary_stats":{"h_index":31},"cited_by_count":500,"works_count":40}]}'
@@ -198,6 +203,7 @@ def assert_dblp_client_retries_transient_failure() -> None:
     original_urlopen = dblp_module.request.urlopen
 
     class FakeResponse:
+        """Test double that simulates fake response behavior."""
         status = 200
 
         def __enter__(self):
@@ -207,6 +213,7 @@ def assert_dblp_client_retries_transient_failure() -> None:
             return None
 
         def read(self) -> bytes:
+            """Read read for fake response."""
             return b'{"result":{"hits":{"hit":[{"info":{"author":"Lei Bai","url":"https://dblp.org/pid/x/y"}}]}}}'
 
     def fake_urlopen(*args, **kwargs):
@@ -229,6 +236,7 @@ def assert_dblp_client_retries_transient_failure() -> None:
 
 
 def main() -> None:
+    """Run this module as a command-line validation or utility entry point."""
     logger = StageLogger("network_retry")
     logger.start()
     assert_retry_then_success()

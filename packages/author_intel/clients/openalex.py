@@ -1,3 +1,4 @@
+"""Client helpers for OpenAlex operations in author intelligence."""
 from __future__ import annotations
 
 import json
@@ -9,6 +10,7 @@ from packages.shared.runtime_logging import get_runtime_logger
 
 
 class OpenAlexClient:
+    """Client wrapper for open alex operations used by author intelligence."""
     BASE_URL = "https://api.openalex.org"
 
     def __init__(
@@ -32,6 +34,7 @@ class OpenAlexClient:
         )
 
     def lookup_author(self, name: str) -> dict[str, Any] | None:
+        """Look up author for open alex client."""
         query = str(name or "").strip()
         if not query:
             return None
@@ -93,11 +96,13 @@ class OpenAlexClient:
         }
 
     def _read_json(self, req: request.Request) -> dict[str, Any]:
+        """Read JSON for open alex client."""
         with request.urlopen(req, timeout=self._timeout_seconds) as response:
             return json.loads(response.read().decode("utf-8"))
 
 
 def _coerce_int(value: Any) -> int | None:
+    """Coerce numeric API fields into integers for author intelligence."""
     if isinstance(value, int):
         return value
     if isinstance(value, str) and value.strip():

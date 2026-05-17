@@ -1,3 +1,4 @@
+"""Package exports for the author-intel author intelligence module."""
 from packages.author_intel.models import AuthorIntelResult
 from packages.author_intel.service import (
     analyze_author_intel,

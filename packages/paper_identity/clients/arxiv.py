@@ -1,3 +1,4 @@
+"""Client helpers for arXiv operations in paper identity matching."""
 from __future__ import annotations
 
 import re
@@ -20,6 +21,7 @@ PLAIN_ARXIV_ID_PATTERN = re.compile(r"(?P<id>\d{4}\.\d{4,5})(?:v\d+)?", re.IGNOR
 
 
 class ArxivMetadataClient:
+    """Client wrapper for arXiv metadata operations used by paper identity matching."""
     def __init__(
         self,
         *,
@@ -42,6 +44,7 @@ class ArxivMetadataClient:
         self.cache_hits = 0
 
     def lookup_ids(self, arxiv_ids: list[str]) -> list[CandidateWork]:
+        """Look up ids for arXiv metadata client."""
         normalized_ids = []
         for value in arxiv_ids:
             arxiv_id = normalize_arxiv_id(value)
@@ -68,6 +71,7 @@ class ArxivMetadataClient:
         return results
 
     def search_by_title(self, title: str, *, max_results: int = 3) -> list[CandidateWork]:
+        """Search by title for arXiv metadata client."""
         normalized_title = normalize_title_for_match(title)
         if not normalized_title:
             return []
@@ -89,6 +93,7 @@ class ArxivMetadataClient:
         return list(works)
 
     def _get_text(self, url: str) -> str:
+        """Return text for arXiv metadata client."""
         self._respect_rate_limit()
         policy = RetryPolicy(
             service="arXiv",
@@ -103,6 +108,7 @@ class ArxivMetadataClient:
         return retry_call(lambda: self._fetch_text_once(url), policy)
 
     def _fetch_text_once(self, url: str) -> str:
+        """Fetch text once for arXiv metadata client."""
         self.request_count += 1
         self.http_attempt_count += 1
         if self._fetcher is not None:
@@ -112,6 +118,7 @@ class ArxivMetadataClient:
         return response.text
 
     def _respect_rate_limit(self) -> None:
+        """Throttle requests to respect upstream rate limits for arXiv metadata client."""
         now = self._monotonic()
         elapsed = now - self._last_request_at
         if self._last_request_at and elapsed < self._min_interval_seconds:
@@ -126,6 +133,7 @@ class ArxivMetadataClient:
 
 
 def normalize_arxiv_id(value: str | None) -> str | None:
+    """Normalize arXiv id for paper identity matching."""
     if not value:
         return None
     text = str(value).strip()
@@ -137,6 +145,7 @@ def normalize_arxiv_id(value: str | None) -> str | None:
 
 
 def extract_arxiv_ids_from_links(values: list[str]) -> list[str]:
+    """Extract arXiv ids from links for paper identity matching."""
     found: list[str] = []
     for value in values:
         arxiv_id = normalize_arxiv_id(value)
@@ -146,6 +155,7 @@ def extract_arxiv_ids_from_links(values: list[str]) -> list[str]:
 
 
 def arxiv_candidate_urls(work: CandidateWork) -> list[str]:
+    """Build arXiv full-text candidate URLs for paper identity matching."""
     if not work.arxiv_id:
         return []
     return [
@@ -156,6 +166,7 @@ def arxiv_candidate_urls(work: CandidateWork) -> list[str]:
 
 
 def _parse_arxiv_atom(payload: str) -> list[CandidateWork]:
+    """Parse arXiv atom for paper identity matching."""
     root = ElementTree.fromstring(payload)
     namespace = {"atom": "http://www.w3.org/2005/Atom"}
     works: list[CandidateWork] = []

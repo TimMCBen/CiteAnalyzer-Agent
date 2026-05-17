@@ -1,3 +1,4 @@
+"""Target-paper resolution helpers for DOI, arXiv, OpenAlex, and title queries."""
 from __future__ import annotations
 
 import re
@@ -48,6 +49,7 @@ ARXIV_TITLE_RETRY = RetryPolicy(
 
 
 def resolve_target_paper_metadata(target_paper: TargetPaper) -> TargetPaper:
+    """Resolve target paper metadata for the analyzer pipeline."""
     query_type = target_paper.paper_query_type
     get_runtime_logger().detail(
         "resolver.start",
@@ -70,6 +72,7 @@ def resolve_target_paper_metadata(target_paper: TargetPaper) -> TargetPaper:
 
 
 def resolve_by_doi(target_paper: TargetPaper) -> TargetPaper:
+    """Resolve by doi for the analyzer pipeline."""
     doi = target_paper.doi or ""
     get_runtime_logger().detail("resolver.crossref", "正在通过 Crossref 解析 DOI", doi=doi)
     response = _get_with_retry(
@@ -95,6 +98,7 @@ def resolve_by_doi(target_paper: TargetPaper) -> TargetPaper:
 
 
 def resolve_by_arxiv(target_paper: TargetPaper) -> TargetPaper:
+    """Resolve by arXiv for the analyzer pipeline."""
     arxiv_id = normalize_arxiv_id(target_paper.paper_query or "")
     if not arxiv_id:
         get_runtime_logger().warn("resolver.arxiv", "arXiv 标识格式无效", query=target_paper.paper_query)
@@ -178,6 +182,7 @@ def resolve_by_arxiv(target_paper: TargetPaper) -> TargetPaper:
 
 
 def resolve_by_title(target_paper: TargetPaper) -> TargetPaper:
+    """Resolve by title for the analyzer pipeline."""
     title_query = normalize_ws(target_paper.paper_query or "")
     if not title_query:
         get_runtime_logger().warn("resolver.title", "标题查询为空")
@@ -228,6 +233,7 @@ def resolve_by_title(target_paper: TargetPaper) -> TargetPaper:
 
 
 def search_crossref_title_exact(title_query: str) -> Optional[dict[str, object]]:
+    """Search Crossref title exact for the analyzer pipeline."""
     response = _get_with_retry(
         f"https://api.crossref.org/works?query.title={quote(title_query)}&rows=5",
         TITLE_RESOLVE_RETRY,
@@ -242,6 +248,7 @@ def search_crossref_title_exact(title_query: str) -> Optional[dict[str, object]]
 
 
 def search_arxiv_title_exact(title_query: str) -> Optional[dict[str, str]]:
+    """Search arXiv title exact for the analyzer pipeline."""
     response = _get_with_retry(
         f"http://export.arxiv.org/api/query?search_query=ti:%22{quote(title_query)}%22&start=0&max_results=5",
         ARXIV_TITLE_RETRY,
@@ -267,6 +274,7 @@ def search_arxiv_title_exact(title_query: str) -> Optional[dict[str, str]]:
 
 
 def _get_with_retry(url: str, policy: RetryPolicy) -> requests.Response:
+    """Return with retry for the analyzer pipeline."""
     def fetch() -> requests.Response:
         response = requests.get(
             url,
@@ -280,6 +288,7 @@ def _get_with_retry(url: str, policy: RetryPolicy) -> requests.Response:
 
 
 def mark_unresolved(target_paper: TargetPaper, reason: str) -> TargetPaper:
+    """Record unresolved target-paper resolution outcomes for the analyzer pipeline."""
     return TargetPaper(
         canonical_id=target_paper.canonical_id,
         paper_query=target_paper.paper_query,
@@ -304,6 +313,7 @@ def _resolved_arxiv_stub(target_paper: TargetPaper, arxiv_id: str) -> TargetPape
 
 
 def first_title(value: object) -> Optional[str]:
+    """Extract the first title string from metadata fields for the analyzer pipeline."""
     if isinstance(value, list) and value:
         return normalize_ws(str(value[0]))
     if isinstance(value, str) and value.strip():
@@ -312,14 +322,17 @@ def first_title(value: object) -> Optional[str]:
 
 
 def normalize_ws(text: str) -> str:
+    """Normalize ws for the analyzer pipeline."""
     return " ".join(text.split())
 
 
 def normalize_title(text: str) -> str:
+    """Normalize title for the analyzer pipeline."""
     return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
 
 
 def normalize_arxiv_id(value: str) -> Optional[str]:
+    """Normalize arXiv id for the analyzer pipeline."""
     match = re.search(r"(?P<identifier>\d{4}\.\d{4,5})(?:v\d+)?", value, re.IGNORECASE)
     if not match:
         return None
@@ -327,6 +340,7 @@ def normalize_arxiv_id(value: str) -> Optional[str]:
 
 
 def extract_arxiv_id(value: str) -> Optional[str]:
+    """Extract arXiv id for the analyzer pipeline."""
     match = re.search(r"(?:arxiv\.org/abs/|10\.48550/arxiv\.)(?P<identifier>\d{4}\.\d{4,5}(?:v\d+)?)", value, re.IGNORECASE)
     if match:
         return match.group("identifier")

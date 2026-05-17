@@ -1,3 +1,4 @@
+"""Command-line validation helpers for stage56 integration."""
 from __future__ import annotations
 
 import sys
@@ -145,6 +146,7 @@ def assert_stage56_node_integration():
 
 
 def main() -> None:
+    """Run this module as a command-line validation or utility entry point."""
     logger = StageLogger("stage56")
     logger.start()
     state = assert_stage56_node_integration()

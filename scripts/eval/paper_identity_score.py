@@ -1,3 +1,4 @@
+"""Command-line validation helpers for paper identity score."""
 from __future__ import annotations
 
 import argparse
@@ -16,6 +17,7 @@ from packages.paper_identity.clients.arxiv import normalize_arxiv_id
 
 @dataclass
 class ScoreSummary:
+    """Store score summary information used by paper identity evaluation."""
     total_gold: int
     comparable_identity: int
     paper_identity_accuracy: float | None
@@ -28,6 +30,7 @@ class ScoreSummary:
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
+    """Read JSONl for paper identity evaluation."""
     rows: list[dict[str, Any]] = []
     if not path.exists():
         raise FileNotFoundError(path)
@@ -45,6 +48,7 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
 
 
 def index_by_id(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Index labeled paper identity rows by identifier for paper identity evaluation."""
     indexed: dict[str, dict[str, Any]] = {}
     for row in rows:
         sample_id = str(row.get("s2_paper_id") or row.get("citing_paper_id") or "").strip()
@@ -54,6 +58,7 @@ def index_by_id(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
 
 
 def score_predictions(gold_rows: list[dict[str, Any]], prediction_rows: list[dict[str, Any]]) -> ScoreSummary:
+    """Score predictions for paper identity evaluation."""
     predictions = index_by_id(prediction_rows)
     identity_total = 0
     identity_correct = 0
@@ -113,12 +118,14 @@ def score_predictions(gold_rows: list[dict[str, Any]], prediction_rows: list[dic
 
 
 def _ratio(numerator: int, denominator: int) -> float | None:
+    """Compute safe metric ratios for evaluation output for paper identity evaluation."""
     if denominator <= 0:
         return None
     return round(numerator / denominator, 4)
 
 
 def _work_ids_match(gold_work: str, pred_work: str) -> bool:
+    """Compare predicted and gold work identifiers across schemes for paper identity evaluation."""
     if not pred_work:
         return False
     if gold_work == pred_work:
@@ -131,6 +138,7 @@ def _work_ids_match(gold_work: str, pred_work: str) -> bool:
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse args for paper identity evaluation."""
     parser = argparse.ArgumentParser(description="Score paper identity evaluation predictions.")
     parser.add_argument("--gold", required=True, type=Path)
     parser.add_argument("--pipeline", required=True, type=Path)
@@ -140,6 +148,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Run this module as a command-line validation or utility entry point."""
     args = parse_args()
     gold = read_jsonl(args.gold)
     metrics: dict[str, Any] = {

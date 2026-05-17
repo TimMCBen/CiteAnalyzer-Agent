@@ -1,3 +1,4 @@
+"""Pdf renderer helpers for report generation."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -7,6 +8,7 @@ CM = 28.3464566929
 
 
 def render_pdf_report(payload: dict[str, Any], output_path: Path) -> None:
+    """Render PDF report for report generation."""
     try:
         from reportlab.graphics.charts.barcharts import HorizontalBarChart, VerticalBarChart
         from reportlab.graphics.charts.piecharts import Pie
@@ -92,6 +94,7 @@ def render_pdf_report(payload: dict[str, Any], output_path: Path) -> None:
 
 
 def _metrics_table(summary: dict[str, Any], styles: Any, Table: Any, TableStyle: Any, colors: Any) -> Any:
+    """Render the PDF metrics table for report generation."""
     rows = [
         ["施引文献", summary.get("citation_count", 0), "上下文命中", summary.get("context_found", 0)],
         ["重量级候选", summary.get("heavyweight_candidates", 0), "高影响力候选", summary.get("high_impact_candidates", 0)],
@@ -116,12 +119,14 @@ def _metrics_table(summary: dict[str, Any], styles: Any, Table: Any, TableStyle:
 
 
 def _bullet_list(items: Any, styles: Any, Paragraph: Any, empty: str = "暂无内容。") -> list[Any]:
+    """Render bullet-list sections in the PDF report for report generation."""
     if not isinstance(items, list) or not items:
         return [Paragraph(empty, styles["CNMuted"])]
     return [Paragraph(f"• {item}", styles["CNBody"]) for item in items[:8]]
 
 
 def _vertical_bar_chart(title: str, values: Any, VerticalBarChart: Any, Drawing: Any, String: Any, colors: Any) -> Any:
+    """Render vertical bar charts in the PDF report for report generation."""
     items = _top_items(values, limit=8)
     drawing = Drawing(430, 170)
     drawing.add(String(8, 154, title, fontName="STSong-Light", fontSize=10, fillColor=colors.HexColor("#1f2937")))
@@ -143,6 +148,7 @@ def _vertical_bar_chart(title: str, values: Any, VerticalBarChart: Any, Drawing:
 
 
 def _horizontal_bar_chart(title: str, values: Any, HorizontalBarChart: Any, Drawing: Any, String: Any, colors: Any) -> Any:
+    """Render horizontal bar charts in the PDF report for report generation."""
     items = _top_items(values, limit=8)
     drawing = Drawing(430, 180)
     drawing.add(String(8, 164, title, fontName="STSong-Light", fontSize=10, fillColor=colors.HexColor("#1f2937")))
@@ -164,6 +170,7 @@ def _horizontal_bar_chart(title: str, values: Any, HorizontalBarChart: Any, Draw
 
 
 def _pie_chart(title: str, values: Any, Pie: Any, Drawing: Any, String: Any, colors: Any) -> Any:
+    """Render pie charts in the PDF report for report generation."""
     items = _top_items(values, limit=6)
     drawing = Drawing(430, 180)
     drawing.add(String(8, 164, title, fontName="STSong-Light", fontSize=10, fillColor=colors.HexColor("#1f2937")))
@@ -185,6 +192,7 @@ def _pie_chart(title: str, values: Any, Pie: Any, Drawing: Any, String: Any, col
 
 
 def _scholar_table(items: Any, styles: Any, Table: Any, TableStyle: Any, colors: Any) -> Any:
+    """Render the key-scholar table in the PDF report for report generation."""
     rows = [["作者", "标签", "h-index", "机构", "证据"]]
     if isinstance(items, list):
         for item in items[:10]:
@@ -207,6 +215,7 @@ def _scholar_table(items: Any, styles: Any, Table: Any, TableStyle: Any, colors:
 
 
 def _country_trace_table(items: Any, styles: Any, Table: Any, TableStyle: Any, colors: Any) -> Any:
+    """Render country-resolution evidence in the PDF report for report generation."""
     rows = [["机构", "国家/地区", "方法", "置信度"]]
     if isinstance(items, list):
         for item in items[:12]:
@@ -231,6 +240,7 @@ def _table_style(TableStyle: Any, colors: Any) -> Any:
 
 
 def _top_items(values: Any, limit: int) -> list[tuple[str, int]]:
+    """Render compact top-item lists in the PDF report for report generation."""
     if not isinstance(values, dict):
         return []
     items = []
@@ -245,6 +255,7 @@ def _top_items(values: Any, limit: int) -> list[tuple[str, int]]:
 
 
 def _context_summary(item: Any) -> str:
+    """Render representative citation contexts in the PDF report for report generation."""
     if not isinstance(item, dict):
         return str(item)
     text = str(item.get("context_text") or "No context available.")
@@ -262,6 +273,7 @@ def _sentiment_heading(label: str) -> str:
 
 
 def _footer(canvas: Any, doc: Any) -> None:
+    """Render page footer metadata in the PDF report for report generation."""
     canvas.saveState()
     canvas.setFont("STSong-Light", 8)
     canvas.setFillColorRGB(0.4, 0.4, 0.4)

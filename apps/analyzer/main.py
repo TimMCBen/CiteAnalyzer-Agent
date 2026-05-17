@@ -1,3 +1,4 @@
+"""Public entry points for running analyzer stages and full citation analysis."""
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -14,6 +15,7 @@ def run_stage1_analysis(
     runtime_log_mode: RuntimeLogMode | None = None,
     max_citations: int | None = None,
 ) -> AnalysisState:
+    """Run stage1 analysis for the analyzer pipeline."""
     return _invoke_graph(
         raw_text,
         build_stage1_graph,
@@ -28,6 +30,7 @@ def run_stage2_analysis(
     runtime_log_mode: RuntimeLogMode | None = None,
     max_citations: int | None = None,
 ) -> AnalysisState:
+    """Run stage2 analysis for the analyzer pipeline."""
     return _invoke_graph(
         raw_text,
         build_stage2_graph,
@@ -42,6 +45,7 @@ def run_stage6_analysis(
     runtime_log_mode: RuntimeLogMode | None = None,
     max_citations: int | None = None,
 ) -> AnalysisState:
+    """Run stage6 analysis for the analyzer pipeline."""
     return _invoke_graph(
         raw_text,
         build_stage6_graph,
@@ -56,6 +60,7 @@ def run_stage7_analysis(
     runtime_log_mode: RuntimeLogMode | None = None,
     max_citations: int | None = None,
 ) -> AnalysisState:
+    """Run stage7 analysis for the analyzer pipeline."""
     return _invoke_graph(
         raw_text,
         build_stage7_graph,
@@ -70,6 +75,7 @@ def run_analysis(
     runtime_log_mode: RuntimeLogMode | None = None,
     max_citations: int | None = None,
 ) -> AnalysisState:
+    """Run analysis for the analyzer pipeline."""
     return run_stage7_analysis(
         raw_text,
         runtime_log_mode=runtime_log_mode,
@@ -84,6 +90,7 @@ def _invoke_graph(
     runtime_log_mode: RuntimeLogMode | None,
     max_citations: int | None,
 ) -> AnalysisState:
+    """Invoke graph for the analyzer pipeline."""
     query = UserQuery(raw_text=raw_text)
     state = initialize_state(query)
     app = graph_builder()
@@ -101,6 +108,7 @@ def _invoke_graph(
 
 
 def _build_summary_fields(state: AnalysisState) -> dict[str, object]:
+    """Build summary fields for the analyzer pipeline."""
     target = state.get("target_paper")
     target_label = "unknown"
     if target is not None:

@@ -1,3 +1,4 @@
+"""Command-line validation helpers for run contract."""
 from __future__ import annotations
 
 import contextlib
@@ -12,8 +13,10 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 RUN_SCRIPT = SCRIPT_DIR / "run.py"
 EXPECTED_AGGREGATED_SCRIPTS = [
     "import_contract.py",
+    "comment_contract.py",
     "llm_prompt_contract.py",
     "network_retry_contract.py",
+    "paper_identity.py",
     "stage1.py",
     "stage2.py",
     "stage4.py",
@@ -26,6 +29,7 @@ EXPECTED_AGGREGATED_SCRIPTS = [
 
 
 def load_run_module():
+    """Load run module for stage validation."""
     spec = importlib.util.spec_from_file_location("test_agent_run", RUN_SCRIPT)
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
@@ -96,6 +100,7 @@ def assert_run_rejects_invalid_cli_mode() -> None:
 
 
 def main() -> None:
+    """Run this module as a command-line validation or utility entry point."""
     if str(SCRIPT_DIR.parents[1]) not in sys.path:
         sys.path.insert(0, str(SCRIPT_DIR.parents[1]))
     from scripts.test_agent.stage_logging import StageLogger

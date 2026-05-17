@@ -1,3 +1,4 @@
+"""Models helpers for paper identity matching."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -57,6 +58,7 @@ AuthorResolutionStatus = Literal[
 
 @dataclass
 class CandidateAuthor:
+    """Store candidate author information used by paper identity matching."""
     name: str
     author_id: str | None = None
     orcid: str | None = None
@@ -67,6 +69,7 @@ class CandidateAuthor:
 
 @dataclass
 class CandidateWork:
+    """Store candidate work information used by paper identity matching."""
     source: str
     work_id: str | None
     title: str
@@ -85,6 +88,7 @@ class CandidateWork:
 
 @dataclass
 class PaperIdentityEvidence:
+    """Store paper identity evidence information used by paper identity matching."""
     citing_paper_id: str
     title: str
     doi: str | None = None
@@ -99,6 +103,7 @@ class PaperIdentityEvidence:
 
 @dataclass
 class LLMIdentityReview:
+    """Store LLM identity review information used by paper identity matching."""
     paper_identity_decision: Literal["same_paper", "different_paper", "uncertain"] = "uncertain"
     paper_confidence: PaperMatchConfidence = "medium"
     selected_source: str = "none"
@@ -114,6 +119,7 @@ class LLMIdentityReview:
 
 @dataclass
 class PaperIdentityDecision:
+    """Store paper identity decision information used by paper identity matching."""
     citing_paper_id: str
     arxiv_status: ArxivStatus
     doi_status: DOIStatus

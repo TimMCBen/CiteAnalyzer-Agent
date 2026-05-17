@@ -1,3 +1,4 @@
+"""Service helpers for citation source collection."""
 from __future__ import annotations
 
 from typing import Any, Protocol
@@ -10,6 +11,7 @@ from packages.shared.runtime_logging import get_runtime_logger
 
 
 class SemanticScholarClientProtocol(Protocol):
+    """Define the protocol expected by citation source collection services."""
     def resolve_target_paper(self, target_paper: TargetPaper) -> dict[str, object]:
         ...
 
@@ -18,6 +20,7 @@ class SemanticScholarClientProtocol(Protocol):
 
 
 class CrossrefClientProtocol(Protocol):
+    """Define the protocol expected by citation source collection services."""
     def enrich_candidate(self, candidate: dict[str, object]) -> dict[str, object]:
         ...
 
@@ -28,6 +31,7 @@ def fetch_citation_candidates(
     crossref_client: CrossrefClientProtocol,
     max_results: int = 20,
 ) -> CitationFetchResult:
+    """Fetch citation candidates for citation source collection."""
     if not target_paper.title:
         raise ValueError("target_paper.title is required for stage2 input")
     if target_paper.resolve_status != "resolved":
@@ -115,6 +119,7 @@ def fetch_citation_candidates_with_live_clients(
     target_paper: TargetPaper,
     max_results: int = 20,
 ) -> CitationFetchResult:
+    """Fetch citation candidates with live clients for citation source collection."""
     from packages.citation_sources.clients import CrossrefClient, SemanticScholarClient
 
     return fetch_citation_candidates(
@@ -126,6 +131,7 @@ def fetch_citation_candidates_with_live_clients(
 
 
 def attach_fetch_result_to_state(state: AnalysisState, result: CitationFetchResult) -> AnalysisState:
+    """Attach fetch result to state for citation source collection."""
     state["citing_papers"] = result.citing_papers  # type: ignore[assignment]
     state["source_trace"] = result.source_trace  # type: ignore[assignment]
     state["fetch_summary"] = result.fetch_summary  # type: ignore[assignment]

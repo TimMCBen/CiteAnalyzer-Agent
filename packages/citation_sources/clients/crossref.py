@@ -1,3 +1,4 @@
+"""Client helpers for Crossref operations in citation source collection."""
 from __future__ import annotations
 
 import json
@@ -13,6 +14,7 @@ from packages.shared.runtime_logging import get_runtime_logger
 
 @dataclass(frozen=True)
 class _RequestConfig:
+    """Store request config information used by citation source collection."""
     timeout_seconds: float = 10.0
     max_retries: int = 3
     backoff_base_seconds: float = 0.5
@@ -61,6 +63,7 @@ class CrossrefClient:
         self._user_agent = user_agent or "CiteAnalyzer-Agent/0.1 (+https://api.crossref.org/)"
 
     def fetch_work_by_doi(self, doi: str) -> dict[str, Any] | None:
+        """Fetch work by doi for Crossref client."""
         normalized_doi = self._normalize_doi(doi)
         if not normalized_doi:
             return None
@@ -77,6 +80,7 @@ class CrossrefClient:
         year: int | None = None,
         authors: list[str] | None = None,
     ) -> dict[str, Any] | None:
+        """Search work match for Crossref client."""
         clean_title = str(title or "").strip()
         if not clean_title:
             return None
@@ -119,6 +123,7 @@ class CrossrefClient:
         return best_match
 
     def enrich_candidate(self, candidate: dict[str, object]) -> dict[str, object]:
+        """Enrich a citation candidate fixture for Crossref client."""
         enriched = dict(candidate)
         source_names = [str(name) for name in enriched.get("source_names", []) if isinstance(name, str)]
         source_links = {
@@ -174,6 +179,7 @@ class CrossrefClient:
         return enriched
 
     def _request_json(self, path: str, params: dict[str, str] | None = None) -> dict[str, Any]:
+        """Request JSON payloads from the remote API for Crossref client."""
         query_params = dict(params or {})
         if self._mailto:
             query_params["mailto"] = self._mailto
@@ -218,6 +224,7 @@ class CrossrefClient:
                 self._sleep_before_retry(None, attempts)
 
     def _sleep_before_retry(self, retry_after: str | None, attempts: int) -> None:
+        """Wait before retrying transient API failures for Crossref client."""
         if retry_after:
             try:
                 delay_seconds = float(retry_after)
@@ -237,16 +244,19 @@ class CrossrefClient:
         time.sleep(delay_seconds)
 
     def _compute_backoff_delay(self, attempts: int) -> float:
+        """Compute retry backoff delays for Crossref client."""
         exponential = self._config.backoff_base_seconds * (2 ** max(attempts - 1, 0))
         capped = min(exponential, self._config.backoff_max_seconds)
         return capped + random.uniform(0.0, 0.25)
 
     def _should_retry(self, status_code: int, attempts: int) -> bool:
+        """Return whether retry for Crossref client."""
         if attempts > self._config.max_retries:
             return False
         return status_code == 429 or 500 <= status_code < 600
 
     def _normalize_work(self, work: dict[str, Any]) -> dict[str, Any]:
+        """Normalize work for Crossref client."""
         doi = self._normalize_doi(work.get("DOI"))
         title = self._pick_first_text(work.get("title"))
         venue = self._pick_first_text(work.get("container-title")) or self._pick_first_text(
@@ -273,6 +283,7 @@ class CrossrefClient:
         year: int | None,
         authors: list[str] | None,
     ) -> float:
+        """Score match for Crossref client."""
         score = 0.0
         normalized_input_title = self._normalize_text(title)
         normalized_work_title = self._normalize_text(work.get("title"))
@@ -310,6 +321,7 @@ class CrossrefClient:
 
     @staticmethod
     def _extract_authors(raw_authors: Any) -> list[str]:
+        """Extract authors for Crossref client."""
         if not isinstance(raw_authors, list):
             return []
 
@@ -327,6 +339,7 @@ class CrossrefClient:
 
     @staticmethod
     def _extract_year(work: dict[str, Any]) -> int | None:
+        """Extract year for Crossref client."""
         for key in ("published-print", "published-online", "issued"):
             date_parts = work.get(key)
             if not isinstance(date_parts, dict):
@@ -340,6 +353,7 @@ class CrossrefClient:
 
     @staticmethod
     def _pick_first_text(value: Any) -> str:
+        """Pick the first non-empty text value from metadata fields for Crossref client."""
         if isinstance(value, list):
             for item in value:
                 if isinstance(item, str) and item.strip():
@@ -351,6 +365,7 @@ class CrossrefClient:
 
     @staticmethod
     def _normalize_abstract(value: Any) -> str | None:
+        """Normalize abstract for Crossref client."""
         if not isinstance(value, str):
             return None
         text = value.strip()
@@ -358,6 +373,7 @@ class CrossrefClient:
 
     @staticmethod
     def _normalize_doi(value: Any) -> str | None:
+        """Normalize doi for Crossref client."""
         if not isinstance(value, str):
             return None
         doi = value.strip().lower()
@@ -371,6 +387,7 @@ class CrossrefClient:
 
     @staticmethod
     def _normalize_text(value: Any) -> str:
+        """Normalize text for Crossref client."""
         if not isinstance(value, str):
             return ""
         collapsed = " ".join(value.casefold().split())

@@ -1,3 +1,4 @@
+"""Service helpers for paper identity matching."""
 from __future__ import annotations
 
 from typing import Protocol
@@ -11,6 +12,7 @@ from packages.paper_identity.rules import decide_paper_identity, merge_llm_revie
 
 
 class OpenAlexWorkClientProtocol(Protocol):
+    """Define the protocol expected by paper identity matching services."""
     def lookup_work_by_doi(self, doi: str | None) -> CandidateWork | None:
         ...
 
@@ -19,6 +21,7 @@ class OpenAlexWorkClientProtocol(Protocol):
 
 
 class ArxivMetadataClientProtocol(Protocol):
+    """Define the protocol expected by paper identity matching services."""
     def lookup_ids(self, arxiv_ids: list[str]) -> list[CandidateWork]:
         ...
 
@@ -33,6 +36,7 @@ def resolve_paper_identities(
     arxiv_client: ArxivMetadataClientProtocol | None = None,
     use_llm_review: bool = False,
 ) -> dict[str, PaperIdentityDecision]:
+    """Resolve paper identities for paper identity matching."""
     active_openalex = openalex_client or OpenAlexWorkClient()
     active_arxiv = arxiv_client or ArxivMetadataClient()
     return {
@@ -53,6 +57,7 @@ def resolve_paper_identity(
     arxiv_client: ArxivMetadataClientProtocol,
     use_llm_review: bool = False,
 ) -> PaperIdentityDecision:
+    """Resolve paper identity for paper identity matching."""
     evidence = build_identity_evidence(
         citing_paper,
         openalex_client=openalex_client,
@@ -71,6 +76,7 @@ def build_identity_evidence(
     openalex_client: OpenAlexWorkClientProtocol,
     arxiv_client: ArxivMetadataClientProtocol,
 ) -> PaperIdentityEvidence:
+    """Build identity evidence for paper identity matching."""
     evidence = PaperIdentityEvidence(
         citing_paper_id=citing_paper.canonical_id,
         title=citing_paper.title,

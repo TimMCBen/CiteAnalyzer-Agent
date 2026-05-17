@@ -1,3 +1,4 @@
+"""Command-line validation helpers for LLM prompt contract."""
 from __future__ import annotations
 
 from types import SimpleNamespace
@@ -14,15 +15,18 @@ from scripts.test_agent.stage_logging import StageLogger
 
 
 class CapturingStructuredLLM:
+    """Fake structured LLM that records prompts sent by prompt contract tests."""
     def __init__(self, outputs: list[SimpleNamespace]):
         self.outputs = outputs
         self.system_prompts: list[str] = []
 
     def with_structured_output(self, model, method: str):
+        """Return the fake client while accepting LangChain-style configuration."""
         _ = model, method
         return self
 
     def invoke(self, messages: list[dict[str, str]]):
+        """Record the system prompt and return the next queued fake response."""
         self.system_prompts.append(messages[0]["content"])
         if not self.outputs:
             raise AssertionError("fake LLM output queue exhausted")
@@ -108,6 +112,7 @@ def assert_locator_prompts_require_chinese_evidence() -> None:
 
 
 def main() -> None:
+    """Run this module as a command-line validation or utility entry point."""
     logger = StageLogger("llm_prompt_contract")
     logger.start()
     assert_classifier_prompt_requires_chinese_evidence()

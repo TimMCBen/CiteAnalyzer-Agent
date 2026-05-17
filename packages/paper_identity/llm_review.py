@@ -1,3 +1,4 @@
+"""Llm review helpers for paper identity matching."""
 from __future__ import annotations
 
 try:
@@ -17,6 +18,7 @@ from packages.paper_identity.models import LLMIdentityReview, PaperIdentityDecis
 
 
 class LLMIdentityReviewModel(BaseModel):
+    """Validate structured LLM identity review data for paper identity matching."""
     paper_identity_decision: str = Field(description="same_paper, different_paper, or uncertain")
     paper_confidence: str = Field(description="high, medium, low, miss, or error")
     selected_source: str = Field(description="doi_candidate, arxiv_candidate, openalex_title_candidate, semantic_scholar_only, or none")
@@ -31,6 +33,7 @@ class LLMIdentityReviewModel(BaseModel):
 
 
 def review_identity_with_llm(evidence: PaperIdentityEvidence, decision: PaperIdentityDecision) -> LLMIdentityReview:
+    """Review ambiguous paper identity evidence with the LLM for paper identity matching."""
     from apps.analyzer.config import build_llm, invoke_llm_with_retry
 
     llm = build_llm()
@@ -70,6 +73,7 @@ def review_identity_with_llm(evidence: PaperIdentityEvidence, decision: PaperIde
 
 
 def _build_review_prompt(evidence: PaperIdentityEvidence, decision: PaperIdentityDecision) -> str:
+    """Build review prompt for paper identity matching."""
     selected = decision.selected_work
     return "\n".join(
         [
@@ -89,6 +93,7 @@ def _build_review_prompt(evidence: PaperIdentityEvidence, decision: PaperIdentit
 
 
 def _work_line(work) -> str:
+    """Format candidate work evidence lines for paper identity matching."""
     if work is None:
         return "None"
     return (
@@ -98,5 +103,6 @@ def _work_line(work) -> str:
 
 
 def _safe_value(value: object, allowed: set[str], fallback: str) -> str:
+    """Normalize optional values for prompt evidence for paper identity matching."""
     text = str(value or "").strip()
     return text if text in allowed else fallback

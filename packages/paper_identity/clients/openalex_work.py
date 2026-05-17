@@ -1,3 +1,4 @@
+"""Client helpers for OpenAlex work operations in paper identity matching."""
 from __future__ import annotations
 
 import json
@@ -13,6 +14,7 @@ from packages.shared.runtime_logging import get_runtime_logger
 
 
 class OpenAlexWorkClient:
+    """Client wrapper for open alex work operations used by paper identity matching."""
     BASE_URL = "https://api.openalex.org"
 
     def __init__(
@@ -44,6 +46,7 @@ class OpenAlexWorkClient:
         self.http_attempt_count = 0
 
     def lookup_work_by_doi(self, doi: str | None) -> CandidateWork | None:
+        """Look up work by doi for open alex work client."""
         clean_doi = _normalize_doi(doi)
         if not clean_doi:
             return None
@@ -56,6 +59,7 @@ class OpenAlexWorkClient:
         return works[0] if works else None
 
     def search_work_by_title(self, title: str, *, per_page: int = 3) -> list[CandidateWork]:
+        """Search work by title for open alex work client."""
         query = str(title or "").strip()
         if not query:
             return []
@@ -67,6 +71,7 @@ class OpenAlexWorkClient:
         return list(self._work_cache[cache_key])
 
     def lookup_author_by_id(self, author_id: str | None) -> dict[str, Any] | None:
+        """Look up author by id for open alex work client."""
         clean_id = _normalize_openalex_id(author_id, prefix="A")
         if not clean_id:
             return None
@@ -81,6 +86,7 @@ class OpenAlexWorkClient:
         return self._author_cache[clean_id]
 
     def _build_url(self, path: str, params: dict[str, str]) -> str:
+        """Build url for open alex work client."""
         query_params = dict(params)
         if self._api_key:
             query_params["api_key"] = self._api_key
@@ -90,6 +96,7 @@ class OpenAlexWorkClient:
         return f"{self.BASE_URL}{path}" + (f"?{query}" if query else "")
 
     def _get_json(self, url: str) -> dict[str, Any]:
+        """Return JSON for open alex work client."""
         get_runtime_logger().detail(
             "openalex.work",
             "正在请求 OpenAlex 论文身份候选",
@@ -107,6 +114,7 @@ class OpenAlexWorkClient:
         return retry_call(lambda: self._read_json(req), self._retry_policy)
 
     def _read_json(self, req: request.Request) -> dict[str, Any]:
+        """Read JSON for open alex work client."""
         self.request_count += 1
         self.http_attempt_count += 1
         with request.urlopen(req, timeout=self._timeout_seconds) as response:
@@ -114,11 +122,13 @@ class OpenAlexWorkClient:
 
 
 def _results(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Extract result rows from OpenAlex work responses for paper identity matching."""
     rows = payload.get("results")
     return [row for row in rows if isinstance(row, dict)] if isinstance(rows, list) else []
 
 
 def _redact_url(url: str) -> str:
+    """Redact sensitive query parameters from diagnostic URLs for paper identity matching."""
     parsed = parse.urlparse(url)
     query = parse.parse_qsl(parsed.query, keep_blank_values=True)
     redacted_query = [
@@ -129,6 +139,7 @@ def _redact_url(url: str) -> str:
 
 
 def _adapt_work(item: dict[str, Any]) -> CandidateWork:
+    """Convert OpenAlex work payloads into identity candidates for paper identity matching."""
     authors: list[CandidateAuthor] = []
     for authorship in list(item.get("authorships") or []):
         if not isinstance(authorship, dict):
@@ -191,6 +202,7 @@ def _adapt_author(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def _normalize_doi(doi: str | None) -> str | None:
+    """Normalize doi for paper identity matching."""
     if not doi:
         return None
     text = str(doi).strip()
@@ -199,6 +211,7 @@ def _normalize_doi(doi: str | None) -> str | None:
 
 
 def _normalize_openalex_id(value: str | None, *, prefix: str) -> str | None:
+    """Normalize OpenAlex id for paper identity matching."""
     if not value:
         return None
     text = str(value).strip()
@@ -209,6 +222,7 @@ def _normalize_openalex_id(value: str | None, *, prefix: str) -> str | None:
 
 
 def _coerce_int(value: Any) -> int | None:
+    """Coerce numeric API fields into integers for paper identity matching."""
     if isinstance(value, int):
         return value
     if isinstance(value, str) and value.strip():

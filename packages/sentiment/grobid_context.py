@@ -1,3 +1,4 @@
+"""Grobid context helpers for citation sentiment analysis."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -16,11 +17,13 @@ def locate_reference_context_from_grobid_pdf(
     target_paper: TargetPaper,
     output_xml_path: Path | None = None,
 ) -> ReferenceMatch:
+    """Locate reference context from GROBID PDF for citation sentiment analysis."""
     tei_path = process_fulltext_document(pdf_path, output_xml_path=output_xml_path)
     return locate_reference_context_from_grobid_tei(tei_path=tei_path, target_paper=target_paper)
 
 
 def locate_reference_context_from_grobid_tei(tei_path: Path, target_paper: TargetPaper) -> ReferenceMatch:
+    """Locate reference context from GROBID tei for citation sentiment analysis."""
     root = ET.parse(tei_path).getroot()
     bibl = find_target_bibl_struct(root, target_paper=target_paper)
     if bibl is None:
@@ -58,6 +61,7 @@ def locate_reference_context_from_grobid_tei(tei_path: Path, target_paper: Targe
 
 
 def find_target_bibl_struct(root: ET.Element, target_paper: TargetPaper) -> Optional[ET.Element]:
+    """Find the GROBID bibliography entry matching the target paper for citation sentiment analysis."""
     target_doi = (target_paper.doi or "").strip().lower()
     target_title = normalize_ws(target_paper.title or target_paper.paper_query or "").lower()
 
@@ -74,6 +78,7 @@ def find_target_bibl_struct(root: ET.Element, target_paper: TargetPaper) -> Opti
 
 
 def extract_contexts_for_bibl_id(root: ET.Element, bibl_id: str) -> list[str]:
+    """Extract contexts for bibl id for citation sentiment analysis."""
     target_ref = f"#{bibl_id}"
     contexts: list[str] = []
     for paragraph in root.findall(".//tei:p", TEI_NS):
@@ -84,10 +89,12 @@ def extract_contexts_for_bibl_id(root: ET.Element, bibl_id: str) -> list[str]:
 
 
 def normalize_ws(text: str) -> str:
+    """Normalize ws for citation sentiment analysis."""
     return " ".join(text.split())
 
 
 def serialize_paragraph_with_target_markup(paragraph: ET.Element, target_ref: str) -> str:
+    """Serialize GROBID paragraphs while preserving target citation markers for citation sentiment analysis."""
     parts: list[str] = []
 
     def walk(node: ET.Element) -> None:

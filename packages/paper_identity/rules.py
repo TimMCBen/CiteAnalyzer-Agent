@@ -1,3 +1,4 @@
+"""Rules helpers for paper identity matching."""
 from __future__ import annotations
 
 from packages.paper_identity.models import (
@@ -14,6 +15,7 @@ MEDIUM_TITLE_THRESHOLD = 0.80
 
 
 def decide_paper_identity(evidence: PaperIdentityEvidence) -> PaperIdentityDecision:
+    """Choose the best paper identity decision from evidence for paper identity matching."""
     notes: list[str] = []
     conflicts: list[str] = []
 
@@ -144,6 +146,7 @@ def decide_paper_identity(evidence: PaperIdentityEvidence) -> PaperIdentityDecis
 
 
 def merge_llm_review(decision: PaperIdentityDecision) -> PaperIdentityDecision:
+    """Merge LLM review for paper identity matching."""
     review = decision.llm_review
     if review is None:
         return decision
@@ -173,6 +176,7 @@ def merge_llm_review(decision: PaperIdentityDecision) -> PaperIdentityDecision:
 
 
 def _best_title_candidate(evidence: PaperIdentityEvidence) -> tuple[CandidateWork | None, float, str | None]:
+    """Select the strongest title-matched work candidate for paper identity matching."""
     candidates = [
         *((candidate, "openalex") for candidate in evidence.title_work_candidates),
         *((candidate, "arxiv") for candidate in evidence.arxiv_candidates),
@@ -185,6 +189,7 @@ def _best_title_candidate(evidence: PaperIdentityEvidence) -> tuple[CandidateWor
 
 
 def _has_author_count_anomaly(evidence: PaperIdentityEvidence, candidate: CandidateWork) -> bool:
+    """Return whether author count anomaly for paper identity matching."""
     source_count = len(evidence.authors)
     candidate_count = len(candidate.authors)
     if not source_count or not candidate_count:
@@ -195,6 +200,7 @@ def _has_author_count_anomaly(evidence: PaperIdentityEvidence, candidate: Candid
 
 
 def _author_resolution_status(selected_work: CandidateWork | None, confidence: str):
+    """Summarize author resolution confidence for a work for paper identity matching."""
     if selected_work is None:
         return "weak_signal_only"
     if not selected_work.author_ids:
@@ -207,6 +213,7 @@ def _author_resolution_status(selected_work: CandidateWork | None, confidence: s
 
 
 def _arxiv_status_from_evidence(evidence: PaperIdentityEvidence):
+    """Derive arXiv verification status from identity evidence for paper identity matching."""
     if evidence.arxiv_candidates:
         best, score, _ = _best_title_candidate(
             PaperIdentityEvidence(

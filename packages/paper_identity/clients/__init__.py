@@ -1,3 +1,4 @@
+"""Package exports for the clients paper identity matching module."""
 from __future__ import annotations
 
 from packages.paper_identity.clients.arxiv import ArxivMetadataClient

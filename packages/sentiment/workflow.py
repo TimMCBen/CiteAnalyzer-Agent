@@ -1,3 +1,4 @@
+"""Workflow helpers for citation sentiment analysis."""
 from __future__ import annotations
 
 from typing import Callable, Optional, TypedDict
@@ -21,6 +22,7 @@ VALID_SENTIMENT_LABELS = {"positive", "neutral", "critical", "unknown"}
 
 
 class Stage6PaperState(TypedDict, total=False):
+    """Store stage6 paper state information used by citation sentiment analysis."""
     target_paper: TargetPaper
     citing_paper: CitingPaper
     text_source: TextSourceSelection
@@ -42,6 +44,7 @@ def run_stage6_workflow(
     text_source: TextSourceSelection,
     llm_reference_matcher: Optional[Callable[..., object]] = None,
 ) -> CitationContext:
+    """Run stage6 workflow for citation sentiment analysis."""
     matcher = llm_reference_matcher or locate_reference_context_with_llm
 
     def load_fulltext_artifact(state: Stage6PaperState) -> Stage6PaperState:
@@ -220,6 +223,7 @@ def run_stage6_workflow(
 
 
 def append_grobid_note(evidence_note: str, grobid_note: Optional[str]) -> str:
+    """Handle append GROBID note for citation sentiment analysis."""
     if not grobid_note:
         return evidence_note
     return f"{evidence_note}; {grobid_note}"

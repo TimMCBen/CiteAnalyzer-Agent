@@ -1,3 +1,4 @@
+"""Models helpers for shared analyzer contracts."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -6,6 +7,7 @@ from typing import Any, Dict, List, Literal, Optional, TypedDict
 
 @dataclass
 class UserQuery:
+    """Store user query information used by shared analyzer contracts."""
     raw_text: str
     language: str = "zh"
     request_id: Optional[str] = None
@@ -13,6 +15,7 @@ class UserQuery:
 
 @dataclass
 class TargetPaper:
+    """Store target paper information used by shared analyzer contracts."""
     canonical_id: Optional[str] = None
     paper_query: Optional[str] = None
     paper_query_type: Literal["doi", "paper_id", "arxiv", "title", "unknown"] = "unknown"
@@ -35,6 +38,7 @@ class TargetPaper:
 
 @dataclass
 class ParsedUserIntent:
+    """Store parsed user intent information used by shared analyzer contracts."""
     request_type: Literal["citation_analysis", "unsupported"] = "unsupported"
     paper_query: Optional[str] = None
     paper_query_type: Literal["doi", "paper_id", "arxiv", "title", "unknown"] = "unknown"
@@ -45,6 +49,7 @@ class ParsedUserIntent:
 
 @dataclass
 class AuthorProfile:
+    """Store author profile information used by shared analyzer contracts."""
     author_id: str
     name: str
     source_ids: Dict[str, str] = field(default_factory=dict)
@@ -58,6 +63,7 @@ class AuthorProfile:
 
 @dataclass
 class ScholarLabel:
+    """Store scholar label information used by shared analyzer contracts."""
     author_id: str
     label: Literal["high_impact_candidate", "heavyweight_candidate", "weak_signal_candidate"]
     evidence: List[str] = field(default_factory=list)
@@ -67,6 +73,7 @@ class ScholarLabel:
 
 @dataclass
 class AuthorSummary:
+    """Store author summary information used by shared analyzer contracts."""
     total_authors: int = 0
     matched_profiles: int = 0
     high_impact_candidates: int = 0
@@ -76,6 +83,7 @@ class AuthorSummary:
 
 @dataclass
 class ReportArtifact:
+    """Store report artifact information used by shared analyzer contracts."""
     report_id: str
     target_paper_id: str
     summary: Dict[str, object] = field(default_factory=dict)
@@ -84,6 +92,7 @@ class ReportArtifact:
 
 
 class AnalysisState(TypedDict, total=False):
+    """Store analysis state information used by shared analyzer contracts."""
     raw_query: str
     request_type: str
     analysis_goal: str

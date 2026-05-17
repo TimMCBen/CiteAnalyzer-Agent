@@ -1,3 +1,4 @@
+"""Command-line validation helpers for e2e mvp."""
 from __future__ import annotations
 
 import shutil
@@ -106,6 +107,7 @@ def assert_e2e_mvp_real_sample():
 
 
 def main() -> None:
+    """Run this module as a command-line validation or utility entry point."""
     logger = StageLogger("e2e")
     logger.start()
     state = assert_e2e_mvp_real_sample()

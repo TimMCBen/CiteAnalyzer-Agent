@@ -1,3 +1,4 @@
+"""Normalize helpers for citation source collection."""
 from __future__ import annotations
 
 import re
@@ -6,6 +7,7 @@ from typing import Dict, Iterable, List
 
 
 def normalize_title(title: str | None) -> str:
+    """Normalize title for citation source collection."""
     if not title:
         return ""
     lowered = title.casefold()
@@ -15,18 +17,21 @@ def normalize_title(title: str | None) -> str:
 
 
 def normalize_doi(doi: str | None) -> str | None:
+    """Normalize doi for citation source collection."""
     if not doi:
         return None
     return doi.strip().lower()
 
 
 def normalize_authors(authors: Iterable[str] | None) -> List[str]:
+    """Normalize authors for citation source collection."""
     if not authors:
         return []
     return [author.strip() for author in authors if author and author.strip()]
 
 
 def normalize_source_record(record: Dict[str, object], query_used: str) -> Dict[str, object]:
+    """Normalize source record for citation source collection."""
     normalized = deepcopy(record)
     normalized["title"] = str(record.get("title") or "").strip()
     normalized["doi"] = normalize_doi(record.get("doi") if isinstance(record.get("doi"), str) else None)

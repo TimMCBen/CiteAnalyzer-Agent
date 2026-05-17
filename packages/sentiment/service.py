@@ -1,3 +1,4 @@
+"""Service helpers for citation sentiment analysis."""
 from __future__ import annotations
 
 from typing import Callable, Mapping, Optional, Sequence
@@ -22,6 +23,7 @@ def analyze_citation_sentiments(
     use_llm_reference_fallback: bool = True,
     llm_reference_matcher: Optional[Callable[[str, TargetPaper], object]] = None,
 ) -> SentimentAnalysisResult:
+    """Analyze citation sentiments for citation sentiment analysis."""
     contexts: list[CitationContext] = []
     summary = SentimentSummary(total_candidates=len(citing_papers))
 
@@ -127,6 +129,7 @@ def analyze_citation_sentiments(
 
 
 def attach_sentiment_result_to_state(state: AnalysisState, result: SentimentAnalysisResult) -> AnalysisState:
+    """Attach sentiment result to state for citation sentiment analysis."""
     state["citation_contexts"] = result.contexts  # type: ignore[assignment]
     state["sentiment_summary"] = result.summary  # type: ignore[assignment]
     state["status"] = "citation_sentiments_analyzed"

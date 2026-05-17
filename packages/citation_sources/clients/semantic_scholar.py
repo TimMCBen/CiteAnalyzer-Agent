@@ -1,3 +1,4 @@
+"""Client helpers for Semantic Scholar operations in citation source collection."""
 from __future__ import annotations
 
 import json
@@ -25,6 +26,7 @@ DEFAULT_CITATION_FIELDS = (
 
 @dataclass(frozen=True)
 class _RequestConfig:
+    """Store request config information used by citation source collection."""
     timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS
     max_retries: int = DEFAULT_MAX_RETRIES
     backoff_seconds: float = DEFAULT_BACKOFF_SECONDS
@@ -63,6 +65,7 @@ class SemanticScholarClient:
         *,
         fields: str = DEFAULT_RESOLVE_FIELDS,
     ) -> dict[str, object]:
+        """Resolve target paper for Semantic Scholar client."""
         title_fallback = target_paper.title or (
             target_paper.paper_query if target_paper.paper_query_type == "title" else None
         )
@@ -90,6 +93,7 @@ class SemanticScholarClient:
         fields: str = DEFAULT_CITATION_FIELDS,
         page_size: int = 100,
     ) -> list[dict[str, object]]:
+        """Fetch citations for Semantic Scholar client."""
         paper_id = str(
             paper_ref.get("paper_id")
             or paper_ref.get("source_record_id")
@@ -127,6 +131,7 @@ class SemanticScholarClient:
         return citations
 
     def _candidate_identifiers(self, target_paper: TargetPaper) -> Iterable[str]:
+        """Build Semantic Scholar candidate identifiers for a target paper for Semantic Scholar client."""
         source_ids = target_paper.source_ids or {}
 
         doi = (target_paper.doi or source_ids.get("doi") or "").strip()
@@ -160,6 +165,7 @@ class SemanticScholarClient:
                     yield query
 
     def _fetch_paper_by_id(self, paper_id: str, *, fields: str) -> dict[str, Any] | None:
+        """Fetch paper by id for Semantic Scholar client."""
         try:
             payload = self._get_json(
                 f"/paper/{parse.quote(paper_id, safe=':')}",
@@ -172,6 +178,7 @@ class SemanticScholarClient:
         return payload if isinstance(payload, dict) and payload.get("paperId") else None
 
     def _search_match_by_title(self, title: str, *, fields: str) -> dict[str, Any] | None:
+        """Search match by title for Semantic Scholar client."""
         payload = self._get_json(
             "/paper/search/match",
             {
@@ -182,6 +189,7 @@ class SemanticScholarClient:
         return payload if isinstance(payload, dict) and payload.get("paperId") else None
 
     def _get_json(self, path: str, params: dict[str, str]) -> dict[str, Any]:
+        """Return JSON for Semantic Scholar client."""
         url = f"{self._base_url}{path}"
         if params:
             url = f"{url}?{parse.urlencode(params)}"
@@ -244,6 +252,7 @@ class SemanticScholarClient:
         return attempt < self._config.max_retries and (status_code == 429 or status_code >= 500)
 
     def _sleep_before_retry(self, http_error: error.HTTPError | None, attempt: int) -> None:
+        """Wait before retrying transient API failures for Semantic Scholar client."""
         if http_error is not None:
             retry_after = http_error.headers.get("Retry-After")
             if retry_after:
@@ -267,6 +276,7 @@ class SemanticScholarClient:
         time.sleep(delay)
 
     def _respect_rate_limit(self, path: str) -> None:
+        """Throttle requests to respect upstream rate limits for Semantic Scholar client."""
         if self._config.backoff_seconds <= 0:
             return
         now = time.monotonic()
@@ -283,6 +293,7 @@ class SemanticScholarClient:
         self._last_request_at = time.monotonic()
 
     def _adapt_resolved_paper(self, paper: dict[str, Any]) -> dict[str, object]:
+        """Convert resolved Semantic Scholar metadata into a target paper for Semantic Scholar client."""
         external_ids = paper.get("externalIds")
         external_ids = external_ids if isinstance(external_ids, dict) else {}
 
@@ -311,6 +322,7 @@ class SemanticScholarClient:
         }
 
     def _adapt_citation_row(self, row: Any) -> dict[str, object] | None:
+        """Convert Semantic Scholar citation rows into normalized candidates for Semantic Scholar client."""
         if not isinstance(row, dict):
             return None
 
@@ -349,6 +361,7 @@ class SemanticScholarClient:
         }
 
     def _extract_author_names(self, authors: Any) -> list[str]:
+        """Extract author names for Semantic Scholar client."""
         if not isinstance(authors, list):
             return []
 
@@ -363,6 +376,7 @@ class SemanticScholarClient:
         return names
 
     def _coerce_int(self, value: Any) -> int | None:
+        """Coerce numeric API fields into integers for Semantic Scholar client."""
         if isinstance(value, int):
             return value
         if isinstance(value, str) and value.strip():
@@ -373,6 +387,7 @@ class SemanticScholarClient:
         return None
 
     def _clean_optional_str(self, value: Any) -> str | None:
+        """Normalize optional string fields from API payloads for Semantic Scholar client."""
         if value is None:
             return None
         text = str(value).strip()
@@ -380,6 +395,7 @@ class SemanticScholarClient:
 
 
 def _normalize_arxiv_id(value: str) -> str | None:
+    """Normalize arXiv id for citation source collection."""
     text = value.strip()
     if not text:
         return None

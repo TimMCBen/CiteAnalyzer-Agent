@@ -1,3 +1,4 @@
+"""Network retry helpers for shared analyzer contracts."""
 from __future__ import annotations
 
 import random
@@ -22,6 +23,7 @@ T = TypeVar("T")
 
 @dataclass(frozen=True)
 class RetryPolicy:
+    """Store retry policy information used by shared analyzer contracts."""
     service: str
     operation: str
     max_attempts: int = 3
@@ -35,6 +37,7 @@ class RetryPolicy:
 
 @dataclass(frozen=True)
 class RetryDecision:
+    """Store retry decision information used by shared analyzer contracts."""
     retryable: bool
     reason: str
     status: int | None = None
@@ -42,6 +45,7 @@ class RetryDecision:
 
 
 class RetryExhaustedError(RuntimeError):
+    """Error type raised for retry exhausted failures in shared analyzer contracts."""
     def __init__(self, policy: RetryPolicy, attempts: int, last_error: BaseException, decision: RetryDecision):
         self.policy = policy
         self.attempts = attempts
@@ -63,6 +67,7 @@ def retry_call(
     monotonic: Callable[[], float] = time.monotonic,
     logger: Any | None = None,
 ) -> T:
+    """Run retry-protected operations with shared policy handling for shared analyzer contracts."""
     max_attempts = max(1, policy.max_attempts)
     active_logger = logger or get_runtime_logger()
     started_at = monotonic()
@@ -107,6 +112,7 @@ def retry_call(
 
 
 def classify_retryable_error(exc: BaseException, policy: RetryPolicy) -> RetryDecision:
+    """Classify retryable error for shared analyzer contracts."""
     status = _http_status(exc)
     retry_after = _retry_after_seconds(exc)
     if status is not None:
@@ -124,6 +130,7 @@ def classify_retryable_error(exc: BaseException, policy: RetryPolicy) -> RetryDe
 
 
 def _http_status(exc: BaseException) -> int | None:
+    """Classify retryable HTTP status codes for shared analyzer contracts."""
     if isinstance(exc, error.HTTPError):
         return int(exc.code)
     if requests is not None and isinstance(exc, requests.HTTPError):
@@ -138,6 +145,7 @@ def _http_status(exc: BaseException) -> int | None:
 
 
 def _retry_after_seconds(exc: BaseException) -> float | None:
+    """Parse Retry-After header values into delays for shared analyzer contracts."""
     headers = None
     if isinstance(exc, error.HTTPError):
         headers = exc.headers
@@ -157,6 +165,7 @@ def _retry_after_seconds(exc: BaseException) -> float | None:
 
 
 def _is_transient_network_error(exc: BaseException) -> bool:
+    """Return whether transient network error for shared analyzer contracts."""
     if isinstance(exc, (TimeoutError, socket.timeout, ssl.SSLError, error.URLError)):
         return True
     if requests is not None and isinstance(
@@ -186,6 +195,7 @@ def _is_transient_network_error(exc: BaseException) -> bool:
 
 
 def _compute_delay(policy: RetryPolicy, attempt: int, decision: RetryDecision) -> float:
+    """Compute bounded retry backoff delays for shared analyzer contracts."""
     if decision.retry_after_seconds is not None:
         return min(decision.retry_after_seconds, policy.max_delay_seconds)
     exponential = policy.base_delay_seconds * (2 ** max(attempt - 1, 0))
@@ -196,6 +206,7 @@ def _compute_delay(policy: RetryPolicy, attempt: int, decision: RetryDecision) -
 
 
 def _log_exhausted(logger: Any, policy: RetryPolicy, attempts: int, decision: RetryDecision) -> None:
+    """Log retry exhaustion with operation context for shared analyzer contracts."""
     logger.warn(
         "retry.exhausted",
         f"{policy.service} {policy.operation} 多次失败，已达到重试上限或预算限制",

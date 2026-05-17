@@ -1,3 +1,4 @@
+"""Grobid client helpers for citation sentiment analysis."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -32,6 +33,7 @@ GROBID_PROCESS_RETRY = RetryPolicy(
 
 
 def grobid_is_alive(base_url: str | None = None) -> bool:
+    """Check whether the configured GROBID service is reachable for citation sentiment analysis."""
     api_url = (base_url or get_grobid_api_url()).rstrip("/")
     get_runtime_logger().detail("grobid.health", "正在检查 GROBID 服务", url=api_url)
     response = retry_call(
@@ -48,6 +50,7 @@ def process_fulltext_document(
     output_xml_path: Path | None = None,
     base_url: str | None = None,
 ) -> Path:
+    """Process a full-text document through GROBID for citation sentiment analysis."""
     api_url = (base_url or get_grobid_api_url()).rstrip("/")
     out_path = output_xml_path or pdf_path.with_suffix(".grobid.tei.xml")
     get_runtime_logger().detail("grobid.process", "正在用 GROBID 解析 PDF", pdf=pdf_path)
@@ -62,12 +65,14 @@ def process_fulltext_document(
 
 
 def _get_health_response(api_url: str) -> requests.Response:
+    """Return health response for citation sentiment analysis."""
     response = requests.get(f"{api_url}/isalive", timeout=30)
     response.raise_for_status()
     return response
 
 
 def _post_fulltext_document(api_url: str, pdf_path: Path) -> requests.Response:
+    """Submit a full-text document to the GROBID API for citation sentiment analysis."""
     with pdf_path.open("rb") as handle:
         response = requests.post(
             f"{api_url}/processFulltextDocument",

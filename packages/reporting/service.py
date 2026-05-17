@@ -1,3 +1,4 @@
+"""Service helpers for report generation."""
 from __future__ import annotations
 
 import json
@@ -50,6 +51,7 @@ def build_report_artifact(
     output_dir: Path | None = None,
     country_resolver: CountryResolverProtocol | None = None,
 ) -> ReportArtifact:
+    """Build report artifact for report generation."""
     report_id = target_paper.canonical_id or target_paper.doi or target_paper.title or "unknown-target"
     safe_report_id = _slugify(report_id)
     report_dir = (output_dir or DEFAULT_REPORT_DIR).resolve() / safe_report_id
@@ -139,17 +141,20 @@ def build_report_artifact(
 
 
 def attach_report_artifact_to_state(state: AnalysisState, artifact: ReportArtifact) -> AnalysisState:
+    """Attach report artifact to state for report generation."""
     state["report_artifact"] = artifact  # type: ignore[assignment]
     state["status"] = "report_generated"
     return state
 
 
 def _build_year_trend(citing_papers: Iterable[CitingPaper]) -> dict[str, int]:
+    """Build year trend for report generation."""
     counts = Counter(str(paper.year) for paper in citing_papers if paper.year is not None)
     return dict(sorted(counts.items()))
 
 
 def _build_institution_distribution(author_profiles: Iterable[AuthorProfile]) -> dict[str, int]:
+    """Build institution distribution for report generation."""
     counts = Counter()
     for profile in author_profiles:
         if profile.affiliations:
@@ -161,6 +166,7 @@ def _build_country_distribution(
     author_profiles: Iterable[AuthorProfile],
     resolver: CountryResolverProtocol | None = None,
 ) -> tuple[dict[str, int], list[dict[str, object]]]:
+    """Build country distribution for report generation."""
     active_resolver = resolver or HybridCountryResolver()
     counts = Counter()
     trace = []
@@ -191,6 +197,7 @@ def _build_country_distribution(
 
 
 def _build_scholar_distribution(labels: Iterable[ScholarLabel]) -> dict[str, int]:
+    """Build scholar distribution for report generation."""
     counts = Counter(label.label for label in labels)
     return dict(sorted(counts.items()))
 
@@ -201,6 +208,7 @@ def _build_key_findings(
     sentiment_summary: SentimentSummary,
     provenance: dict[str, object],
 ) -> list[str]:
+    """Build key findings for report generation."""
     findings = [
         f"共识别 {len(citing_papers)} 篇施引论文。",
         f"重量级学者候选 {sum(1 for label in scholar_labels if label.label == 'heavyweight_candidate')} 位。",
@@ -218,6 +226,7 @@ def _build_executive_summary(
     charts: dict[str, object],
     provenance: dict[str, object],
 ) -> list[str]:
+    """Build executive summary for report generation."""
     year_trend = _coerce_int_map(charts.get("year_trend"))
     country_distribution = _coerce_int_map(charts.get("country_distribution"))
     sentiment_counts = sentiment_summary.label_counts
@@ -245,6 +254,7 @@ def _build_executive_summary(
 
 
 def _build_top_scholars(author_profiles: list[AuthorProfile], scholar_labels: list[ScholarLabel], limit: int = 10) -> list[dict[str, object]]:
+    """Build top scholars for report generation."""
     labels_by_author = {label.author_id: label for label in scholar_labels}
     ranked_profiles = sorted(
         author_profiles,
@@ -277,6 +287,7 @@ def _build_top_scholars(author_profiles: list[AuthorProfile], scholar_labels: li
 
 
 def _build_representative_contexts(citation_contexts: list[CitationContext], limit_per_label: int = 3) -> dict[str, list[dict[str, object]]]:
+    """Build representative contexts for report generation."""
     grouped: dict[str, list[dict[str, object]]] = {"positive": [], "critical": [], "neutral": []}
     for context in citation_contexts:
         if context.sentiment_label not in grouped or not context.context_text:
@@ -292,6 +303,7 @@ def _build_manual_attention_items(
     scholar_labels: Iterable[ScholarLabel],
     provenance: dict[str, object],
 ) -> list[str]:
+    """Build manual attention items for report generation."""
     items = []
     for context in citation_contexts:
         if context.sentiment_label == "unknown":
@@ -312,6 +324,7 @@ def _build_provenance(
     state_errors: list[str] | None,
     scholar_labels: list[ScholarLabel],
 ) -> dict[str, object]:
+    """Build provenance for report generation."""
     trace = source_trace or []
     return {
         "partial_failure": bool(fetch_summary.partial_failure) if fetch_summary else False,
@@ -359,6 +372,7 @@ def _render_html(
     provenance: dict[str, object],
     citation_contexts: list[CitationContext],
 ) -> str:
+    """Render HTML for report generation."""
     def render_list(items: list[str], empty_text: str = "None") -> str:
         if not items:
             return f"<li>{empty_text}</li>"
@@ -698,6 +712,7 @@ def _build_html_chart_data(
     summary: dict[str, object],
     provenance: dict[str, object],
 ) -> dict[str, object]:
+    """Build HTML chart data for report generation."""
     year_trend = _coerce_int_map(charts.get("year_trend"))
     scholar_distribution = _coerce_int_map(charts.get("scholar_distribution"))
     sentiment_distribution = _coerce_int_map(charts.get("sentiment_distribution"))
@@ -782,6 +797,7 @@ def _build_html_chart_data(
 
 
 def _build_quality_summary(summary: dict[str, object], provenance: dict[str, object]) -> dict[str, object]:
+    """Build quality summary for report generation."""
     unknown = _as_int(summary.get("unknown_sentiments"))
     partial_failure = bool(summary.get("partial_failure"))
     fetch_notes = provenance.get("fetch_notes") if isinstance(provenance.get("fetch_notes"), list) else []
@@ -816,6 +832,7 @@ def _build_quality_summary(summary: dict[str, object], provenance: dict[str, obj
 
 
 def _render_year_fallback(year_trend: dict[str, object]) -> str:
+    """Render year fallback for report generation."""
     fallback = year_trend.get("fallback")
     if not isinstance(fallback, dict) or not fallback:
         return "<p class='muted chart-fallback'>暂无年份数据。</p>"
@@ -826,6 +843,7 @@ def _render_year_fallback(year_trend: dict[str, object]) -> str:
 
 
 def _year_trend_note(year_trend: dict[str, int], summary: dict[str, object]) -> str:
+    """Describe the reporting trend chart coverage for report generation."""
     if len(year_trend) >= 2:
         return "展示施引文献按年份分布，用于判断影响是否持续扩散。"
     if len(year_trend) == 1:
@@ -835,6 +853,7 @@ def _year_trend_note(year_trend: dict[str, int], summary: dict[str, object]) -> 
 
 
 def _coerce_int_map(value: object) -> dict[str, int]:
+    """Coerce chart count maps into integer values for report generation."""
     if not isinstance(value, dict):
         return {}
     result = {}
@@ -855,6 +874,7 @@ def _nonzero_items(items: dict[str, int]) -> list[tuple[str, int]]:
 
 
 def _top_n_with_others(items: dict[str, int], limit: int) -> list[tuple[str, int]]:
+    """Limit chart categories while preserving an others bucket for report generation."""
     nonzero = _nonzero_items(items)
     if len(nonzero) <= limit:
         return nonzero
@@ -866,6 +886,7 @@ def _top_n_with_others(items: dict[str, int], limit: int) -> list[tuple[str, int
 
 
 def _as_int(value: object) -> int:
+    """Coerce report metric values into integers for report generation."""
     try:
         return int(value)  # type: ignore[arg-type]
     except (TypeError, ValueError):

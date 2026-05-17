@@ -1,3 +1,4 @@
+"""Command-line validation helpers for stage6."""
 from __future__ import annotations
 
 import json
@@ -22,6 +23,7 @@ DEFAULT_SAMPLE_PATH = REPO_ROOT / "docs" / "generated" / "stage2-live-10.1145.33
 
 
 def load_stage2_sample(sample_path: Path) -> tuple[TargetPaper, list[CitingPaper]]:
+    """Load stage2 sample for stage validation."""
     payload = json.loads(sample_path.read_text(encoding="utf-8"))
     fetch_result = payload["fetch_result"]
     target_paper = TargetPaper(
@@ -52,6 +54,7 @@ def load_stage2_sample(sample_path: Path) -> tuple[TargetPaper, list[CitingPaper
 
 
 def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) -> Path:
+    """Build local source links for stage validation."""
     temp_dir = Path(tempfile.mkdtemp(prefix="stage6-fixtures-", dir=REPO_ROOT))
     html_path = temp_dir / "citing-2.html"
     pdf_path = temp_dir / "citing-1.pdf"
@@ -117,6 +120,7 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
 
 
 def build_simple_pdf_bytes(text: str) -> bytes:
+    """Build simple PDF bytes for stage validation."""
     safe_text = text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
     content_lines = ["BT", "/F1 12 Tf", "72 720 Td"]
     for raw_line in wrap_text(text=safe_text, width=85):
@@ -148,6 +152,7 @@ def build_simple_pdf_bytes(text: str) -> bytes:
 
 
 def wrap_text(text: str, width: int) -> list[str]:
+    """Wrap text for fixture PDF generation for stage validation."""
     words = text.split()
     lines: list[str] = []
     current: list[str] = []
@@ -267,6 +272,7 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
 
 
 def maybe_run_real_citing5_smoke(logger: StageLogger, sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
+    """Conditionally run run real citing5 smoke for stage validation."""
     live_mode = str(os.getenv("STAGE6_REAL_CITING5", "")).strip().lower()
     if live_mode not in {"1", "true", "yes"}:
         logger.detail("real_citing5_enabled=False env=STAGE6_REAL_CITING5")
@@ -306,6 +312,7 @@ def maybe_run_real_citing5_smoke(logger: StageLogger, sample_path: Path = DEFAUL
 
 
 def maybe_run_grobid_citing5_smoke(logger: StageLogger, sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
+    """Conditionally run run GROBID citing5 smoke for stage validation."""
     live_mode = str(os.getenv("STAGE6_GROBID_CITING5", "")).strip().lower()
     if live_mode not in {"1", "true", "yes"}:
         logger.detail("grobid_citing5_enabled=False env=STAGE6_GROBID_CITING5")
@@ -343,6 +350,7 @@ def maybe_run_grobid_citing5_smoke(logger: StageLogger, sample_path: Path = DEFA
 
 
 def main() -> None:
+    """Run this module as a command-line validation or utility entry point."""
     logger = StageLogger("stage6")
     logger.start()
     result = assert_stage6_local_sentiment_validation()

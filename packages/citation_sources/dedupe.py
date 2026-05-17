@@ -1,3 +1,4 @@
+"""Dedupe helpers for citation source collection."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -7,6 +8,7 @@ from packages.citation_sources.models import CitingPaper, SourceTrace
 
 
 def merge_normalized_records(records: Iterable[Dict[str, object]]) -> tuple[List[CitingPaper], List[SourceTrace]]:
+    """Merge normalized records for citation source collection."""
     deduped_papers: List[CitingPaper] = []
     source_traces: List[SourceTrace] = []
     seen_by_doi: Dict[str, int] = {}
@@ -56,6 +58,7 @@ def merge_normalized_records(records: Iterable[Dict[str, object]]) -> tuple[List
 
 
 def _create_citing_paper(record: Dict[str, object], index: int) -> CitingPaper:
+    """Create citing paper for citation source collection."""
     paper = CitingPaper(
         canonical_id=f"citing-{index + 1}",
         title=str(record.get("title") or ""),
@@ -70,6 +73,7 @@ def _create_citing_paper(record: Dict[str, object], index: int) -> CitingPaper:
 
 
 def _merge_into_citing_paper(paper: CitingPaper, record: Dict[str, object]) -> None:
+    """Merge into citing paper for citation source collection."""
     source_name = str(record.get("source_name") or "unknown")
     source_record_id = str(record.get("source_record_id") or "")
     source_url = str(record.get("url") or "")
@@ -109,6 +113,7 @@ def _merge_into_citing_paper(paper: CitingPaper, record: Dict[str, object]) -> N
 
 
 def _title_year_key(record: Dict[str, object]) -> str:
+    """Build title-year keys for citation deduplication for citation source collection."""
     normalized_title = str(record.get("normalized_title") or "")
     year = record.get("year")
     authors = record.get("authors") or []
@@ -124,6 +129,7 @@ def _refresh_indexes(
     seen_by_doi: Dict[str, int],
     seen_by_title_key: Dict[str, int],
 ) -> None:
+    """Refresh deduplication indexes after a merge for citation source collection."""
     if paper.doi:
         seen_by_doi[paper.doi] = index
 

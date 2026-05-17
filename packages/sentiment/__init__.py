@@ -28,6 +28,7 @@ __all__ = [
 
 
 def __getattr__(name: str):
+    """Handle getattr for citation sentiment analysis."""
     if name in {"fetch_fulltext_document", "select_text_source"}:
         from packages.sentiment.fulltext import fetch_fulltext_document, select_text_source
 

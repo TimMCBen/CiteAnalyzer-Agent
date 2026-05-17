@@ -1,3 +1,4 @@
+"""Command-line validation helpers for run."""
 from __future__ import annotations
 
 import argparse
@@ -15,6 +16,7 @@ if str(REPO_ROOT) not in sys.path:
 from scripts.test_agent.stage_logging import LOG_MODE_ENV, StageLogger, get_log_mode
 
 IMPORT_CONTRACT_SCRIPT = SCRIPT_DIR / "import_contract.py"
+COMMENT_CONTRACT_SCRIPT = SCRIPT_DIR / "comment_contract.py"
 LLM_PROMPT_CONTRACT_SCRIPT = SCRIPT_DIR / "llm_prompt_contract.py"
 NETWORK_RETRY_CONTRACT_SCRIPT = SCRIPT_DIR / "network_retry_contract.py"
 PAPER_IDENTITY_SCRIPT = SCRIPT_DIR / "paper_identity.py"
@@ -33,6 +35,7 @@ PENDING_STAGE_SCRIPTS = [
 
 AGGREGATED_STAGE_SCRIPTS = [
     IMPORT_CONTRACT_SCRIPT,
+    COMMENT_CONTRACT_SCRIPT,
     LLM_PROMPT_CONTRACT_SCRIPT,
     NETWORK_RETRY_CONTRACT_SCRIPT,
     PAPER_IDENTITY_SCRIPT,
@@ -48,12 +51,14 @@ AGGREGATED_STAGE_SCRIPTS = [
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse args for stage validation."""
     parser = argparse.ArgumentParser(description="Run CiteAnalyzer stage validations.")
     parser.add_argument("--log", choices=("brief", "detail"), default=None, help="Stage log verbosity.")
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> None:
+    """Run this module as a command-line validation or utility entry point."""
     args = parse_args(argv)
     log_mode = args.log or get_log_mode()
     logger = StageLogger("aggregate", mode=log_mode)

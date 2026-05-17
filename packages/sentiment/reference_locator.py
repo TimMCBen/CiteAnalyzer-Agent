@@ -1,3 +1,4 @@
+"""Reference locator helpers for citation sentiment analysis."""
 from __future__ import annotations
 
 import re
@@ -11,6 +12,7 @@ NON_ALNUM_PATTERN = re.compile(r"[^a-z0-9]+")
 
 
 def locate_reference_context(text: str, target_paper: TargetPaper, window_sentences: int = 1) -> ReferenceMatch:
+    """Locate text that cites the target paper for citation sentiment analysis."""
     doi = (target_paper.doi or "").lower()
     title = target_paper.title or target_paper.paper_query or ""
 
@@ -55,6 +57,7 @@ def locate_reference_context(text: str, target_paper: TargetPaper, window_senten
 
 
 def match_sentence_by_title(text: str, title: str, window_sentences: int = 1) -> Optional[ReferenceMatch]:
+    """Match citation sentences using target-title tokens for citation sentiment analysis."""
     title_tokens = significant_tokens(title)
     if len(title_tokens) < 3:
         return None
@@ -98,6 +101,7 @@ def build_reference_match(
     evidence_note: str,
     window_sentences: int = 1,
 ) -> ReferenceMatch:
+    """Build reference match for citation sentiment analysis."""
     spans = sentence_spans(text)
     sentence_index = 0
     for index, (start, end) in enumerate(spans):
@@ -118,10 +122,12 @@ def build_reference_match(
 
 
 def split_sentences(text: str) -> List[str]:
+    """Split extracted text into sentence-like spans for citation sentiment analysis."""
     return [segment for segment in re.split(r"(?<=[.!?])\s+|\n+", text) if segment.strip()]
 
 
 def sentence_spans(text: str) -> List[Tuple[int, int]]:
+    """Calculate sentence spans for context extraction for citation sentiment analysis."""
     spans: List[Tuple[int, int]] = []
     cursor = 0
     for sentence in split_sentences(text):
@@ -135,6 +141,7 @@ def sentence_spans(text: str) -> List[Tuple[int, int]]:
 
 
 def significant_tokens(text: str) -> List[str]:
+    """Extract significant title tokens for matching for citation sentiment analysis."""
     tokens = [token for token in normalize_for_matching(text).split() if len(token) >= 3]
     stopwords = {
         "that",
@@ -155,11 +162,13 @@ def significant_tokens(text: str) -> List[str]:
 
 
 def normalize_for_matching(text: str) -> str:
+    """Normalize for matching for citation sentiment analysis."""
     lowered = text.lower()
     return NON_ALNUM_PATTERN.sub(" ", lowered).strip()
 
 
 def find_doi_span_ignoring_punctuation(text: str, doi: str) -> int:
+    """Find DOI spans despite punctuation differences for citation sentiment analysis."""
     compact_text = NON_ALNUM_PATTERN.sub("", text.lower())
     compact_doi = NON_ALNUM_PATTERN.sub("", doi.lower())
     compact_index = compact_text.find(compact_doi)

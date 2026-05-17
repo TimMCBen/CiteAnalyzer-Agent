@@ -1,3 +1,4 @@
+"""Command-line validation helpers for paper identity build dataset."""
 from __future__ import annotations
 
 import argparse
@@ -7,6 +8,7 @@ from typing import Any
 
 
 def load_citing_rows(path: Path) -> list[dict[str, Any]]:
+    """Load citing rows for paper identity evaluation."""
     payload = json.loads(path.read_text(encoding="utf-8"))
     if isinstance(payload, dict) and isinstance(payload.get("fetch_result"), dict):
         rows = payload["fetch_result"].get("citing_papers") or []
@@ -20,6 +22,7 @@ def load_citing_rows(path: Path) -> list[dict[str, Any]]:
 
 
 def normalize_sample(row: dict[str, Any], *, target: str) -> dict[str, Any]:
+    """Normalize sample for paper identity evaluation."""
     sample_id = str(row.get("canonical_id") or row.get("paperId") or row.get("s2_paper_id") or row.get("title") or "").strip()
     return {
         "target": target,
@@ -45,6 +48,7 @@ def normalize_sample(row: dict[str, Any], *, target: str) -> dict[str, Any]:
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse args for paper identity evaluation."""
     parser = argparse.ArgumentParser(description="Build a paper identity evaluation JSONL template from collected citing papers.")
     parser.add_argument("--input", required=True, action="append", type=Path, help="Stage2/sample/report JSON containing citing papers.")
     parser.add_argument("--target", action="append", default=[], help="Target label matching each --input; defaults to input stem.")
@@ -54,6 +58,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Run this module as a command-line validation or utility entry point."""
     args = parse_args()
     rows: list[dict[str, Any]] = []
     seen: set[str] = set()

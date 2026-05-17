@@ -1,3 +1,4 @@
+"""Models helpers for citation source collection."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -6,6 +7,7 @@ from typing import Dict, List, Optional
 
 @dataclass
 class CitingPaper:
+    """Store citing paper information used by citation source collection."""
     canonical_id: str
     title: str
     doi: Optional[str] = None
@@ -20,6 +22,7 @@ class CitingPaper:
 
 @dataclass
 class SourceTrace:
+    """Store source trace information used by citation source collection."""
     candidate_id: str
     source_name: str
     source_record_id: str
@@ -32,6 +35,7 @@ class SourceTrace:
 
 @dataclass
 class FetchSummary:
+    """Store fetch summary information used by citation source collection."""
     target_query: str
     target_title: Optional[str] = None
     target_doi: Optional[str] = None
@@ -46,6 +50,7 @@ class FetchSummary:
 
 @dataclass
 class CitationFetchResult:
+    """Store citation fetch result information used by citation source collection."""
     citing_papers: List[CitingPaper] = field(default_factory=list)
     source_trace: List[SourceTrace] = field(default_factory=list)
     fetch_summary: FetchSummary = field(default_factory=lambda: FetchSummary(target_query=""))

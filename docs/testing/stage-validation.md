@@ -31,6 +31,7 @@
 当前 `run.py` 仍只聚合：
 
 - `import_contract.py`
+- `comment_contract.py`
 - `llm_prompt_contract.py`
 - `network_retry_contract.py`
 - `paper_identity.py`
@@ -60,6 +61,17 @@
 - 覆盖：
   - 阶段 1 / 报告层相关导入链不应因为缺少 `bs4` 而在导入期失败
   - 防止阶段 5 / 6 的可选全文依赖泄漏到阶段 1 默认入口
+
+### Python 用途注释契约
+
+- 脚本：`scripts/test_agent/comment_contract.py`
+- 覆盖：
+  - `apps/`、`packages/`、`scripts/` 下模块、类、函数的用途型 docstring 覆盖
+  - Protocol stub、普通 dunder、accessor、嵌套局部函数、测试 `assert_*` 等低信号目标的豁免矩阵
+  - 低质量模板句检查，避免“只为通过覆盖率”的机械注释
+- 当前状态：
+  - 已接入 `scripts/test_agent/run.py` 聚合验证
+  - 不访问真实外部 API
 
 - 脚本：`scripts/test_agent/stage1.py`
 - 覆盖：

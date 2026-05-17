@@ -1,3 +1,4 @@
+"""Command-line validation helpers for stage3."""
 from __future__ import annotations
 
 import sys
@@ -11,6 +12,7 @@ from scripts.test_agent.stage_logging import StageLogger
 
 
 def main() -> None:
+    """Run this module as a command-line validation or utility entry point."""
     logger = StageLogger("stage3")
     logger.start()
     logger.skip("google_scholar_validation", "TODO: stage3 remains reserved for supplemental source exploration")

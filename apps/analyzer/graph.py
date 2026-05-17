@@ -1,3 +1,4 @@
+"""LangGraph builders for the analyzer stage workflows."""
 from __future__ import annotations
 
 from langgraph.graph import END, START, StateGraph
@@ -15,6 +16,7 @@ from packages.shared.models import AnalysisState
 
 
 def build_stage1_graph():
+    """Build stage1 graph for the analyzer pipeline."""
     graph = StateGraph(AnalysisState)
     graph.add_node("parse_user_query", parse_user_query)
     graph.add_node("resolve_target_paper", resolve_target_paper_node)
@@ -25,6 +27,7 @@ def build_stage1_graph():
 
 
 def build_stage2_graph():
+    """Build stage2 graph for the analyzer pipeline."""
     graph = StateGraph(AnalysisState)
     graph.add_node("parse_user_query", parse_user_query)
     graph.add_node("resolve_target_paper", resolve_target_paper_node)
@@ -37,6 +40,7 @@ def build_stage2_graph():
 
 
 def build_stage6_graph():
+    """Build stage6 graph for the analyzer pipeline."""
     graph = StateGraph(AnalysisState)
     graph.add_node("parse_user_query", parse_user_query)
     graph.add_node("resolve_target_paper", resolve_target_paper_node)
@@ -55,6 +59,7 @@ def build_stage6_graph():
 
 
 def build_stage7_graph():
+    """Build stage7 graph for the analyzer pipeline."""
     graph = StateGraph(AnalysisState)
     graph.add_node("parse_user_query", parse_user_query)
     graph.add_node("resolve_target_paper", resolve_target_paper_node)

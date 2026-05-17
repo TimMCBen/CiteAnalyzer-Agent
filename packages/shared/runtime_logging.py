@@ -1,3 +1,4 @@
+"""Runtime logging helpers for shared analyzer contracts."""
 from __future__ import annotations
 
 import os
@@ -25,62 +26,79 @@ _STAGE_LABELS = {
 
 @dataclass(frozen=True)
 class AnalysisRuntimeOptions:
+    """Store analysis runtime options information used by shared analyzer contracts."""
     max_citations: int | None = None
 
 
 class NoOpRuntimeLogger:
+    """Store no-op runtime logger information used by shared analyzer contracts."""
     mode: RuntimeLogMode = "quiet"
 
     def stage_start(self, stage: str, message: str, **fields: Any) -> None:
+        """Emit stage-start log records for no-op runtime logger."""
         return None
 
     def stage_done(self, stage: str, message: str, **fields: Any) -> None:
+        """Emit stage-completion log records for no-op runtime logger."""
         return None
 
     def detail(self, event: str, message: str, **fields: Any) -> None:
+        """Emit detailed progress log records for no-op runtime logger."""
         return None
 
     def warn(self, event: str, message: str, **fields: Any) -> None:
+        """Emit warning log records for no-op runtime logger."""
         return None
 
     def skip(self, event: str, message: str, **fields: Any) -> None:
+        """Emit skipped-step log records for no-op runtime logger."""
         return None
 
     def fail(self, event: str, message: str, **fields: Any) -> None:
+        """Emit failure log records for no-op runtime logger."""
         return None
 
     def summary(self, title: str = "分析结果摘要", **fields: Any) -> None:
+        """Emit stage summary log records for no-op runtime logger."""
         return None
 
 
 class RuntimeLogger(NoOpRuntimeLogger):
+    """Store runtime logger information used by shared analyzer contracts."""
     def __init__(self, component: str = "analyzer", mode: RuntimeLogMode | None = None):
         self.component = component
         self.mode = mode or get_runtime_log_mode()
 
     def stage_start(self, stage: str, message: str, **fields: Any) -> None:
+        """Emit stage-start log records for runtime logger."""
         if self.mode != "quiet":
             self._print("▶", "START", _stage_label(stage), message, fields)
 
     def stage_done(self, stage: str, message: str, **fields: Any) -> None:
+        """Emit stage-completion log records for runtime logger."""
         if self.mode != "quiet":
             self._print("✅", "DONE", _stage_label(stage), message, fields)
 
     def detail(self, event: str, message: str, **fields: Any) -> None:
+        """Emit detailed progress log records for runtime logger."""
         if self.mode == "detail":
             self._print("ℹ", "DETAIL", event, message, fields)
 
     def warn(self, event: str, message: str, **fields: Any) -> None:
+        """Emit warning log records for runtime logger."""
         self._print("⚠", "WARN", event, message, fields)
 
     def skip(self, event: str, message: str, **fields: Any) -> None:
+        """Emit skipped-step log records for runtime logger."""
         if self.mode != "quiet":
             self._print("⏭", "SKIP", event, message, fields)
 
     def fail(self, event: str, message: str, **fields: Any) -> None:
+        """Emit failure log records for runtime logger."""
         self._print("❌", "FAIL", event, message, fields)
 
     def summary(self, title: str = "分析结果摘要", **fields: Any) -> None:
+        """Emit stage summary log records for runtime logger."""
         if self.mode == "quiet" and fields.get("status") != "failed":
             return
         print(f"===== 📄 {title} =====", flush=True)
@@ -89,6 +107,7 @@ class RuntimeLogger(NoOpRuntimeLogger):
         print("==========================", flush=True)
 
     def _print(self, icon: str, token: str, event: str, message: str, fields: dict[str, Any]) -> None:
+        """Write formatted runtime log lines for runtime logger."""
         suffix = _format_fields(fields)
         print(f"{icon} {token} {event} | {message}{suffix}", flush=True)
 
@@ -102,6 +121,7 @@ _NOOP_LOGGER = NoOpRuntimeLogger()
 
 
 def get_runtime_log_mode() -> RuntimeLogMode:
+    """Return runtime log mode for shared analyzer contracts."""
     raw_mode = os.getenv(RUNTIME_LOG_MODE_ENV, "brief").strip().lower()
     if raw_mode in VALID_RUNTIME_LOG_MODES:
         return raw_mode  # type: ignore[return-value]
@@ -110,26 +130,32 @@ def get_runtime_log_mode() -> RuntimeLogMode:
 
 
 def set_runtime_logger(logger: NoOpRuntimeLogger | RuntimeLogger) -> Token[NoOpRuntimeLogger | RuntimeLogger | None]:
+    """Set runtime logger for shared analyzer contracts."""
     return _LOGGER.set(logger)
 
 
 def reset_runtime_logger(token: Token[NoOpRuntimeLogger | RuntimeLogger | None]) -> None:
+    """Reset runtime logger for shared analyzer contracts."""
     _LOGGER.reset(token)
 
 
 def get_runtime_logger() -> NoOpRuntimeLogger | RuntimeLogger:
+    """Return runtime logger for shared analyzer contracts."""
     return _LOGGER.get() or _NOOP_LOGGER
 
 
 def set_runtime_options(options: AnalysisRuntimeOptions) -> Token[AnalysisRuntimeOptions]:
+    """Set runtime options for shared analyzer contracts."""
     return _OPTIONS.set(options)
 
 
 def reset_runtime_options(token: Token[AnalysisRuntimeOptions]) -> None:
+    """Reset runtime options for shared analyzer contracts."""
     _OPTIONS.reset(token)
 
 
 def get_runtime_options() -> AnalysisRuntimeOptions:
+    """Return runtime options for shared analyzer contracts."""
     return _OPTIONS.get()
 
 
@@ -138,6 +164,7 @@ def runtime_context(
     logger: NoOpRuntimeLogger | RuntimeLogger | None = None,
     options: AnalysisRuntimeOptions | None = None,
 ) -> Iterator[NoOpRuntimeLogger | RuntimeLogger]:
+    """Handle runtime context for shared analyzer contracts."""
     active_logger = logger or RuntimeLogger()
     logger_token = set_runtime_logger(active_logger)
     options_token = set_runtime_options(options or AnalysisRuntimeOptions())
@@ -153,6 +180,7 @@ def _stage_label(stage: str) -> str:
 
 
 def _format_fields(fields: dict[str, Any]) -> str:
+    """Format fields for shared analyzer contracts."""
     visible = [
         f"{key}={_clean_value(key, value)}"
         for key, value in fields.items()
@@ -164,6 +192,7 @@ def _format_fields(fields: dict[str, Any]) -> str:
 
 
 def _clean_value(key: str, value: Any) -> str:
+    """Handle clean value for shared analyzer contracts."""
     if _is_sensitive_key(key):
         return "[REDACTED]"
     if isinstance(value, Path):
@@ -177,11 +206,13 @@ def _clean_value(key: str, value: Any) -> str:
 
 
 def _is_sensitive_key(key: str) -> bool:
+    """Return whether sensitive key for shared analyzer contracts."""
     lowered = key.lower().replace("_", "-")
     return any(part in lowered for part in _SENSITIVE_KEY_PARTS)
 
 
 def _summary_label(key: str) -> str:
+    """Handle summary label for shared analyzer contracts."""
     labels = {
         "target": "目标论文",
         "citing_papers": "施引文献",
