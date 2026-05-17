@@ -15,6 +15,7 @@ if str(REPO_ROOT) not in sys.path:
 from scripts.test_agent.stage_logging import LOG_MODE_ENV, StageLogger, get_log_mode
 
 IMPORT_CONTRACT_SCRIPT = SCRIPT_DIR / "import_contract.py"
+LLM_PROMPT_CONTRACT_SCRIPT = SCRIPT_DIR / "llm_prompt_contract.py"
 STAGE1_SCRIPT = SCRIPT_DIR / "stage1.py"
 STAGE2_SCRIPT = SCRIPT_DIR / "stage2.py"
 STAGE4_SCRIPT = SCRIPT_DIR / "stage4.py"
@@ -30,6 +31,7 @@ PENDING_STAGE_SCRIPTS = [
 
 AGGREGATED_STAGE_SCRIPTS = [
     IMPORT_CONTRACT_SCRIPT,
+    LLM_PROMPT_CONTRACT_SCRIPT,
     STAGE1_SCRIPT,
     STAGE2_SCRIPT,
     STAGE4_SCRIPT,

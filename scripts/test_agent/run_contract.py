@@ -12,6 +12,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 RUN_SCRIPT = SCRIPT_DIR / "run.py"
 EXPECTED_AGGREGATED_SCRIPTS = [
     "import_contract.py",
+    "llm_prompt_contract.py",
     "stage1.py",
     "stage2.py",
     "stage4.py",

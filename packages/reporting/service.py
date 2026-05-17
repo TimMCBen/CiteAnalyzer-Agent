@@ -11,6 +11,12 @@ from packages.shared.models import AnalysisState, AuthorProfile, AuthorSummary, 
 
 
 DEFAULT_REPORT_DIR = Path("generated-reports")
+SENTIMENT_LABEL_DISPLAY = {
+    "positive": "正向",
+    "neutral": "中性",
+    "critical": "批评",
+    "unknown": "未知",
+}
 
 
 def build_report_artifact(
@@ -183,6 +189,10 @@ def _serialize_context(context: CitationContext) -> dict[str, object]:
     }
 
 
+def _display_sentiment_label(label: str) -> str:
+    return SENTIMENT_LABEL_DISPLAY.get(label, label)
+
+
 def _render_html(
     target_paper: TargetPaper,
     summary: dict[str, object],
@@ -206,7 +216,7 @@ def _render_html(
     contexts_html = "".join(
         (
             "<article class='context-card'>"
-            f"<div class='context-head'><h3>{context.citing_paper_id}</h3><span class='sentiment-tag'>{context.sentiment_label}</span></div>"
+            f"<div class='context-head'><h3>{context.citing_paper_id}</h3><span class='sentiment-tag'>{_display_sentiment_label(context.sentiment_label)}</span></div>"
             f"<p><strong>evidence:</strong> {context.evidence_note}</p>"
             f"<p>{context.context_text or 'No context available.'}</p>"
             "</article>"

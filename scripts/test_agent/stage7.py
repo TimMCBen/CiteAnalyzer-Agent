@@ -121,6 +121,7 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
 
         payload = json.loads(json_path.read_text(encoding="utf-8"))
         assert payload["summary"]["target_title"] == "Target Paper", payload
+        assert payload["contexts"][0]["sentiment_label"] == "unknown", payload["contexts"]
         assert payload["summary"]["key_findings"], payload["summary"]
         assert payload["summary"]["partial_failure"] is True, payload["summary"]
         assert payload["summary"]["source_trace_count"] == 1, payload["summary"]
@@ -138,6 +139,7 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
         assert "Key Findings" in html
         assert "Manual Attention Items" in html
         assert "Citation Contexts" in html
+        assert ">未知<" in html
         assert 'class="hero"' in html
         assert 'class="page-nav"' in html
         assert 'class="metric-grid"' in html
