@@ -1,9 +1,23 @@
 from __future__ import annotations
 
 import os
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from packages.shared.network_retry import RetryPolicy, retry_call
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+LOCAL_ENV_PATH = REPO_ROOT / ".env"
+
+
+@dataclass(frozen=True)
+class LLMEnvConfig:
+    api_key: str
+    base_url: str
+    model: str
+    env_path: Path
 
 LLM_RETRY_POLICY = RetryPolicy(
     service="LLM",
@@ -17,21 +31,16 @@ LLM_RETRY_POLICY = RetryPolicy(
 )
 
 
-def load_local_env() -> None:
+def load_local_env(*, override: bool = False) -> None:
     try:
         from dotenv import load_dotenv
     except ImportError:
         return
-    load_dotenv()
+    load_dotenv(dotenv_path=LOCAL_ENV_PATH, override=override)
 
 
-def build_llm() -> Any:
-    try:
-        from langchain_openai import ChatOpenAI
-    except ImportError as exc:
-        raise RuntimeError("LLM dependencies are not installed") from exc
-
-    load_local_env()
+def get_llm_env_config(*, override: bool = False) -> LLMEnvConfig:
+    load_local_env(override=override)
 
     api_key = (os.getenv("API_KEY") or "").strip()
     base_url = (os.getenv("BASE_URL") or "").strip()
@@ -43,8 +52,17 @@ def build_llm() -> Any:
         raise ValueError("BASE_URL is required in .env")
     if not model:
         raise ValueError("MODEL is required in .env")
+    return LLMEnvConfig(api_key=api_key, base_url=base_url, model=model, env_path=LOCAL_ENV_PATH)
 
-    return ChatOpenAI(api_key=api_key, base_url=base_url, model=model, temperature=0)
+
+def build_llm() -> Any:
+    try:
+        from langchain_openai import ChatOpenAI
+    except ImportError as exc:
+        raise RuntimeError("LLM dependencies are not installed") from exc
+
+    config = get_llm_env_config(override=True)
+    return ChatOpenAI(api_key=config.api_key, base_url=config.base_url, model=config.model, temperature=0)
 
 
 def invoke_llm_with_retry(structured_llm: Any, messages: list[dict[str, str]], operation: str) -> Any:

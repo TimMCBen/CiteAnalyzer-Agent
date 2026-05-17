@@ -21,6 +21,7 @@
 - **[图表语义]**: HTML 情感图改为饼图，新增国家/地区分布与机构分布，保留 `source_map` 兼容字段。
 - **[国家解析]**: 新增规则优先、LLM 可选的国家/地区解析路径，并记录 method / confidence / evidence trace。
 - **[测试]**: Stage 7 contract 覆盖 PDF、pie chart、country / institution distribution，并强制真实调用模型验证国家解析；缺少 `API_KEY` / `BASE_URL` / `MODEL` 时测试失败。
+- **[模型配置修正]**: 后续澄清后，将 Stage 7 live smoke 收紧为必须读取仓库根目录 `.env` 中实际生效的 `MODEL=gpt-5.4`，不是任意真实模型。
 
 ### 🧠 Design Intent (Why)
 

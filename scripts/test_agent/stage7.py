@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import shutil
 import sys
 import tempfile
@@ -242,11 +241,13 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
 
 
 def assert_live_llm_country_resolution(logger: StageLogger) -> None:
-    from apps.analyzer.config import load_local_env
+    from apps.analyzer.config import get_llm_env_config
 
-    load_local_env()
-    missing_env = [name for name in ("API_KEY", "BASE_URL", "MODEL") if not os.getenv(name)]
-    assert not missing_env, f"missing real LLM env for stage7 live test: {', '.join(missing_env)}"
+    config = get_llm_env_config(override=True)
+    assert config.model == "gpt-5.4", (
+        f"stage7 live LLM test requires MODEL=gpt-5.4 from {config.env_path}; "
+        f"got MODEL={config.model}"
+    )
 
     result = LLMCountryResolver().resolve("ETH Zurich")
     assert result.method == "llm", result
@@ -255,7 +256,7 @@ def assert_live_llm_country_resolution(logger: StageLogger) -> None:
     assert result.evidence, result
     logger.pass_case(
         "live_llm_country_resolution",
-        detail=f"institution={result.institution} country={result.country} confidence={result.confidence}",
+        detail=f"model={config.model} institution={result.institution} country={result.country} confidence={result.confidence}",
     )
 
 

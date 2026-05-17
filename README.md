@@ -79,7 +79,8 @@ flowchart LR
 其中：
 
 - `API_KEY` / `BASE_URL` / `MODEL` 是 LLM 必填项
-- `scripts/test_agent/stage7.py` 和聚合入口会真实调用 LLM 验证国家/地区解析，缺少这些变量会失败
+- analyzer 会优先读取仓库根目录 `.env`；本地 `.env` 会覆盖当前 shell 中已有的同名 LLM 环境变量
+- `scripts/test_agent/stage7.py` 和聚合入口会真实调用 LLM 验证国家/地区解析，并要求 `.env` 中实际生效的 `MODEL=gpt-5.4`
 - `GROBID_API_URL` 默认回退到 `http://localhost:8070/api`
 
 ### 项目级验证入口

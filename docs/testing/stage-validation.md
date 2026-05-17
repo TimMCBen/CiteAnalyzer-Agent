@@ -125,7 +125,8 @@
   - 趋势、国家/地区来源、机构、学者、情感、降级说明区块
   - ECharts 图表容器、情感饼图、图表数据 fallback、机构 Top N 文案
   - 独立 PDF renderer 的真实产物存在性
-  - 规则国家/地区解析 trace 与真实 LLM 国家/地区解析 smoke；运行前必须在 `.env` 或环境变量中提供 `API_KEY`、`BASE_URL`、`MODEL`
+  - 规则国家/地区解析 trace 与真实 LLM 国家/地区解析 smoke；运行前必须在仓库根目录 `.env` 或环境变量中提供 `API_KEY`、`BASE_URL`、`MODEL`
+  - Stage 7 live smoke 会断言实际生效的 `MODEL=gpt-5.4`，不是任意真实模型
   - 分析摘要、重要学者表格、代表性引用语境
   - `report.json` 原始 `charts` 契约保持不变，HTML 才生成展示层图表
   - `fetch_summary` / `source_trace` / `state.errors` / 弱标注 `confidence_note` 的报告暴露
