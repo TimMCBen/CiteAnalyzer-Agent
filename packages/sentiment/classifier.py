@@ -13,14 +13,14 @@ except ImportError:
             return kwargs["default_factory"]()
         return default
 
-from apps.analyzer.config import build_llm
+from apps.analyzer.config import build_llm, invoke_llm_with_retry
 from packages.sentiment.models import SentimentLabel
 from packages.shared.models import TargetPaper
 
 
 class SentimentClassificationModel(BaseModel):
     label: SentimentLabel = Field(description="positive, neutral, critical, or unknown")
-    evidence_note: str = Field(description="A concise justification for the label.")
+    evidence_note: str = Field(description="用中文简明说明选择该 label 的依据。")
 
 
 def classify_sentiment(context_text: str, target_paper: TargetPaper) -> tuple[SentimentLabel, str]:
@@ -32,21 +32,24 @@ def classify_sentiment(context_text: str, target_paper: TargetPaper) -> tuple[Se
     structured_llm = llm.with_structured_output(SentimentClassificationModel, method="function_calling")
     target_hint = target_paper.title or target_paper.doi or target_paper.paper_query or "unknown target"
     prompt = (
-        "You are classifying a citation context toward a target paper. "
-        "The exact target citation mention inside the context is wrapped with double asterisks like **this** when available. "
-        "Use the wrapped citation as the primary anchor for deciding what the surrounding context says about the target paper. "
-        "Use label=positive when the context supports, builds on, adopts, or extends the target work. "
-        "Use label=critical when the context points out limitations, failures, weaknesses, or contrasts against the target work. "
-        "Use label=neutral when the context is mainly background or factual mention. "
-        "Use label=unknown only when the context is too weak to justify a label."
+        "你正在判断一段引用上下文对目标论文的态度。"
+        "如果上下文中有用双星号标出的精确目标引用，例如 **this**，必须优先以该标记为判断锚点。"
+        "字段名和枚举值不要翻译；label 必须且只能使用英文枚举 positive、neutral、critical、unknown。"
+        "当上下文支持、采用、基于或扩展目标工作时，使用 label=positive。"
+        "当上下文指出目标工作的限制、失败、弱点，或明确与目标工作形成负面对比时，使用 label=critical。"
+        "当上下文主要是背景介绍、事实列举或中性提及时，使用 label=neutral。"
+        "只有当上下文证据不足以支持任何判断时，才使用 label=unknown。"
+        "evidence_note 必须使用中文，简明说明判断依据；论文标题、作者名、arXiv ID 和专业术语可以保留英文原文。"
     )
-    result = structured_llm.invoke(
+    result = invoke_llm_with_retry(
+        structured_llm,
         [
             {"role": "system", "content": prompt},
             {
                 "role": "user",
                 "content": f"Target paper hint: {target_hint}\n\nCitation context:\n{normalized}",
             },
-        ]
+        ],
+        "阶段6引用情感分类",
     )
     return result.label, f"llm_sentiment:{result.evidence_note}"

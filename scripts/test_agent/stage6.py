@@ -14,7 +14,9 @@ if str(REPO_ROOT) not in sys.path:
 from packages.citation_sources.models import CitingPaper
 from packages.sentiment import FullTextDocument, analyze_citation_sentiments, grobid_is_alive
 from packages.sentiment.fulltext import fetch_fulltext_document
+from packages.sentiment.models import ReferenceMatch
 from packages.shared.models import TargetPaper
+from scripts.test_agent.stage_logging import StageLogger
 
 DEFAULT_SAMPLE_PATH = REPO_ROOT / "docs" / "generated" / "stage2-live-10.1145.3368089.3409740.json"
 
@@ -164,7 +166,33 @@ def wrap_text(text: str, width: int) -> list[str]:
     return lines
 
 
-def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
+def fake_reference_matcher(
+    text: str,
+    target_paper: TargetPaper,
+    source_type: str | None = None,
+    extracted_dir: str | None = None,
+) -> ReferenceMatch:
+    _ = target_paper, source_type, extracted_dir
+    normalized = " ".join(text.split())
+    return ReferenceMatch(
+        matched_target_reference="fixture_target_reference",
+        context_text=normalized[:700],
+        mention_span=None,
+        evidence_note="matched_by_llm_reference_and_context:fixture_reference_match | fixture_context_match",
+    )
+
+
+def fake_classify_sentiment(context_text: str, target_paper: TargetPaper) -> tuple[str, str]:
+    _ = target_paper
+    lowered = context_text.lower()
+    if "clear weakness" in lowered or "cannot explain" in lowered or "misses a critical" in lowered:
+        return "critical", "llm_sentiment:fixture detected explicit limitation language."
+    if "builds on" in lowered or "following" in lowered or "extend the analysis" in lowered:
+        return "positive", "llm_sentiment:fixture detected use or extension of the target work."
+    return "neutral", "llm_sentiment:fixture detected background or framing usage."
+
+
+def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_PATH):
     target_paper, citing_papers = load_stage2_sample(sample_path)
     citing_papers.append(
         CitingPaper(
@@ -176,6 +204,10 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
         )
     )
     temp_dir = build_local_source_links(citing_papers, target_paper.doi or "")
+    import packages.sentiment.workflow as workflow
+
+    original_classifier = workflow.classify_sentiment
+    workflow.classify_sentiment = fake_classify_sentiment
     try:
         result = analyze_citation_sentiments(
             target_paper=target_paper,
@@ -184,8 +216,10 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
             allow_network=True,
             search_arxiv_fallback=False,
             use_llm_reference_fallback=True,
+            llm_reference_matcher=fake_reference_matcher,
         )
     finally:
+        workflow.classify_sentiment = original_classifier
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     labels = {context.citing_paper_id: context.sentiment_label for context in result.contexts}
@@ -229,11 +263,13 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
     assert summary.label_counts["critical"] == 1, summary.label_counts
     assert summary.label_counts["unknown"] == 2, summary.label_counts
     assert summary.label_counts["neutral"] + summary.label_counts["positive"] == 3, summary.label_counts
+    return result
 
 
-def maybe_run_real_citing5_smoke(sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
+def maybe_run_real_citing5_smoke(logger: StageLogger, sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
     live_mode = str(os.getenv("STAGE6_REAL_CITING5", "")).strip().lower()
     if live_mode not in {"1", "true", "yes"}:
+        logger.detail("real_citing5_enabled=False env=STAGE6_REAL_CITING5")
         return
 
     target_paper, citing_papers = load_stage2_sample(sample_path)
@@ -263,12 +299,16 @@ def maybe_run_real_citing5_smoke(sample_path: Path = DEFAULT_SAMPLE_PATH) -> Non
     ctx = result.contexts[0]
     assert "liu2020fairness" in (ctx.matched_target_reference or ""), ctx
     assert ctx.sentiment_label in {"neutral", "positive", "critical"}, ctx
-    print("[PASS] stage6::real_citing5_smoke")
+    logger.pass_case(
+        "real_citing5_smoke",
+        detail=f"sample_path={sample_path} source_type={doc.source_type} sentiment={ctx.sentiment_label}",
+    )
 
 
-def maybe_run_grobid_citing5_smoke(sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
+def maybe_run_grobid_citing5_smoke(logger: StageLogger, sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
     live_mode = str(os.getenv("STAGE6_GROBID_CITING5", "")).strip().lower()
     if live_mode not in {"1", "true", "yes"}:
+        logger.detail("grobid_citing5_enabled=False env=STAGE6_GROBID_CITING5")
         return
 
     assert grobid_is_alive(), "GROBID service is not alive"
@@ -296,15 +336,30 @@ def maybe_run_grobid_citing5_smoke(sample_path: Path = DEFAULT_SAMPLE_PATH) -> N
     ctx = result.contexts[0]
     assert "#b94" in (ctx.matched_target_reference or ""), ctx
     assert "fairness issues" in (ctx.context_text or "").lower(), ctx
-    print("[PASS] stage6::grobid_citing5_smoke")
+    logger.pass_case(
+        "grobid_citing5_smoke",
+        detail=f"sample_path={sample_path} pdf_path={pdf_path} sentiment={ctx.sentiment_label}",
+    )
 
 
 def main() -> None:
-    assert_stage6_local_sentiment_validation()
-    print("[PASS] stage6::local_sentiment_validation")
-    maybe_run_real_citing5_smoke()
-    maybe_run_grobid_citing5_smoke()
-    print("stage6 validation passed")
+    logger = StageLogger("stage6")
+    logger.start()
+    result = assert_stage6_local_sentiment_validation()
+    source_counts: dict[str, int] = {}
+    for context in result.contexts:
+        source_counts[context.text_source_type] = source_counts.get(context.text_source_type, 0) + 1
+    logger.pass_case(
+        "local_sentiment_validation",
+        detail=(
+            f"sample_path={DEFAULT_SAMPLE_PATH} contexts={len(result.contexts)} "
+            f"label_counts={dict(result.summary.label_counts)} unknown={result.summary.unknown_count} "
+            f"source_types={source_counts}"
+        ),
+    )
+    maybe_run_real_citing5_smoke(logger)
+    maybe_run_grobid_citing5_smoke(logger)
+    logger.done("stage6 validation passed")
 
 
 if __name__ == "__main__":

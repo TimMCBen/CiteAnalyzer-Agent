@@ -7,6 +7,9 @@ from packages.author_intel.normalize import build_author_candidates
 from packages.author_intel.rules import build_scholar_label
 from packages.citation_sources.models import CitingPaper
 from packages.shared.models import AnalysisState, AuthorProfile, AuthorSummary
+from packages.shared.runtime_logging import get_runtime_logger
+
+AUTHOR_INTEL_NETWORK_FAILURE_BUDGET = 3
 
 
 class OpenAlexClientProtocol(Protocol):
@@ -26,22 +29,56 @@ def analyze_author_intel(
 ) -> AuthorIntelResult:
     candidates = build_author_candidates(citing_papers)
     result = AuthorIntelResult()
+    network_failures = 0
+    budget_warning_emitted = False
 
     for candidate in candidates:
         errors: list[str] = []
         openalex_record = None
         dblp_record = None
 
+        if network_failures >= AUTHOR_INTEL_NETWORK_FAILURE_BUDGET:
+            if not budget_warning_emitted:
+                get_runtime_logger().warn(
+                    "author_intel.retry_budget",
+                    "作者画像网络查询累计失败较多，后续作者将直接降级为弱证据",
+                    failures=network_failures,
+                    impact="remaining_authors",
+                )
+                result.errors.append(f"author_intel_retry_budget_exhausted:failures={network_failures}")
+                budget_warning_emitted = True
+            profile = _build_profile(candidate.display_name, candidate.normalized_name, None, None)
+            label = build_scholar_label(profile, candidate.frequency)
+            result.author_profiles.append(profile)
+            result.scholar_labels.append(label)
+            continue
+
         try:
             openalex_record = openalex_client.lookup_author(candidate.display_name)
         except Exception as exc:  # pragma: no cover - network failure path
+            network_failures += 1
             errors.append(f"openalex:{candidate.display_name}:{exc}")
+            get_runtime_logger().warn(
+                "openalex.lookup",
+                "OpenAlex 查询作者时连接或服务异常，已降级为弱证据",
+                author=candidate.display_name,
+                error_type=exc.__class__.__name__,
+                impact="single_author",
+            )
 
         if _needs_dblp_fallback(openalex_record):
             try:
                 dblp_record = dblp_client.lookup_author(candidate.display_name)
             except Exception as exc:  # pragma: no cover - network failure path
+                network_failures += 1
                 errors.append(f"dblp:{candidate.display_name}:{exc}")
+                get_runtime_logger().warn(
+                    "dblp.lookup",
+                    "DBLP 查询作者失败，保留已有弱证据",
+                    author=candidate.display_name,
+                    error_type=exc.__class__.__name__,
+                    impact="single_author",
+                )
 
         profile = _build_profile(candidate.display_name, candidate.normalized_name, openalex_record, dblp_record)
         label = build_scholar_label(profile, candidate.frequency)

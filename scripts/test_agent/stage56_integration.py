@@ -11,6 +11,7 @@ from apps.analyzer import nodes
 from packages.citation_sources.models import CitingPaper
 from packages.sentiment.models import CitationContext, FullTextDocument, SentimentAnalysisResult, SentimentSummary
 from packages.shared.models import AnalysisState, AuthorProfile, AuthorSummary, ScholarLabel, TargetPaper
+from scripts.test_agent.stage_logging import StageLogger
 
 
 def fake_author_intel(citing_papers: list[CitingPaper]):
@@ -95,7 +96,7 @@ def fake_analyze_sentiments(
     )
 
 
-def assert_stage56_node_integration() -> None:
+def assert_stage56_node_integration():
     original_author_intel = nodes.analyze_author_intel_with_live_clients
     original_fetch_fulltext = nodes.fetch_fulltext_document
     original_analyze_sentiments = nodes.analyze_citation_sentiments
@@ -136,6 +137,7 @@ def assert_stage56_node_integration() -> None:
         assert "citing-1" in state["fulltext_documents"]
         assert state["citation_contexts"][0].matched_target_reference == "fixture-reference"
         assert state["sentiment_summary"].classified_count == 1
+        return state
     finally:
         nodes.analyze_author_intel_with_live_clients = original_author_intel
         nodes.fetch_fulltext_document = original_fetch_fulltext
@@ -143,9 +145,20 @@ def assert_stage56_node_integration() -> None:
 
 
 def main() -> None:
-    assert_stage56_node_integration()
-    print("[PASS] stage56::node_integration")
-    print("stage56 integration validation passed")
+    logger = StageLogger("stage56")
+    logger.start()
+    state = assert_stage56_node_integration()
+    logger.pass_case(
+        "node_integration",
+        detail=(
+            "nodes=author_intel,fulltext,sentiment "
+            f"citing_papers={len(state['citing_papers'])} "
+            f"author_profiles={len(state['author_profiles'])} "
+            f"fulltext_documents={len(state['fulltext_documents'])} "
+            f"citation_contexts={len(state['citation_contexts'])}"
+        ),
+    )
+    logger.done("stage56 integration validation passed")
 
 
 if __name__ == "__main__":

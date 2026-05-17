@@ -12,6 +12,7 @@ from apps.analyzer.nodes import initialize_state, parse_user_query, resolve_targ
 from packages.shared.errors import InvalidAnalysisRequestError
 from packages.shared.models import TargetPaper
 from packages.shared.models import UserQuery
+from scripts.test_agent.stage_logging import StageLogger
 
 
 CASES = [
@@ -155,13 +156,23 @@ def parse_query(raw_query: str):
 
 
 def main() -> None:
+    logger = StageLogger("stage1")
+    logger.start()
     for case in CASES:
+        state = parse_query(case["query"])
+        target_paper = state["target_paper"]
         assert_case(case)
-        print(f"[PASS] stage1::{case['name']}")
+        logger.pass_case(
+            case["name"],
+            detail=(
+                f"expected_type={case['expected_query_type']} "
+                f"parsed_type={target_paper.paper_query_type} resolve_status={target_paper.resolve_status}"
+            ),
+        )
 
     assert_invalid_case(INVALID_CASE)
-    print(f"[PASS] stage1::{INVALID_CASE['name']}")
-    print("stage1 validation passed")
+    logger.pass_case("unsupported_request", detail="raised=InvalidAnalysisRequestError")
+    logger.done("stage1 validation passed")
 
 
 if __name__ == "__main__":

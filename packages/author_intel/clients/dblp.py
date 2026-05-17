@@ -4,9 +4,31 @@ import json
 from typing import Any
 from urllib import parse, request
 
+from packages.shared.network_retry import RetryPolicy, retry_call
+
 
 class DBLPClient:
     BASE_URL = "https://dblp.org/search/author/api"
+
+    def __init__(
+        self,
+        *,
+        timeout_seconds: float = 15.0,
+        max_attempts: int = 2,
+        retry_base_delay_seconds: float = 0.5,
+        retry_jitter_seconds: float = 0.2,
+    ) -> None:
+        self._timeout_seconds = timeout_seconds
+        self._retry_policy = RetryPolicy(
+            service="DBLP",
+            operation="作者查询",
+            max_attempts=max_attempts,
+            base_delay_seconds=retry_base_delay_seconds,
+            max_delay_seconds=2.0,
+            jitter_seconds=retry_jitter_seconds,
+            overall_budget_seconds=4.0,
+            impact="single_author",
+        )
 
     def lookup_author(self, name: str) -> dict[str, Any] | None:
         query = str(name or "").strip()
@@ -25,8 +47,10 @@ class DBLPClient:
             },
             method="GET",
         )
-        with request.urlopen(req, timeout=15.0) as response:
-            payload = json.loads(response.read().decode("utf-8"))
+        payload = retry_call(
+            lambda: self._read_json(req),
+            self._retry_policy,
+        )
 
         hits = (((payload.get("result") or {}).get("hits") or {}).get("hit"))
         if not hits:
@@ -56,3 +80,7 @@ class DBLPClient:
             "source_ids": {"dblp": dblp_url} if dblp_url else {},
             "evidence_sources": ["dblp"],
         }
+
+    def _read_json(self, req: request.Request) -> dict[str, Any]:
+        with request.urlopen(req, timeout=self._timeout_seconds) as response:
+            return json.loads(response.read().decode("utf-8"))

@@ -57,6 +57,7 @@ flowchart LR
 - 需要 **Python 3**
 - 如果要跑依赖 LLM 的能力，需要在项目根目录准备 `.env`
 - 当前仓库**还没有统一冻结的 Python 依赖清单**（例如 `requirements.txt` 或 `pyproject.toml`），因此首次运行前需要先在你的环境里补齐项目依赖
+- `requirements-ci.txt` 只是 GitHub CI 的最小测试依赖清单，不等同于完整运行时依赖锁文件
 
 ### `.env` 最小配置
 
@@ -93,6 +94,24 @@ bash ./scripts/check-project.sh
 python ./scripts/test_agent/run.py
 ```
 
+如果需要查看每个阶段的详细日志，可以通过环境变量开启：
+
+```bash
+CITE_ANALYZER_STAGE_LOG=detail bash ./scripts/check-project.sh
+```
+
+正式 analyzer 运行链路也支持中文 runtime 日志：
+
+```bash
+CITE_ANALYZER_RUNTIME_LOG=detail python ./scripts/test_agent/e2e_real_smoke.py --target https://arxiv.org/abs/2504.19162 --max-citations 3 --log detail
+```
+
+`e2e_real_smoke.py` 会访问外部学术 API，是 opt-in live smoke，不包含在默认 `check-project.sh` 中。稳定的 runtime 日志 contract 使用本地 fake/fixture：
+
+```bash
+python ./scripts/test_agent/runtime_logging_contract.py
+```
+
 ## 如何测试
 
 ### 聚合验证
@@ -101,8 +120,20 @@ python ./scripts/test_agent/run.py
 python ./scripts/test_agent/run.py
 ```
 
+聚合入口支持两种日志模式：
+
+```bash
+python ./scripts/test_agent/run.py --log brief
+python ./scripts/test_agent/run.py --log detail
+```
+
+- `brief` 是默认模式，只输出阶段级摘要、通过 / 跳过 / 失败信息。
+- `detail` 会额外输出样本路径、候选数量、产物路径、降级信息等调试细节。
+- 日志中会使用少量 emoji 和分段符号方便阅读，但 `START` / `PASS` / `FAIL` / `SKIP` / `DETAIL` 等稳定文本会始终保留。
+
 这个入口当前聚合：
 
+- `import_contract.py`
 - `stage1.py`
 - `stage2.py`
 - `stage4.py`
@@ -110,12 +141,14 @@ python ./scripts/test_agent/run.py
 - `stage6.py`
 - `stage56_integration.py`
 - `stage7.py`
+- `e2e_mvp.py`
 
 并显式提示：
 
 - `stage3.py`
 
 `run.py` 当前已经聚合到 fixture-backed `e2e_mvp.py`，只剩 `stage3.py` 继续保持待接入状态。
+其中 `import_contract.py` 会先验证阶段 1 的导入链不会因为阶段 5 的可选依赖而提前失败。
 
 ### 单阶段验证
 
@@ -129,13 +162,32 @@ python ./scripts/test_agent/stage56_integration.py
 python ./scripts/test_agent/stage7.py
 ```
 
+单阶段详细日志可通过环境变量开启：
+
+```bash
+CITE_ANALYZER_STAGE_LOG=detail python ./scripts/test_agent/stage6.py
+```
+
+PowerShell 写法：
+
+```powershell
+$env:CITE_ANALYZER_STAGE_LOG="detail"; python ./scripts/test_agent/stage6.py
+```
+
 后续新增但当前仍为占位 / 待实现的入口：
 
 ```bash
 python ./scripts/test_agent/stage3.py
+python ./scripts/test_agent/stage8.py
 ```
 
 ### 常用 live smoke
+
+正式 analyzer 中文日志 live smoke：
+
+```bash
+python ./scripts/test_agent/e2e_real_smoke.py --target https://arxiv.org/abs/2504.19162 --max-citations 3 --log detail
+```
 
 阶段 5 真实抓取验证：
 

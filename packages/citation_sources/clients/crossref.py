@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from typing import Any
 from urllib import error, parse, request
 
+from packages.shared.runtime_logging import get_runtime_logger
+
 
 @dataclass(frozen=True)
 class _RequestConfig:
@@ -196,10 +198,22 @@ class CrossrefClient:
                 if exc.code == 404:
                     return {}
                 if not self._should_retry(exc.code, attempts):
+                    get_runtime_logger().warn(
+                        "crossref.request",
+                        "Crossref 请求失败，当前错误不可重试",
+                        status=exc.code,
+                        attempts=attempts,
+                    )
                     raise RuntimeError(f"crossref request failed with status {exc.code}") from exc
                 self._sleep_before_retry(exc.headers.get("Retry-After"), attempts)
             except error.URLError as exc:
                 if attempts > self._config.max_retries:
+                    get_runtime_logger().warn(
+                        "crossref.request",
+                        "Crossref 请求多次失败，已达到重试上限",
+                        attempts=attempts,
+                        error_type=exc.__class__.__name__,
+                    )
                     raise RuntimeError(f"crossref request failed: {exc.reason}") from exc
                 self._sleep_before_retry(None, attempts)
 
@@ -211,6 +225,15 @@ class CrossrefClient:
                 delay_seconds = self._compute_backoff_delay(attempts)
         else:
             delay_seconds = self._compute_backoff_delay(attempts)
+        get_runtime_logger().detail(
+            "retry.wait",
+            "Crossref 请求遇到瞬时网络异常，将在等待后重试",
+            service="Crossref",
+            operation="元数据查询",
+            attempt=attempts,
+            max_attempts=self._config.max_retries,
+            delay_s=f"{delay_seconds:.2f}",
+        )
         time.sleep(delay_seconds)
 
     def _compute_backoff_delay(self, attempts: int) -> float:

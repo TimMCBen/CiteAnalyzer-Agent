@@ -12,3 +12,21 @@
 
 CI/CD 流程结构和 release 自动化的默认方案，统一写在 `docs/CICD.md`。
 项目自己的测试入口、阶段验证和样本约定，统一写在 `docs/testing/`。
+
+## 当前 runtime 日志约定
+
+- 正式 analyzer 运行链路使用 `CITE_ANALYZER_RUNTIME_LOG=quiet|brief|detail` 控制中文可读日志。
+- 测试阶段脚本继续使用 `CITE_ANALYZER_STAGE_LOG=brief|detail`，两套变量不要混用。
+- 外部 API live smoke 入口 `scripts/test_agent/e2e_real_smoke.py` 是 opt-in，不接入默认 `scripts/check-project.sh`。
+- 0 施引、OpenAlex 单作者失败、GROBID 命中 / 未命中和 Semantic Scholar 限速等关键分支由 `scripts/test_agent/runtime_logging_contract.py` 的 fake/fixture contract 稳定覆盖。
+
+## 当前网络重试约定
+
+- 网络重试由确定性规则控制，不由 LLM 判断是否重试，也不由 LLM 检查重试结果。
+- 可重试错误包括 timeout、TLS/SSL EOF、连接重置、临时 `URLError`、HTTP `429/500/502/503/504`。
+- 不重试无效输入、`400/401/403/404`、解析错误、schema 错误或业务层 `unknown` 结果。
+- Semantic Scholar 客户端保留自己的 1 秒 1 次限流和重试逻辑，不应在调用层再包一层重试。
+- GROBID `/isalive` 可短重试；`/processFulltextDocument` 是大文件 POST，只允许极少次数重试。
+- OpenAlex / DBLP 作者画像查询有单请求重试和阶段级失败预算，避免批量作者场景被系统性网络失败拖慢。
+- 重试 detail 日志使用 `retry.wait`，耗尽时使用 `retry.exhausted`，字段应包含 `service`、`operation`、`attempt`、`max_attempts`、`delay_s`、`reason`、`impact`。
+- 重试契约由 `scripts/test_agent/network_retry_contract.py` 覆盖，并已接入 `scripts/test_agent/run.py` 聚合入口。

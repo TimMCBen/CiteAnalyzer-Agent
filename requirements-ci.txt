@@ -1,0 +1,4 @@
+beautifulsoup4>=4.12,<5
+langgraph>=1.0.10,<2
+pypdf>=6.10.2,<7
+requests>=2.32,<3

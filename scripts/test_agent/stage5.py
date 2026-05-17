@@ -14,6 +14,7 @@ if str(REPO_ROOT) not in sys.path:
 from packages.citation_sources.models import CitingPaper
 from packages.sentiment.fulltext import fetch_fulltext_document, select_text_source
 from packages.shared.models import TargetPaper
+from scripts.test_agent.stage_logging import StageLogger
 
 DEFAULT_SAMPLE_PATH = REPO_ROOT / "docs" / "generated" / "stage2-live-10.1145.3368089.3409740.json"
 
@@ -142,7 +143,7 @@ def wrap_text(text: str, width: int) -> list[str]:
     return lines
 
 
-def assert_stage5_local_fulltext_validation(sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
+def assert_stage5_local_fulltext_validation(sample_path: Path = DEFAULT_SAMPLE_PATH) -> dict[str, object]:
     target_paper, citing_papers = load_stage2_sample(sample_path)
     temp_dir = build_local_source_links(citing_papers, target_paper.doi or "")
     save_dir = temp_dir / "saved"
@@ -165,11 +166,19 @@ def assert_stage5_local_fulltext_validation(sample_path: Path = DEFAULT_SAMPLE_P
         assert docs["citing-1"].local_path and Path(docs["citing-1"].local_path).exists()
         assert docs["citing-2"].local_path and Path(docs["citing-2"].local_path).exists()
         assert docs["citing-3"].local_path and Path(docs["citing-3"].local_path).exists()
+        return {
+            "sample_path": str(sample_path),
+            "temp_dir": str(temp_dir),
+            "source_types": {paper_id: doc.source_type if doc else "missing" for paper_id, doc in docs.items()},
+            "persisted": {
+                paper_id: bool(doc and doc.local_path and Path(doc.local_path).exists()) for paper_id, doc in docs.items()
+            },
+        }
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
-def assert_stage5_unavailable_paper_guidance(sample_path: Path = DEFAULT_SAMPLE_PATH) -> None:
+def assert_stage5_unavailable_paper_guidance(sample_path: Path = DEFAULT_SAMPLE_PATH) -> str:
     target_paper, citing_papers = load_stage2_sample(sample_path)
     _ = target_paper
     unavailable = next(paper for paper in citing_papers if paper.canonical_id == "citing-4")
@@ -190,11 +199,13 @@ def assert_stage5_unavailable_paper_guidance(sample_path: Path = DEFAULT_SAMPLE_
     assert "recovery=" in selection.evidence_note, selection.evidence_note
     assert "attach_local_pdf_or_html_via_source_links" in selection.evidence_note, selection.evidence_note
     assert "check_doi_landing_page" in selection.evidence_note, selection.evidence_note
+    return selection.evidence_note
 
 
-def maybe_run_live_fetch_smoke() -> None:
+def maybe_run_live_fetch_smoke(logger: StageLogger) -> None:
     live_mode = str(os.getenv("STAGE5_FETCH_LIVE", "")).strip().lower()
     if live_mode not in {"1", "true", "yes"}:
+        logger.detail("live_fetch_enabled=False env=STAGE5_FETCH_LIVE")
         return
 
     paper = CitingPaper(
@@ -209,16 +220,27 @@ def maybe_run_live_fetch_smoke() -> None:
     assert len(document.text) > 1000, f"live arxiv fetch returned too little text: {len(document.text)}"
     assert document.local_path and Path(document.local_path).exists(), "live arxiv fetch did not persist local text file"
     assert document.raw_path and Path(document.raw_path).exists(), "live arxiv fetch did not preserve raw source"
-    print("[PASS] stage5::live_fetch_smoke")
+    logger.pass_case(
+        "live_fetch_smoke",
+        detail=f"source_type={document.source_type} local_path={document.local_path} raw_path={document.raw_path}",
+    )
 
 
 def main() -> None:
-    assert_stage5_local_fulltext_validation()
-    print("[PASS] stage5::local_fulltext_validation")
-    assert_stage5_unavailable_paper_guidance()
-    print("[PASS] stage5::unavailable_paper_guidance")
-    maybe_run_live_fetch_smoke()
-    print("stage5 validation passed")
+    logger = StageLogger("stage5")
+    logger.start()
+    fulltext_detail = assert_stage5_local_fulltext_validation()
+    logger.pass_case(
+        "local_fulltext_validation",
+        detail=(
+            f"sample_path={fulltext_detail['sample_path']} temp_dir={fulltext_detail['temp_dir']} "
+            f"source_types={fulltext_detail['source_types']} persisted={fulltext_detail['persisted']}"
+        ),
+    )
+    evidence_note = assert_stage5_unavailable_paper_guidance()
+    logger.pass_case("unavailable_paper_guidance", detail=f"evidence_note={evidence_note}")
+    maybe_run_live_fetch_smoke(logger)
+    logger.done("stage5 validation passed")
 
 
 if __name__ == "__main__":

@@ -11,3 +11,9 @@
 - 对外 API、Webhook、文件上传和沙箱执行的规则。
 
 仓库级的依赖、SBOM 和 provenance 默认能力，统一写在 `docs/SUPPLY_CHAIN_SECURITY.md`。
+
+## 当前日志脱敏约束
+
+- RuntimeLogger 不得输出 API key、authorization、token、secret、password、`x-api-key` 等敏感字段值。
+- `.env` 原文和请求 header 原文不得写入日志、报告或 history。
+- 相关脱敏行为由 `scripts/test_agent/runtime_logging_contract.py` 覆盖。

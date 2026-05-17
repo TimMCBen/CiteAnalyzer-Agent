@@ -14,10 +14,32 @@ from bs4 import BeautifulSoup
 from pypdf import PdfReader
 from packages.citation_sources.models import CitingPaper
 from packages.sentiment.models import FullTextDocument, TextSourceSelection
+from packages.shared.network_retry import RetryPolicy, retry_call
+from packages.shared.runtime_logging import get_runtime_logger
 
 REQUEST_TIMEOUT_SECONDS = 20
 TEXT_MIN_LENGTH = 80
 DEFAULT_STAGE5_DOWNLOAD_DIR = Path("downloaded-papers") / "stage5"
+FULLTEXT_DOWNLOAD_RETRY = RetryPolicy(
+    service="全文获取",
+    operation="候选文档下载",
+    max_attempts=3,
+    base_delay_seconds=0.75,
+    max_delay_seconds=4.0,
+    jitter_seconds=0.2,
+    overall_budget_seconds=8.0,
+    impact="single_fulltext_candidate",
+)
+ARXIV_FULLTEXT_SEARCH_RETRY = RetryPolicy(
+    service="arXiv",
+    operation="全文候选搜索",
+    max_attempts=2,
+    base_delay_seconds=0.5,
+    max_delay_seconds=1.5,
+    jitter_seconds=0.1,
+    overall_budget_seconds=3.0,
+    impact="single_citing_paper",
+)
 
 
 @dataclass
@@ -46,6 +68,12 @@ def select_text_source(
     attempt_failures: list[FullTextAttemptFailure] = []
     document = (provided_documents or {}).get(citing_paper.canonical_id)
     if document and (document.text.strip() or document.raw_path):
+        get_runtime_logger().detail(
+            "fulltext.select",
+            "使用已提供的全文文档",
+            citing_paper_id=citing_paper.canonical_id,
+            source_type=document.source_type,
+        )
         return TextSourceSelection(
             citing_paper_id=citing_paper.canonical_id,
             text=document.text,
@@ -65,6 +93,12 @@ def select_text_source(
             attempt_failures=attempt_failures,
         )
         if fetched_document and fetched_document.text.strip():
+            get_runtime_logger().detail(
+                "fulltext.select",
+                "通过网络获取到全文",
+                citing_paper_id=citing_paper.canonical_id,
+                source_type=fetched_document.source_type,
+            )
             return TextSourceSelection(
                 citing_paper_id=citing_paper.canonical_id,
                 text=fetched_document.text,
@@ -77,6 +111,12 @@ def select_text_source(
             )
 
     if citing_paper.abstract and citing_paper.abstract.strip():
+        get_runtime_logger().warn(
+            "fulltext.select",
+            "未找到可用全文，已降级为摘要文本，情感将标记为 unknown",
+            citing_paper_id=citing_paper.canonical_id,
+            impact="single_paper",
+        )
         return TextSourceSelection(
             citing_paper_id=citing_paper.canonical_id,
             text=citing_paper.abstract,
@@ -92,6 +132,12 @@ def select_text_source(
             ),
         )
 
+    get_runtime_logger().warn(
+        "fulltext.select",
+        "未找到全文或摘要，无法判断该施引论文的引用情感",
+        citing_paper_id=citing_paper.canonical_id,
+        impact="single_paper",
+    )
     return TextSourceSelection(
         citing_paper_id=citing_paper.canonical_id,
         text=None,
@@ -118,6 +164,13 @@ def fetch_fulltext_document(
         try:
             payload = load_candidate_text(citing_paper.canonical_id, source_label, candidate)
         except Exception as exc:
+            get_runtime_logger().detail(
+                "fulltext.fetch",
+                "全文候选抓取失败，继续尝试下一个来源",
+                citing_paper_id=citing_paper.canonical_id,
+                source=source_label,
+                error_type=type(exc).__name__,
+            )
             if attempt_failures is not None:
                 attempt_failures.append(
                     FullTextAttemptFailure(
@@ -129,6 +182,13 @@ def fetch_fulltext_document(
             continue
         document = payload.document
         if document and len(document.text.strip()) >= TEXT_MIN_LENGTH:
+            get_runtime_logger().detail(
+                "fulltext.fetch",
+                "全文候选可用",
+                citing_paper_id=citing_paper.canonical_id,
+                source=source_label,
+                source_type=document.source_type,
+            )
             document.evidence_note = build_recovery_evidence_note(
                 base_note="text_fetched",
                 citing_paper=citing_paper,
@@ -142,6 +202,12 @@ def fetch_fulltext_document(
             )
             return document
         if attempt_failures is not None:
+            get_runtime_logger().detail(
+                "fulltext.fetch",
+                "全文候选文本过短，继续尝试下一个来源",
+                citing_paper_id=citing_paper.canonical_id,
+                source=source_label,
+            )
             attempt_failures.append(
                 FullTextAttemptFailure(
                     source_label=source_label,
@@ -268,8 +334,7 @@ def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str)
             source_file_path=path,
         )
 
-    response = requests.get(candidate, timeout=REQUEST_TIMEOUT_SECONDS, headers={"User-Agent": "CiteAnalyzer-Agent/0.1"})
-    response.raise_for_status()
+    response = _get_with_retry(candidate, FULLTEXT_DOWNLOAD_RETRY)
 
     content_type = (response.headers.get("content-type") or "").lower()
     lowered = candidate.lower()
@@ -373,9 +438,13 @@ def search_arxiv_candidates_by_title(title: str) -> list[str]:
     query = quote(title.strip())
     url = f"http://export.arxiv.org/api/query?search_query=ti:%22{query}%22&start=0&max_results=3"
     try:
-        response = requests.get(url, timeout=REQUEST_TIMEOUT_SECONDS, headers={"User-Agent": "CiteAnalyzer-Agent/0.1"})
-        response.raise_for_status()
-    except Exception:
+        response = _get_with_retry(url, ARXIV_FULLTEXT_SEARCH_RETRY)
+    except Exception as exc:
+        get_runtime_logger().detail(
+            "fulltext.arxiv_search",
+            "arXiv 全文候选搜索失败，跳过该补充来源",
+            error_type=exc.__class__.__name__,
+        )
         return []
 
     try:
@@ -402,6 +471,19 @@ def search_arxiv_candidates_by_title(title: str) -> list[str]:
             ]
         )
     return urls
+
+
+def _get_with_retry(url: str, policy: RetryPolicy) -> requests.Response:
+    def fetch() -> requests.Response:
+        response = requests.get(
+            url,
+            timeout=REQUEST_TIMEOUT_SECONDS,
+            headers={"User-Agent": "CiteAnalyzer-Agent/0.1"},
+        )
+        response.raise_for_status()
+        return response
+
+    return retry_call(fetch, policy)
 
 
 def titles_look_related(left: str, right: str) -> bool:

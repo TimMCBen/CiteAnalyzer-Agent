@@ -236,14 +236,14 @@ MVP 具备以下特点：
 主要工具 / 数据源：
 
 - `Matplotlib`
-- `Pyecharts`
+- `Apache ECharts`（静态 HTML 图表层，保留无 JS fallback）
 - HTML 报告模板或导出能力
 
 MVP 报告至少包含：
 
 - 目标论文基础信息
 - 引用数量与年份趋势
-- 引用来源地图
+- 引用来源分布（当前以机构 Top N 呈现，不做地理地图）
 - 重量级学者分布与代表作者列表
 - 引用情感分布
 - 主要观察结论与待人工关注项
@@ -255,10 +255,11 @@ MVP 报告至少包含：
 
 引用来源地图定义：
 
-- 当前最小实现先按作者画像中的首条机构文本做聚合，用于展示来源分布近似结果
+- 当前最小实现先按作者画像中的首条机构文本做聚合，用于展示来源机构 Top N 的近似结果
 - 若一篇施引论文存在多个作者机构，第一版优先按首条机构文本统计
 - 若机构信息缺失，则该记录不纳入来源分布统计
 - 国家 / 地区级标准化地图保留为后续增强项，不作为当前最小报告实现的承诺
+- HTML 图表层不得把该字段渲染成地理地图；只有完成国家 / 地区标准化后才允许新增地理可视化
 
 边界：
 
@@ -463,7 +464,7 @@ MVP 优先支持本地单次分析模式：
 当前本地验证入口约定：
 
 - `scripts/check-project.sh` 是项目级默认入口；在 bash / WSL 场景检测到 `python.exe` 时，优先复用它来对齐已安装依赖的 Python 环境
-- `scripts/test_agent/run.py` 当前聚合 `stage1.py`、`stage2.py`、`stage4.py`、`stage5.py`、`stage6.py`、`stage56_integration.py`、`stage7.py`、`e2e_mvp.py`
+- `scripts/test_agent/run.py` 当前聚合 `import_contract.py`、`stage1.py`、`stage2.py`、`stage4.py`、`stage5.py`、`stage6.py`、`stage56_integration.py`、`stage7.py`、`e2e_mvp.py`
 - `scripts/test_agent/stage56_integration.py` 既可单独运行，也已并入默认聚合入口，用于验证 analyzer 对阶段 4 / 5 / 6 的状态挂接
 - `stage3.py` 仍保留为补充源探索占位，不在当前 MVP 默认聚合入口中
 

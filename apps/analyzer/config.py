@@ -3,6 +3,19 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from packages.shared.network_retry import RetryPolicy, retry_call
+
+LLM_RETRY_POLICY = RetryPolicy(
+    service="LLM",
+    operation="结构化调用",
+    max_attempts=2,
+    base_delay_seconds=1.0,
+    max_delay_seconds=4.0,
+    jitter_seconds=0.2,
+    overall_budget_seconds=8.0,
+    impact="llm_provider_call",
+)
+
 
 def load_local_env() -> None:
     try:
@@ -32,6 +45,20 @@ def build_llm() -> Any:
         raise ValueError("MODEL is required in .env")
 
     return ChatOpenAI(api_key=api_key, base_url=base_url, model=model, temperature=0)
+
+
+def invoke_llm_with_retry(structured_llm: Any, messages: list[dict[str, str]], operation: str) -> Any:
+    policy = RetryPolicy(
+        service=LLM_RETRY_POLICY.service,
+        operation=operation,
+        max_attempts=LLM_RETRY_POLICY.max_attempts,
+        base_delay_seconds=LLM_RETRY_POLICY.base_delay_seconds,
+        max_delay_seconds=LLM_RETRY_POLICY.max_delay_seconds,
+        jitter_seconds=LLM_RETRY_POLICY.jitter_seconds,
+        overall_budget_seconds=LLM_RETRY_POLICY.overall_budget_seconds,
+        impact=LLM_RETRY_POLICY.impact,
+    )
+    return retry_call(lambda: structured_llm.invoke(messages), policy)
 
 
 def get_grobid_api_url() -> str:

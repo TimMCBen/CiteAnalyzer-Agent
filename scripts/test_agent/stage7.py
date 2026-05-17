@@ -15,9 +15,10 @@ from packages.citation_sources.models import FetchSummary, SourceTrace
 from packages.reporting.service import build_report_artifact
 from packages.sentiment.models import CitationContext, SentimentSummary
 from packages.shared.models import AuthorProfile, AuthorSummary, ScholarLabel, TargetPaper
+from scripts.test_agent.stage_logging import StageLogger
 
 
-def assert_stage7_reporting_contract() -> None:
+def assert_stage7_reporting_contract() -> dict[str, object]:
     output_dir = Path(tempfile.mkdtemp(prefix="stage7-report-", dir=REPO_ROOT))
     try:
         artifact = build_report_artifact(
@@ -37,6 +38,20 @@ def assert_stage7_reporting_contract() -> None:
                     doi="10.1000/citing1",
                     year=2024,
                     authors=["Alice Smith"],
+                ),
+                CitingPaper(
+                    canonical_id="citing-2",
+                    title="Another citing paper",
+                    doi="10.1000/citing2",
+                    year=2025,
+                    authors=["Bob Chen"],
+                ),
+                CitingPaper(
+                    canonical_id="citing-3",
+                    title="Third citing paper",
+                    doi="10.1000/citing3",
+                    year=2025,
+                    authors=["Carol Li"],
                 )
             ],
             author_profiles=[
@@ -48,6 +63,22 @@ def assert_stage7_reporting_contract() -> None:
                     fields=["NLP"],
                     h_index=42,
                     evidence_sources=["openalex"],
+                ),
+                AuthorProfile(
+                    author_id="author-2",
+                    name="Bob Chen",
+                    affiliations=["Peking University"],
+                    fields=["NLP"],
+                    h_index=12,
+                    evidence_sources=["openalex"],
+                ),
+                AuthorProfile(
+                    author_id="author-3",
+                    name="Carol Li",
+                    affiliations=["Harbin Institute of Technology"],
+                    fields=["AI"],
+                    h_index=31,
+                    evidence_sources=["openalex"],
                 )
             ],
             scholar_labels=[
@@ -57,11 +88,19 @@ def assert_stage7_reporting_contract() -> None:
                     evidence=["institution=Tsinghua University"],
                     confidence_note="evidence_insufficient",
                     trigger_rules=["frequency>=1"],
+                ),
+                ScholarLabel(
+                    author_id="author-3",
+                    label="high_impact_candidate",
+                    evidence=["h_index=31"],
+                    confidence_note="matched_openalex_or_dblp_profile",
+                    trigger_rules=["h_index>=30"],
                 )
             ],
             author_summary=AuthorSummary(
-                total_authors=1,
-                matched_profiles=1,
+                total_authors=3,
+                matched_profiles=3,
+                high_impact_candidates=1,
                 weak_signal_candidates=1,
             ),
             citation_contexts=[
@@ -73,17 +112,26 @@ def assert_stage7_reporting_contract() -> None:
                     evidence_note="no_fulltext_available",
                     text_source_type="unknown",
                     text_source_label=None,
+                ),
+                CitationContext(
+                    citing_paper_id="citing-2",
+                    sentiment_label="neutral",
+                    context_text="This citing paper mentions the target as related work.",
+                    matched_target_reference="Target Paper",
+                    evidence_note="matched_by_fixture; llm_sentiment:中性背景引用",
+                    text_source_type="pdf",
+                    text_source_label="fixture.pdf",
                 )
             ],
             sentiment_summary=SentimentSummary(
-                total_candidates=1,
-                fulltext_available=0,
-                context_found=0,
-                classified_count=0,
+                total_candidates=2,
+                fulltext_available=1,
+                context_found=1,
+                classified_count=1,
                 unknown_count=1,
                 label_counts={
                     "positive": 0,
-                    "neutral": 0,
+                    "neutral": 1,
                     "critical": 0,
                     "unknown": 1,
                 },
@@ -120,6 +168,7 @@ def assert_stage7_reporting_contract() -> None:
 
         payload = json.loads(json_path.read_text(encoding="utf-8"))
         assert payload["summary"]["target_title"] == "Target Paper", payload
+        assert payload["contexts"][0]["sentiment_label"] == "unknown", payload["contexts"]
         assert payload["summary"]["key_findings"], payload["summary"]
         assert payload["summary"]["partial_failure"] is True, payload["summary"]
         assert payload["summary"]["source_trace_count"] == 1, payload["summary"]
@@ -131,25 +180,56 @@ def assert_stage7_reporting_contract() -> None:
         assert "source_map" in payload["charts"], payload["charts"]
         assert "scholar_distribution" in payload["charts"], payload["charts"]
         assert "sentiment_distribution" in payload["charts"], payload["charts"]
+        assert payload["charts"]["year_trend"] == {"2024": 1, "2025": 2}, payload["charts"]
+        assert payload["charts"]["sentiment_distribution"]["unknown"] == 1, payload["charts"]
+        assert payload["charts"]["sentiment_distribution"]["neutral"] == 1, payload["charts"]
 
         html = html_path.read_text(encoding="utf-8")
         assert "Target Paper" in html
         assert "Key Findings" in html
         assert "Manual Attention Items" in html
         assert "Citation Contexts" in html
+        assert ">未知<" in html
+        assert "echarts.min.js" in html
+        assert 'id="chart-data"' in html
+        assert 'id="yearTrendChart"' in html
+        assert 'id="scholarDistributionChart"' in html
+        assert 'id="sentimentDistributionChart"' in html
+        assert 'id="institutionDistributionChart"' in html
+        assert "施引作者机构分布" in html
+        assert "Source Map" not in html
+        assert "查看 5 条人工关注项" in html
+        assert 'data-chart-state="chart"' in html
+        assert "Others" not in payload["charts"]["source_map"], payload["charts"]
         assert 'class="hero"' in html
         assert 'class="page-nav"' in html
         assert 'class="metric-grid"' in html
+        assert 'class="chart-grid"' in html
         assert 'class="attention-list"' in html
         assert 'class="context-list"' in html
+        return {
+            "output_dir": str(output_dir),
+            "html_path": str(html_path),
+            "json_path": str(json_path),
+            "chart_keys": sorted(payload["charts"].keys()),
+            "manual_attention_count": len(payload["summary"]["manual_attention_items"]),
+        }
     finally:
         shutil.rmtree(output_dir, ignore_errors=True)
 
 
 def main() -> None:
-    assert_stage7_reporting_contract()
-    print("[PASS] stage7::reporting_contract")
-    print("stage7 validation passed")
+    logger = StageLogger("stage7")
+    logger.start()
+    detail = assert_stage7_reporting_contract()
+    logger.pass_case(
+        "reporting_contract",
+        detail=(
+            f"output_dir={detail['output_dir']} html={detail['html_path']} json={detail['json_path']} "
+            f"charts={detail['chart_keys']} manual_attention_count={detail['manual_attention_count']}"
+        ),
+    )
+    logger.done("stage7 validation passed")
 
 
 if __name__ == "__main__":

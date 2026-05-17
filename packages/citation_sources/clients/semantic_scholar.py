@@ -8,17 +8,18 @@ from typing import Any, Iterable
 from urllib import error, parse, request
 
 from packages.shared.models import TargetPaper
+from packages.shared.runtime_logging import get_runtime_logger
 
 
 DEFAULT_TIMEOUT_SECONDS = 15.0
 DEFAULT_MAX_RETRIES = 3
 DEFAULT_BACKOFF_SECONDS = 1.0
 DEFAULT_RESOLVE_FIELDS = (
-    "paperId,title,externalIds,year,venue,url,authors.name"
+    "paperId,title,externalIds,year,venue,url,authors"
 )
 DEFAULT_CITATION_FIELDS = (
     "citingPaper.paperId,citingPaper.title,citingPaper.externalIds,"
-    "citingPaper.year,citingPaper.venue,citingPaper.url,citingPaper.authors.name"
+    "citingPaper.year,citingPaper.venue,citingPaper.url,citingPaper.authors"
 )
 
 
@@ -54,6 +55,7 @@ class SemanticScholarClient:
         self._auth_mode = (
             os.getenv("SEMANTIC_SCHOLAR_AUTH_MODE") or "x-api-key"
         ).strip().lower()
+        self._last_request_at = 0.0
 
     def resolve_target_paper(
         self,
@@ -141,7 +143,7 @@ class SemanticScholarClient:
             if value:
                 yield f"CorpusId:{value}"
 
-        arxiv = str(source_ids.get("arxiv") or source_ids.get("arxiv_id") or "").strip()
+        arxiv = _normalize_arxiv_id(str(source_ids.get("arxiv") or source_ids.get("arxiv_id") or "").strip())
         if arxiv:
             yield f"ARXIV:{arxiv}"
 
@@ -151,7 +153,9 @@ class SemanticScholarClient:
                 if target_paper.paper_query_type == "doi":
                     yield f"DOI:{query}"
                 elif target_paper.paper_query_type == "arxiv":
-                    yield f"ARXIV:{query}"
+                    normalized_arxiv = _normalize_arxiv_id(query)
+                    if normalized_arxiv:
+                        yield f"ARXIV:{normalized_arxiv}"
                 else:
                     yield query
 
@@ -196,16 +200,41 @@ class SemanticScholarClient:
         for attempt in range(self._config.max_retries + 1):
             req = request.Request(url, headers=headers, method="GET")
             try:
+                self._respect_rate_limit(path)
+                get_runtime_logger().detail(
+                    "semantic_scholar.request",
+                    "正在请求 Semantic Scholar",
+                    path=path,
+                    attempt=attempt + 1,
+                )
                 with request.urlopen(req, timeout=self._config.timeout_seconds) as response:
+                    get_runtime_logger().detail(
+                        "semantic_scholar.response",
+                        "Semantic Scholar 请求成功",
+                        path=path,
+                        status=response.status,
+                    )
                     return json.loads(response.read().decode("utf-8"))
             except error.HTTPError as exc:
                 last_error = exc
                 if not self._should_retry(exc.code, attempt):
+                    get_runtime_logger().warn(
+                        "semantic_scholar.request",
+                        "Semantic Scholar 请求失败，当前错误不可重试",
+                        path=path,
+                        status=exc.code,
+                    )
                     raise
                 self._sleep_before_retry(exc, attempt)
             except (error.URLError, TimeoutError) as exc:
                 last_error = exc
                 if attempt >= self._config.max_retries:
+                    get_runtime_logger().warn(
+                        "semantic_scholar.request",
+                        "Semantic Scholar 请求多次失败，已达到重试上限",
+                        path=path,
+                        error_type=exc.__class__.__name__,
+                    )
                     raise RuntimeError(f"request failed for {url}: {exc}") from exc
                 self._sleep_before_retry(None, attempt)
 
@@ -219,11 +248,39 @@ class SemanticScholarClient:
             retry_after = http_error.headers.get("Retry-After")
             if retry_after:
                 try:
-                    time.sleep(max(float(retry_after), 0.0))
+                    delay = max(float(retry_after), 0.0)
+                    get_runtime_logger().detail(
+                        "semantic_scholar.rate_limit",
+                        "Semantic Scholar 要求等待后重试",
+                        seconds=f"{delay:.2f}",
+                    )
+                    time.sleep(delay)
                     return
                 except ValueError:
                     pass
-        time.sleep(self._config.backoff_seconds * (2 ** attempt))
+        delay = self._config.backoff_seconds * (2 ** attempt)
+        get_runtime_logger().detail(
+            "semantic_scholar.retry",
+            "Semantic Scholar 请求将重试",
+            seconds=f"{delay:.2f}",
+        )
+        time.sleep(delay)
+
+    def _respect_rate_limit(self, path: str) -> None:
+        if self._config.backoff_seconds <= 0:
+            return
+        now = time.monotonic()
+        elapsed = now - self._last_request_at
+        if self._last_request_at and elapsed < self._config.backoff_seconds:
+            delay = self._config.backoff_seconds - elapsed
+            get_runtime_logger().detail(
+                "semantic_scholar.rate_limit",
+                "等待以遵守 Semantic Scholar 每秒最多 1 次请求限制",
+                path=path,
+                seconds=f"{delay:.2f}",
+            )
+            time.sleep(delay)
+        self._last_request_at = time.monotonic()
 
     def _adapt_resolved_paper(self, paper: dict[str, Any]) -> dict[str, object]:
         external_ids = paper.get("externalIds")
@@ -320,3 +377,19 @@ class SemanticScholarClient:
             return None
         text = str(value).strip()
         return text or None
+
+
+def _normalize_arxiv_id(value: str) -> str | None:
+    text = value.strip()
+    if not text:
+        return None
+    match = parse.unquote(text)
+    for prefix in ("ARXIV:", "arxiv:"):
+        if match.startswith(prefix):
+            match = match[len(prefix):]
+    import re
+
+    found = re.search(r"(?P<identifier>\d{4}\.\d{4,5})(?:v\d+)?", match, re.IGNORECASE)
+    if not found:
+        return None
+    return found.group("identifier")

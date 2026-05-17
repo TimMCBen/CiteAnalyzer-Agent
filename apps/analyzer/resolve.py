@@ -8,13 +8,53 @@ from xml.etree import ElementTree
 import requests
 
 from packages.shared.models import TargetPaper
+from packages.shared.network_retry import RetryExhaustedError, RetryPolicy, retry_call
+from packages.shared.runtime_logging import get_runtime_logger
 
 REQUEST_TIMEOUT_SECONDS = 20
 USER_AGENT = "CiteAnalyzer-Agent/0.1"
+DOI_RESOLVE_RETRY = RetryPolicy(
+    service="Crossref",
+    operation="DOI解析",
+    max_attempts=3,
+    base_delay_seconds=0.5,
+    max_delay_seconds=4.0,
+    jitter_seconds=0.2,
+)
+TITLE_RESOLVE_RETRY = RetryPolicy(
+    service="Crossref",
+    operation="标题解析",
+    max_attempts=2,
+    base_delay_seconds=0.5,
+    max_delay_seconds=2.0,
+    jitter_seconds=0.2,
+)
+ARXIV_RESOLVE_RETRY = RetryPolicy(
+    service="arXiv",
+    operation="目标论文解析",
+    max_attempts=2,
+    base_delay_seconds=0.5,
+    max_delay_seconds=1.5,
+    jitter_seconds=0.1,
+)
+ARXIV_TITLE_RETRY = RetryPolicy(
+    service="arXiv",
+    operation="标题搜索",
+    max_attempts=2,
+    base_delay_seconds=0.5,
+    max_delay_seconds=1.5,
+    jitter_seconds=0.1,
+)
 
 
 def resolve_target_paper_metadata(target_paper: TargetPaper) -> TargetPaper:
     query_type = target_paper.paper_query_type
+    get_runtime_logger().detail(
+        "resolver.start",
+        "开始解析目标论文",
+        query_type=query_type,
+        query=target_paper.paper_query or target_paper.doi,
+    )
     if query_type == "doi" and target_paper.doi:
         return resolve_by_doi(target_paper)
     if query_type == "arxiv" and target_paper.paper_query:
@@ -31,17 +71,18 @@ def resolve_target_paper_metadata(target_paper: TargetPaper) -> TargetPaper:
 
 def resolve_by_doi(target_paper: TargetPaper) -> TargetPaper:
     doi = target_paper.doi or ""
-    response = requests.get(
+    get_runtime_logger().detail("resolver.crossref", "正在通过 Crossref 解析 DOI", doi=doi)
+    response = _get_with_retry(
         f"https://api.crossref.org/works/{doi}",
-        timeout=REQUEST_TIMEOUT_SECONDS,
-        headers={"User-Agent": USER_AGENT},
+        DOI_RESOLVE_RETRY,
     )
-    response.raise_for_status()
     message = response.json()["message"]
     title = first_title(message.get("title"))
     if not title:
+        get_runtime_logger().warn("resolver.crossref", "Crossref 返回结果缺少标题", doi=doi)
         return mark_unresolved(target_paper, reason="crossref returned no title for doi")
 
+    get_runtime_logger().detail("resolver.crossref", "Crossref 成功解析 DOI", doi=doi, title=title)
     return TargetPaper(
         canonical_id=(message.get("DOI") or doi).lower(),
         paper_query=target_paper.paper_query,
@@ -56,19 +97,53 @@ def resolve_by_doi(target_paper: TargetPaper) -> TargetPaper:
 def resolve_by_arxiv(target_paper: TargetPaper) -> TargetPaper:
     arxiv_id = normalize_arxiv_id(target_paper.paper_query or "")
     if not arxiv_id:
+        get_runtime_logger().warn("resolver.arxiv", "arXiv 标识格式无效", query=target_paper.paper_query)
         return mark_unresolved(target_paper, reason="invalid arxiv identifier")
 
-    response = requests.get(
-        f"http://export.arxiv.org/api/query?id_list={quote(arxiv_id)}",
-        timeout=REQUEST_TIMEOUT_SECONDS,
-        headers={"User-Agent": USER_AGENT},
-    )
-    response.raise_for_status()
+    get_runtime_logger().detail("resolver.arxiv", "正在通过 arXiv 解析目标论文", arxiv_id=arxiv_id)
+    try:
+        response = _get_with_retry(
+            f"http://export.arxiv.org/api/query?id_list={quote(arxiv_id)}",
+            ARXIV_RESOLVE_RETRY,
+        )
+    except RetryExhaustedError as exc:
+        if exc.status == 429:
+            get_runtime_logger().warn(
+                "resolver.arxiv",
+                "arXiv 元数据接口限流，使用 arXiv ID 继续进入 Semantic Scholar 主链路",
+                arxiv_id=arxiv_id,
+            )
+            return _resolved_arxiv_stub(target_paper, arxiv_id)
+        get_runtime_logger().warn(
+            "resolver.arxiv",
+            "arXiv 元数据接口多次连接失败，使用 arXiv ID 继续进入 Semantic Scholar 主链路",
+            arxiv_id=arxiv_id,
+            error_type=exc.reason,
+        )
+        return _resolved_arxiv_stub(target_paper, arxiv_id)
+    except requests.HTTPError as exc:
+        if exc.response is not None and exc.response.status_code == 429:
+            get_runtime_logger().warn(
+                "resolver.arxiv",
+                "arXiv 元数据接口限流，使用 arXiv ID 继续进入 Semantic Scholar 主链路",
+                arxiv_id=arxiv_id,
+            )
+            return _resolved_arxiv_stub(target_paper, arxiv_id)
+        raise
+    except requests.RequestException as exc:
+        get_runtime_logger().warn(
+            "resolver.arxiv",
+            "arXiv 元数据接口连接失败，使用 arXiv ID 继续进入 Semantic Scholar 主链路",
+            arxiv_id=arxiv_id,
+            error_type=exc.__class__.__name__,
+        )
+        return _resolved_arxiv_stub(target_paper, arxiv_id)
     root = ElementTree.fromstring(response.text)
     namespace = {"atom": "http://www.w3.org/2005/Atom"}
     arxiv_namespace = {"arxiv": "http://arxiv.org/schemas/atom"}
     entry = root.find("atom:entry", namespace)
     if entry is None:
+        get_runtime_logger().warn("resolver.arxiv", "arXiv 未返回匹配论文", arxiv_id=arxiv_id)
         return mark_unresolved(target_paper, reason="arxiv returned no matching entry")
 
     title = normalize_ws(entry.findtext("atom:title", default="", namespaces=namespace))
@@ -80,10 +155,17 @@ def resolve_by_arxiv(target_paper: TargetPaper) -> TargetPaper:
         if doi:
             break
 
+    resolved_arxiv = normalize_arxiv_id(resolved_arxiv) or arxiv_id
     source_ids = {"arxiv": resolved_arxiv}
     if doi:
         source_ids["doi"] = doi.lower()
 
+    get_runtime_logger().detail(
+        "resolver.arxiv",
+        "arXiv 成功解析目标论文",
+        arxiv_id=resolved_arxiv,
+        has_doi=bool(doi),
+    )
     return TargetPaper(
         canonical_id=resolved_arxiv,
         paper_query=target_paper.paper_query,
@@ -98,17 +180,21 @@ def resolve_by_arxiv(target_paper: TargetPaper) -> TargetPaper:
 def resolve_by_title(target_paper: TargetPaper) -> TargetPaper:
     title_query = normalize_ws(target_paper.paper_query or "")
     if not title_query:
+        get_runtime_logger().warn("resolver.title", "标题查询为空")
         return mark_unresolved(target_paper, reason="empty title query")
 
+    get_runtime_logger().detail("resolver.title", "正在通过标题解析目标论文", title=title_query)
     arxiv_match = search_arxiv_title_exact(title_query)
     crossref_match = search_crossref_title_exact(title_query)
 
     if arxiv_match:
-        source_ids = {"arxiv": arxiv_match["arxiv_id"]}
+        arxiv_id = normalize_arxiv_id(arxiv_match["arxiv_id"]) or arxiv_match["arxiv_id"]
+        get_runtime_logger().detail("resolver.title", "标题精确匹配到 arXiv 记录", arxiv_id=arxiv_id)
+        source_ids = {"arxiv": arxiv_id}
         if arxiv_match.get("doi"):
             source_ids["doi"] = arxiv_match["doi"].lower()
         return TargetPaper(
-            canonical_id=arxiv_match["arxiv_id"],
+            canonical_id=arxiv_id,
             paper_query=target_paper.paper_query,
             paper_query_type=target_paper.paper_query_type,
             title=arxiv_match["title"],
@@ -118,6 +204,7 @@ def resolve_by_title(target_paper: TargetPaper) -> TargetPaper:
         )
 
     if crossref_match:
+        get_runtime_logger().detail("resolver.title", "标题精确匹配到 Crossref 记录", doi=crossref_match.get("DOI"))
         return TargetPaper(
             canonical_id=(crossref_match.get("DOI") or title_query).lower(),
             paper_query=target_paper.paper_query,
@@ -128,6 +215,7 @@ def resolve_by_title(target_paper: TargetPaper) -> TargetPaper:
             resolve_status="resolved",
         )
 
+    get_runtime_logger().warn("resolver.title", "标题解析未找到精确匹配", title=title_query)
     return TargetPaper(
         canonical_id=None,
         paper_query=target_paper.paper_query,
@@ -140,12 +228,10 @@ def resolve_by_title(target_paper: TargetPaper) -> TargetPaper:
 
 
 def search_crossref_title_exact(title_query: str) -> Optional[dict[str, object]]:
-    response = requests.get(
+    response = _get_with_retry(
         f"https://api.crossref.org/works?query.title={quote(title_query)}&rows=5",
-        timeout=REQUEST_TIMEOUT_SECONDS,
-        headers={"User-Agent": USER_AGENT},
+        TITLE_RESOLVE_RETRY,
     )
-    response.raise_for_status()
     items = response.json()["message"].get("items", [])
     normalized_query = normalize_title(title_query)
     for item in items:
@@ -156,12 +242,10 @@ def search_crossref_title_exact(title_query: str) -> Optional[dict[str, object]]
 
 
 def search_arxiv_title_exact(title_query: str) -> Optional[dict[str, str]]:
-    response = requests.get(
+    response = _get_with_retry(
         f"http://export.arxiv.org/api/query?search_query=ti:%22{quote(title_query)}%22&start=0&max_results=5",
-        timeout=REQUEST_TIMEOUT_SECONDS,
-        headers={"User-Agent": USER_AGENT},
+        ARXIV_TITLE_RETRY,
     )
-    response.raise_for_status()
     root = ElementTree.fromstring(response.text)
     namespace = {"atom": "http://www.w3.org/2005/Atom"}
     arxiv_namespace = {"arxiv": "http://arxiv.org/schemas/atom"}
@@ -182,6 +266,19 @@ def search_arxiv_title_exact(title_query: str) -> Optional[dict[str, str]]:
     return None
 
 
+def _get_with_retry(url: str, policy: RetryPolicy) -> requests.Response:
+    def fetch() -> requests.Response:
+        response = requests.get(
+            url,
+            timeout=REQUEST_TIMEOUT_SECONDS,
+            headers={"User-Agent": USER_AGENT},
+        )
+        response.raise_for_status()
+        return response
+
+    return retry_call(fetch, policy)
+
+
 def mark_unresolved(target_paper: TargetPaper, reason: str) -> TargetPaper:
     return TargetPaper(
         canonical_id=target_paper.canonical_id,
@@ -191,6 +288,18 @@ def mark_unresolved(target_paper: TargetPaper, reason: str) -> TargetPaper:
         doi=target_paper.doi,
         source_ids=dict(target_paper.source_ids),
         resolve_status="unresolved" if target_paper.paper_query_type != "title" else "uncertain",
+    )
+
+
+def _resolved_arxiv_stub(target_paper: TargetPaper, arxiv_id: str) -> TargetPaper:
+    return TargetPaper(
+        canonical_id=arxiv_id,
+        paper_query=target_paper.paper_query,
+        paper_query_type=target_paper.paper_query_type,
+        title=target_paper.title or f"arXiv:{arxiv_id}",
+        doi=target_paper.doi,
+        source_ids={"arxiv": arxiv_id, **({"doi": target_paper.doi.lower()} if target_paper.doi else {})},
+        resolve_status="resolved",
     )
 
 

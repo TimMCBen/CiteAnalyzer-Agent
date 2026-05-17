@@ -18,7 +18,7 @@ except ImportError:
             return kwargs["default_factory"]()
         return default
 
-from apps.analyzer.config import build_llm
+from apps.analyzer.config import build_llm, invoke_llm_with_retry
 from packages.sentiment.models import ReferenceMatch
 from packages.sentiment.reference_locator import sentence_spans, split_sentences
 from packages.shared.models import TargetPaper
@@ -31,13 +31,13 @@ class ReferenceSelectionModel(BaseModel):
     reference_index: int = Field(description="Selected reference entry index, or -1 if no match.")
     citation_marker: Optional[str] = Field(default=None, description="The body citation marker linked to that entry, such as [7] or (Smith, 2020).")
     matched_reference: Optional[str] = Field(default=None, description="Short textual description of the matched reference.")
-    evidence_note: str = Field(description="Why this reference was chosen or rejected.")
+    evidence_note: str = Field(description="用中文说明为什么选择或拒绝该参考文献。")
 
 
 class ContextSelectionModel(BaseModel):
     matched: bool = Field(description="Whether one context window clearly cites the selected target reference.")
     window_index: int = Field(description="Selected window index, or -1 if no match.")
-    evidence_note: str = Field(description="Why this context was selected or rejected.")
+    evidence_note: str = Field(description="用中文说明为什么选择或拒绝该正文窗口。")
 
 
 def locate_reference_context_with_llm(
@@ -70,13 +70,16 @@ def locate_reference_context_with_llm(
     structured_reference_llm = llm.with_structured_output(ReferenceSelectionModel, method="function_calling")
     target_hints = build_target_hints(target_paper)
     reference_prompt = (
-        "You are matching a target paper against reference entries extracted from a citing paper. "
-        "Use the title, DOI, aliases, and semantic description to decide which reference entry is the target paper. "
-        "If no entry matches, return matched=false. "
-        "When the source comes from TeX/LaTeX, assume the reliable path is: find the bibliography entry first, recover the citation key or marker, then use that key or marker to find body citations."
+        "你正在把目标论文与施引论文中抽取出的参考文献条目进行匹配。"
+        "请根据标题、DOI、别名和语义描述判断哪一条参考文献是目标论文。"
+        "字段名和结构化取值不要翻译；matched、reference_index、citation_marker、matched_reference 必须按 schema 输出。"
+        "如果没有任何条目匹配目标论文，返回 matched=false。"
+        "当来源是 TeX/LaTeX 时，可靠路径是先找到 bibliography 条目，再恢复 citation key 或正文引用标记，然后用该 key/标记寻找正文引用。"
+        "evidence_note 必须使用中文，简明说明选择或拒绝该参考文献的理由；论文标题、DOI、arXiv ID 和引用标记可保留原文。"
     )
     reference_block = "\n\n".join(f"[{index}] {entry}" for index, entry in enumerate(reference_entries))
-    reference_result = structured_reference_llm.invoke(
+    reference_result = invoke_llm_with_retry(
+        structured_reference_llm,
         [
             {"role": "system", "content": reference_prompt},
             {
@@ -89,7 +92,8 @@ def locate_reference_context_with_llm(
                     f"Reference entries:\n{reference_block}"
                 ),
             },
-        ]
+        ],
+        "阶段6参考文献匹配",
     )
 
     if not reference_result.matched or reference_result.reference_index < 0 or reference_result.reference_index >= len(reference_entries):
@@ -117,13 +121,16 @@ def locate_reference_context_with_llm(
 
     structured_context_llm = llm.with_structured_output(ContextSelectionModel, method="function_calling")
     context_prompt = (
-        "You are selecting the body context that cites a target reference entry. "
-        "Use the chosen reference entry and the citation marker if available. "
-        "Prefer the window that actually discusses the target work rather than a neighboring citation. "
-        "When the source is TeX/LaTeX, prioritize windows carrying the recovered citation key/marker and treat that as stronger evidence than loose semantic similarity."
+        "你正在从候选正文窗口中选择真正引用目标参考文献的上下文。"
+        "请优先使用已选参考文献和 citation marker；如果 marker 可用，它比宽泛语义相似更可靠。"
+        "应选择实际讨论目标工作的窗口，不要选择只是相邻引用或主题相近但未引用目标论文的窗口。"
+        "当来源是 TeX/LaTeX 时，优先选择包含已恢复 citation key/marker 的窗口。"
+        "字段名和结构化取值不要翻译；matched 和 window_index 必须按 schema 输出。"
+        "evidence_note 必须使用中文，简明说明为什么选择或拒绝该正文窗口；论文标题、引用标记和专业术语可保留原文。"
     )
     window_block = "\n\n".join(f"[{index}] {window['text']}" for index, window in enumerate(candidate_windows))
-    context_result = structured_context_llm.invoke(
+    context_result = invoke_llm_with_retry(
+        structured_context_llm,
         [
             {"role": "system", "content": context_prompt},
             {
@@ -137,7 +144,8 @@ def locate_reference_context_with_llm(
                     f"Candidate body windows:\n{window_block}"
                 ),
             },
-        ]
+        ],
+        "阶段6引用窗口选择",
     )
 
     if not context_result.matched or context_result.window_index < 0 or context_result.window_index >= len(candidate_windows):

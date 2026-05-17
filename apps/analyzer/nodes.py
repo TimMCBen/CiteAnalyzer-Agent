@@ -18,14 +18,15 @@ except ImportError:
         return default
 
 from packages.author_intel import attach_author_intel_result_to_state, analyze_author_intel_with_live_clients
-from apps.analyzer.config import build_llm
+from apps.analyzer.config import build_llm, invoke_llm_with_retry
 from apps.analyzer.resolve import resolve_target_paper_metadata
 from packages.citation_sources.service import attach_fetch_result_to_state, fetch_citation_candidates_with_live_clients
 from packages.reporting import attach_report_artifact_to_state, build_report_artifact
-from packages.sentiment import FullTextDocument, analyze_citation_sentiments, attach_sentiment_result_to_state
-from packages.sentiment.fulltext import fetch_fulltext_document
+from packages.sentiment.models import FullTextDocument
+from packages.sentiment.models import SentimentSummary
 from packages.shared.errors import InvalidAnalysisRequestError
-from packages.shared.models import AnalysisState, ParsedUserIntent, TargetPaper, UserQuery
+from packages.shared.models import AnalysisState, AuthorSummary, ParsedUserIntent, TargetPaper, UserQuery
+from packages.shared.runtime_logging import get_runtime_logger, get_runtime_options
 
 DOI_PATTERN = re.compile(r"10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
 ARXIV_PATTERN = re.compile(r"(?:arxiv\.org/(?:abs|pdf)/)?(?P<identifier>\d{4}\.\d{4,5})(?:v\d+)?(?:\.pdf)?", re.IGNORECASE)
@@ -41,6 +42,24 @@ class IntentExtractionModel(BaseModel):
     reason: Optional[str] = Field(default=None, description="Reason when the request is unsupported or uncertain")
 
 
+def fetch_fulltext_document(*args, **kwargs):
+    from packages.sentiment.fulltext import fetch_fulltext_document as impl
+
+    return impl(*args, **kwargs)
+
+
+def analyze_citation_sentiments(*args, **kwargs):
+    from packages.sentiment.service import analyze_citation_sentiments as impl
+
+    return impl(*args, **kwargs)
+
+
+def attach_sentiment_result_to_state(*args, **kwargs):
+    from packages.sentiment.service import attach_sentiment_result_to_state as impl
+
+    return impl(*args, **kwargs)
+
+
 def initialize_state(user_query: UserQuery) -> AnalysisState:
     return AnalysisState(
         raw_query=user_query.raw_text,
@@ -54,6 +73,7 @@ def initialize_state(user_query: UserQuery) -> AnalysisState:
 
 
 def parse_user_query(state: AnalysisState) -> AnalysisState:
+    get_runtime_logger().stage_start("stage1", "理解用户输入")
     try:
         parsed = parse_with_llm(state["raw_query"])
     except Exception:
@@ -91,21 +111,44 @@ def parse_user_query(state: AnalysisState) -> AnalysisState:
     state["constraints"] = parsed.constraints
     state["target_paper"] = target_paper
     state["status"] = "parsed"
+    get_runtime_logger().stage_done(
+        "stage1",
+        "已识别目标论文",
+        type=target_paper.paper_query_type,
+        query=target_paper.paper_query,
+    )
     return state
 
 
 def fetch_citation_candidates_node(state: AnalysisState) -> AnalysisState:
+    get_runtime_logger().stage_start("stage2", "抓取施引文献")
     target_paper = state.get("target_paper")
     if not isinstance(target_paper, TargetPaper):
         raise RuntimeError("target_paper is missing from analysis state")
     if target_paper.resolve_status != "resolved":
         raise RuntimeError("target_paper must be resolved before fetching citation candidates")
 
-    result = fetch_citation_candidates_with_live_clients(target_paper=target_paper, max_results=20)
+    max_results = get_runtime_options().max_citations or 20
+    result = fetch_citation_candidates_with_live_clients(target_paper=target_paper, max_results=max_results)
+    if not result.citing_papers:
+        get_runtime_logger().skip(
+            "stage2",
+            "Semantic Scholar 当前返回 0 篇施引文献，下游作者画像、全文和情感分析将跳过",
+            reason="no_citing_papers",
+        )
+    else:
+        get_runtime_logger().stage_done(
+            "stage2",
+            "施引文献抓取完成",
+            semantic=result.fetch_summary.semantic_scholar_candidates,
+            crossref_enriched=result.fetch_summary.crossref_candidates,
+            deduped=result.fetch_summary.deduped_candidates,
+        )
     return attach_fetch_result_to_state(state, result)
 
 
 def resolve_target_paper_node(state: AnalysisState) -> AnalysisState:
+    get_runtime_logger().stage_start("stage1", "解析目标论文元数据")
     target_paper = state.get("target_paper")
     if not isinstance(target_paper, TargetPaper):
         raise RuntimeError("target_paper is missing from analysis state")
@@ -114,26 +157,62 @@ def resolve_target_paper_node(state: AnalysisState) -> AnalysisState:
     state["target_paper"] = resolved
     state["status"] = "target_paper_resolved" if resolved.resolve_status == "resolved" else "target_paper_unresolved"
     if resolved.resolve_status != "resolved":
+        get_runtime_logger().warn(
+            "resolver",
+            "目标论文元数据未能完全解析",
+            query=resolved.paper_query,
+            resolve_status=resolved.resolve_status,
+        )
         state.setdefault("errors", [])
         state["errors"].append(
             f"target_paper_{resolved.paper_query_type}_resolution_failed"
+        )
+    else:
+        get_runtime_logger().stage_done(
+            "stage1",
+            "目标论文元数据解析完成",
+            title=resolved.title,
+            doi=resolved.doi,
+            canonical_id=resolved.canonical_id,
         )
     return state
 
 
 def analyze_author_intel_node(state: AnalysisState) -> AnalysisState:
+    get_runtime_logger().stage_start("stage4", "查询施引作者画像")
     citing_papers = state.get("citing_papers")
-    if not isinstance(citing_papers, list) or not citing_papers:
+    if not isinstance(citing_papers, list):
         raise RuntimeError("citing_papers are required before stage4 author-intel analysis")
+    if not citing_papers:
+        state["author_profiles"] = []
+        state["scholar_labels"] = []
+        state["author_summary"] = AuthorSummary()
+        state["status"] = "author_intel_skipped_no_citations"
+        get_runtime_logger().skip("stage4", "没有施引文献，跳过作者画像", reason="no_citing_papers")
+        return state
 
     result = analyze_author_intel_with_live_clients(citing_papers)
+    get_runtime_logger().stage_done(
+        "stage4",
+        "作者画像完成",
+        authors=len(result.author_profiles),
+        matched=result.author_summary.matched_profiles,
+        heavyweight=result.author_summary.heavyweight_candidates,
+        high_impact=result.author_summary.high_impact_candidates,
+    )
     return attach_author_intel_result_to_state(state, result)
 
 
 def fetch_fulltext_documents_node(state: AnalysisState) -> AnalysisState:
+    get_runtime_logger().stage_start("stage5", "获取施引论文全文")
     citing_papers = state.get("citing_papers")
-    if not isinstance(citing_papers, list) or not citing_papers:
+    if not isinstance(citing_papers, list):
         raise RuntimeError("citing_papers are required before stage5 fulltext fetch")
+    if not citing_papers:
+        state["fulltext_documents"] = {}
+        state["status"] = "fulltext_skipped_no_citations"
+        get_runtime_logger().skip("stage5", "没有施引文献，跳过全文获取", reason="no_citing_papers")
+        return state
 
     save_dir = Path("downloaded-papers") / "stage5"
     fulltext_documents: dict[str, FullTextDocument] = {}
@@ -148,27 +227,54 @@ def fetch_fulltext_documents_node(state: AnalysisState) -> AnalysisState:
             )
         except Exception as exc:  # pragma: no cover - network/runtime path
             errors.append(f"stage5:{citing_paper.canonical_id}:{exc}")
+            get_runtime_logger().warn(
+                "fulltext.fetch",
+                "单篇全文获取失败，后续会降级处理",
+                citing_paper_id=citing_paper.canonical_id,
+                error_type=exc.__class__.__name__,
+                impact="single_paper",
+            )
             continue
         if document is not None:
             fulltext_documents[citing_paper.canonical_id] = document
+            get_runtime_logger().detail(
+                "fulltext.fetch",
+                "全文获取成功",
+                citing_paper_id=citing_paper.canonical_id,
+                source_type=document.source_type,
+                path=document.local_path or document.raw_path,
+            )
 
     state["fulltext_documents"] = fulltext_documents  # type: ignore[assignment]
     if errors:
         state.setdefault("errors", [])
         state["errors"].extend(errors)
     state["status"] = "fulltext_documents_fetched"
+    get_runtime_logger().stage_done(
+        "stage5",
+        "全文获取完成",
+        available=len(fulltext_documents),
+        missing=len(citing_papers) - len(fulltext_documents),
+    )
     return state
 
 
 def analyze_citation_sentiments_node(state: AnalysisState) -> AnalysisState:
+    get_runtime_logger().stage_start("stage6", "提取引用上下文并判断情感")
     target_paper = state.get("target_paper")
     citing_papers = state.get("citing_papers")
     fulltext_documents = state.get("fulltext_documents")
 
     if not isinstance(target_paper, TargetPaper):
         raise RuntimeError("target_paper is required before stage6 sentiment analysis")
-    if not isinstance(citing_papers, list) or not citing_papers:
+    if not isinstance(citing_papers, list):
         raise RuntimeError("citing_papers are required before stage6 sentiment analysis")
+    if not citing_papers:
+        state["citation_contexts"] = []
+        state["sentiment_summary"] = SentimentSummary(total_candidates=0)
+        state["status"] = "citation_sentiments_skipped_no_citations"
+        get_runtime_logger().skip("stage6", "没有施引文献，跳过引用上下文和情感分析", reason="no_citing_papers")
+        return state
 
     result = analyze_citation_sentiments(
         target_paper=target_paper,
@@ -177,10 +283,19 @@ def analyze_citation_sentiments_node(state: AnalysisState) -> AnalysisState:
         allow_network=True,
         search_arxiv_fallback=True,
     )
+    get_runtime_logger().stage_done(
+        "stage6",
+        "情感分析完成",
+        positive=result.summary.label_counts.get("positive", 0),
+        neutral=result.summary.label_counts.get("neutral", 0),
+        critical=result.summary.label_counts.get("critical", 0),
+        unknown=result.summary.label_counts.get("unknown", 0),
+    )
     return attach_sentiment_result_to_state(state, result)
 
 
 def generate_report_node(state: AnalysisState) -> AnalysisState:
+    get_runtime_logger().stage_start("stage7", "生成 HTML / JSON 报告")
     target_paper = state.get("target_paper")
     citing_papers = state.get("citing_papers")
     author_profiles = state.get("author_profiles")
@@ -210,6 +325,12 @@ def generate_report_node(state: AnalysisState) -> AnalysisState:
         source_trace=state.get("source_trace") if isinstance(state.get("source_trace"), list) else None,
         state_errors=state.get("errors") if isinstance(state.get("errors"), list) else None,
     )
+    get_runtime_logger().stage_done(
+        "stage7",
+        "报告生成完成",
+        html=artifact.export_paths.get("html"),
+        json=artifact.export_paths.get("json"),
+    )
     return attach_report_artifact_to_state(state, artifact)
 
 
@@ -225,11 +346,13 @@ def parse_with_llm(raw_query: str) -> ParsedUserIntent:
         "并将 paper_query_type 设为 unknown。"
     )
 
-    result = structured_llm.invoke(
+    result = invoke_llm_with_retry(
+        structured_llm,
         [
             {"role": "system", "content": prompt},
             {"role": "user", "content": raw_query},
-        ]
+        ],
+        "阶段1输入解析",
     )
 
     return ParsedUserIntent(

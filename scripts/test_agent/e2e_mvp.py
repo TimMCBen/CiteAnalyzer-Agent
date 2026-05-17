@@ -15,16 +15,28 @@ from packages.author_intel.service import analyze_author_intel
 from packages.citation_sources.models import CitationFetchResult
 from packages.shared.models import TargetPaper
 from scripts.test_agent.stage4 import FakeDBLPClient, FakeOpenAlexClient
-from scripts.test_agent.stage6 import DEFAULT_SAMPLE_PATH, build_local_source_links, load_stage2_sample
+from scripts.test_agent.stage6 import (
+    DEFAULT_SAMPLE_PATH,
+    build_local_source_links,
+    fake_classify_sentiment,
+    fake_reference_matcher,
+    load_stage2_sample,
+)
+from scripts.test_agent.stage_logging import StageLogger
 
 
-def assert_e2e_mvp_real_sample() -> None:
+def assert_e2e_mvp_real_sample():
     target_paper, citing_papers = load_stage2_sample(DEFAULT_SAMPLE_PATH)
     temp_dir = build_local_source_links(citing_papers, target_paper.doi or "")
 
     original_resolve = nodes.resolve_target_paper_metadata
     original_fetch = nodes.fetch_citation_candidates_with_live_clients
     original_author_intel = nodes.analyze_author_intel_with_live_clients
+    original_sentiment = nodes.analyze_citation_sentiments
+
+    import packages.sentiment.workflow as workflow
+
+    original_classifier = workflow.classify_sentiment
 
     def fake_resolve_target_paper_metadata(target: TargetPaper) -> TargetPaper:
         _ = target
@@ -59,9 +71,17 @@ def assert_e2e_mvp_real_sample() -> None:
             dblp_client=FakeDBLPClient(),
         )
 
+    def fake_analyze_citation_sentiments(*args, **kwargs):
+        from packages.sentiment.service import analyze_citation_sentiments
+
+        kwargs["llm_reference_matcher"] = fake_reference_matcher
+        return analyze_citation_sentiments(*args, **kwargs)
+
     nodes.resolve_target_paper_metadata = fake_resolve_target_paper_metadata
     nodes.fetch_citation_candidates_with_live_clients = fake_fetch_citation_candidates_with_live_clients
     nodes.analyze_author_intel_with_live_clients = fake_analyze_author_intel_with_live_clients
+    nodes.analyze_citation_sentiments = fake_analyze_citation_sentiments
+    workflow.classify_sentiment = fake_classify_sentiment
 
     try:
         state = run_analysis("请查看 DOI 为 10.1145/3368089.3409740 的论文有哪些施引文献、重点学者和引用情感")
@@ -69,6 +89,8 @@ def assert_e2e_mvp_real_sample() -> None:
         nodes.resolve_target_paper_metadata = original_resolve
         nodes.fetch_citation_candidates_with_live_clients = original_fetch
         nodes.analyze_author_intel_with_live_clients = original_author_intel
+        nodes.analyze_citation_sentiments = original_sentiment
+        workflow.classify_sentiment = original_classifier
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     assert state["status"] == "report_generated", state["status"]
@@ -79,12 +101,23 @@ def assert_e2e_mvp_real_sample() -> None:
     assert Path(state["report_artifact"].export_paths["html"]).exists()
     assert Path(state["report_artifact"].export_paths["json"]).exists()
     assert state["sentiment_summary"].unknown_count >= 1, state["sentiment_summary"]
+    return state
 
 
 def main() -> None:
-    assert_e2e_mvp_real_sample()
-    print("[PASS] e2e::fixture_backed_real_sample")
-    print("e2e MVP validation passed")
+    logger = StageLogger("e2e")
+    logger.start()
+    state = assert_e2e_mvp_real_sample()
+    logger.pass_case(
+        "fixture_backed_real_sample",
+        detail=(
+            f"sample_path={DEFAULT_SAMPLE_PATH} status={state['status']} "
+            f"html={state['report_artifact'].export_paths['html']} "
+            f"json={state['report_artifact'].export_paths['json']} "
+            f"unknown={state['sentiment_summary'].unknown_count} errors={len(state['errors'])}"
+        ),
+    )
+    logger.done("e2e MVP validation passed")
 
 
 if __name__ == "__main__":
