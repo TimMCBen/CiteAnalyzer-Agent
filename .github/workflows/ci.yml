@@ -17,6 +17,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install CI Python dependencies
+        run: python3 -m pip install -r requirements-ci.txt
+
       - name: Run base CI checks
         run: ./scripts/ci.sh
 
