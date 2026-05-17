@@ -18,7 +18,7 @@ except ImportError:
         return default
 
 from packages.author_intel import attach_author_intel_result_to_state, analyze_author_intel_with_live_clients
-from apps.analyzer.config import build_llm
+from apps.analyzer.config import build_llm, invoke_llm_with_retry
 from apps.analyzer.resolve import resolve_target_paper_metadata
 from packages.citation_sources.service import attach_fetch_result_to_state, fetch_citation_candidates_with_live_clients
 from packages.reporting import attach_report_artifact_to_state, build_report_artifact
@@ -346,11 +346,13 @@ def parse_with_llm(raw_query: str) -> ParsedUserIntent:
         "并将 paper_query_type 设为 unknown。"
     )
 
-    result = structured_llm.invoke(
+    result = invoke_llm_with_retry(
+        structured_llm,
         [
             {"role": "system", "content": prompt},
             {"role": "user", "content": raw_query},
-        ]
+        ],
+        "阶段1输入解析",
     )
 
     return ParsedUserIntent(

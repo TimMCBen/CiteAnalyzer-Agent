@@ -13,7 +13,7 @@ except ImportError:
             return kwargs["default_factory"]()
         return default
 
-from apps.analyzer.config import build_llm
+from apps.analyzer.config import build_llm, invoke_llm_with_retry
 from packages.sentiment.models import SentimentLabel
 from packages.shared.models import TargetPaper
 
@@ -41,13 +41,15 @@ def classify_sentiment(context_text: str, target_paper: TargetPaper) -> tuple[Se
         "只有当上下文证据不足以支持任何判断时，才使用 label=unknown。"
         "evidence_note 必须使用中文，简明说明判断依据；论文标题、作者名、arXiv ID 和专业术语可以保留英文原文。"
     )
-    result = structured_llm.invoke(
+    result = invoke_llm_with_retry(
+        structured_llm,
         [
             {"role": "system", "content": prompt},
             {
                 "role": "user",
                 "content": f"Target paper hint: {target_hint}\n\nCitation context:\n{normalized}",
             },
-        ]
+        ],
+        "阶段6引用情感分类",
     )
     return result.label, f"llm_sentiment:{result.evidence_note}"

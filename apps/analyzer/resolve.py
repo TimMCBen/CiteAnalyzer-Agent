@@ -8,10 +8,43 @@ from xml.etree import ElementTree
 import requests
 
 from packages.shared.models import TargetPaper
+from packages.shared.network_retry import RetryExhaustedError, RetryPolicy, retry_call
 from packages.shared.runtime_logging import get_runtime_logger
 
 REQUEST_TIMEOUT_SECONDS = 20
 USER_AGENT = "CiteAnalyzer-Agent/0.1"
+DOI_RESOLVE_RETRY = RetryPolicy(
+    service="Crossref",
+    operation="DOI解析",
+    max_attempts=3,
+    base_delay_seconds=0.5,
+    max_delay_seconds=4.0,
+    jitter_seconds=0.2,
+)
+TITLE_RESOLVE_RETRY = RetryPolicy(
+    service="Crossref",
+    operation="标题解析",
+    max_attempts=2,
+    base_delay_seconds=0.5,
+    max_delay_seconds=2.0,
+    jitter_seconds=0.2,
+)
+ARXIV_RESOLVE_RETRY = RetryPolicy(
+    service="arXiv",
+    operation="目标论文解析",
+    max_attempts=2,
+    base_delay_seconds=0.5,
+    max_delay_seconds=1.5,
+    jitter_seconds=0.1,
+)
+ARXIV_TITLE_RETRY = RetryPolicy(
+    service="arXiv",
+    operation="标题搜索",
+    max_attempts=2,
+    base_delay_seconds=0.5,
+    max_delay_seconds=1.5,
+    jitter_seconds=0.1,
+)
 
 
 def resolve_target_paper_metadata(target_paper: TargetPaper) -> TargetPaper:
@@ -39,12 +72,10 @@ def resolve_target_paper_metadata(target_paper: TargetPaper) -> TargetPaper:
 def resolve_by_doi(target_paper: TargetPaper) -> TargetPaper:
     doi = target_paper.doi or ""
     get_runtime_logger().detail("resolver.crossref", "正在通过 Crossref 解析 DOI", doi=doi)
-    response = requests.get(
+    response = _get_with_retry(
         f"https://api.crossref.org/works/{doi}",
-        timeout=REQUEST_TIMEOUT_SECONDS,
-        headers={"User-Agent": USER_AGENT},
+        DOI_RESOLVE_RETRY,
     )
-    response.raise_for_status()
     message = response.json()["message"]
     title = first_title(message.get("title"))
     if not title:
@@ -71,12 +102,25 @@ def resolve_by_arxiv(target_paper: TargetPaper) -> TargetPaper:
 
     get_runtime_logger().detail("resolver.arxiv", "正在通过 arXiv 解析目标论文", arxiv_id=arxiv_id)
     try:
-        response = requests.get(
+        response = _get_with_retry(
             f"http://export.arxiv.org/api/query?id_list={quote(arxiv_id)}",
-            timeout=REQUEST_TIMEOUT_SECONDS,
-            headers={"User-Agent": USER_AGENT},
+            ARXIV_RESOLVE_RETRY,
         )
-        response.raise_for_status()
+    except RetryExhaustedError as exc:
+        if exc.status == 429:
+            get_runtime_logger().warn(
+                "resolver.arxiv",
+                "arXiv 元数据接口限流，使用 arXiv ID 继续进入 Semantic Scholar 主链路",
+                arxiv_id=arxiv_id,
+            )
+            return _resolved_arxiv_stub(target_paper, arxiv_id)
+        get_runtime_logger().warn(
+            "resolver.arxiv",
+            "arXiv 元数据接口多次连接失败，使用 arXiv ID 继续进入 Semantic Scholar 主链路",
+            arxiv_id=arxiv_id,
+            error_type=exc.reason,
+        )
+        return _resolved_arxiv_stub(target_paper, arxiv_id)
     except requests.HTTPError as exc:
         if exc.response is not None and exc.response.status_code == 429:
             get_runtime_logger().warn(
@@ -184,12 +228,10 @@ def resolve_by_title(target_paper: TargetPaper) -> TargetPaper:
 
 
 def search_crossref_title_exact(title_query: str) -> Optional[dict[str, object]]:
-    response = requests.get(
+    response = _get_with_retry(
         f"https://api.crossref.org/works?query.title={quote(title_query)}&rows=5",
-        timeout=REQUEST_TIMEOUT_SECONDS,
-        headers={"User-Agent": USER_AGENT},
+        TITLE_RESOLVE_RETRY,
     )
-    response.raise_for_status()
     items = response.json()["message"].get("items", [])
     normalized_query = normalize_title(title_query)
     for item in items:
@@ -200,12 +242,10 @@ def search_crossref_title_exact(title_query: str) -> Optional[dict[str, object]]
 
 
 def search_arxiv_title_exact(title_query: str) -> Optional[dict[str, str]]:
-    response = requests.get(
+    response = _get_with_retry(
         f"http://export.arxiv.org/api/query?search_query=ti:%22{quote(title_query)}%22&start=0&max_results=5",
-        timeout=REQUEST_TIMEOUT_SECONDS,
-        headers={"User-Agent": USER_AGENT},
+        ARXIV_TITLE_RETRY,
     )
-    response.raise_for_status()
     root = ElementTree.fromstring(response.text)
     namespace = {"atom": "http://www.w3.org/2005/Atom"}
     arxiv_namespace = {"arxiv": "http://arxiv.org/schemas/atom"}
@@ -224,6 +264,19 @@ def search_arxiv_title_exact(title_query: str) -> Optional[dict[str, str]]:
         if arxiv_id:
             return {"title": title, "arxiv_id": arxiv_id, "doi": doi or ""}
     return None
+
+
+def _get_with_retry(url: str, policy: RetryPolicy) -> requests.Response:
+    def fetch() -> requests.Response:
+        response = requests.get(
+            url,
+            timeout=REQUEST_TIMEOUT_SECONDS,
+            headers={"User-Agent": USER_AGENT},
+        )
+        response.raise_for_status()
+        return response
+
+    return retry_call(fetch, policy)
 
 
 def mark_unresolved(target_paper: TargetPaper, reason: str) -> TargetPaper:

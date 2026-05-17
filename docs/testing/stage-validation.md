@@ -32,6 +32,7 @@
 
 - `import_contract.py`
 - `llm_prompt_contract.py`
+- `network_retry_contract.py`
 - `stage1.py`
 - `stage2.py`
 - `stage4.py`
@@ -169,6 +170,20 @@
   - GROBID 命中 / 未命中输出中文日志
 - 当前状态：
   - 已实现 fake/fixture contract
+  - 不访问真实外部 API
+
+### Network Retry
+
+- 脚本：`scripts/test_agent/network_retry_contract.py`
+- 当前覆盖：
+  - TLS/SSL EOF、timeout 等瞬时错误会重试后成功
+  - `404` 等不可重试 HTTP 状态不会等待或重复请求
+  - `Retry-After` 能控制等待时间
+  - 重试耗尽会产生结构化异常和中文 `retry.exhausted` 日志
+  - OpenAlex / DBLP 客户端在 transient failure 后能重试成功
+- 当前状态：
+  - 已实现 fake contract
+  - 已接入 `scripts/test_agent/run.py` 聚合验证
   - 不访问真实外部 API
 
 - 脚本：`scripts/test_agent/e2e_real_smoke.py`

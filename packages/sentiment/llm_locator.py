@@ -18,7 +18,7 @@ except ImportError:
             return kwargs["default_factory"]()
         return default
 
-from apps.analyzer.config import build_llm
+from apps.analyzer.config import build_llm, invoke_llm_with_retry
 from packages.sentiment.models import ReferenceMatch
 from packages.sentiment.reference_locator import sentence_spans, split_sentences
 from packages.shared.models import TargetPaper
@@ -78,7 +78,8 @@ def locate_reference_context_with_llm(
         "evidence_note 必须使用中文，简明说明选择或拒绝该参考文献的理由；论文标题、DOI、arXiv ID 和引用标记可保留原文。"
     )
     reference_block = "\n\n".join(f"[{index}] {entry}" for index, entry in enumerate(reference_entries))
-    reference_result = structured_reference_llm.invoke(
+    reference_result = invoke_llm_with_retry(
+        structured_reference_llm,
         [
             {"role": "system", "content": reference_prompt},
             {
@@ -91,7 +92,8 @@ def locate_reference_context_with_llm(
                     f"Reference entries:\n{reference_block}"
                 ),
             },
-        ]
+        ],
+        "阶段6参考文献匹配",
     )
 
     if not reference_result.matched or reference_result.reference_index < 0 or reference_result.reference_index >= len(reference_entries):
@@ -127,7 +129,8 @@ def locate_reference_context_with_llm(
         "evidence_note 必须使用中文，简明说明为什么选择或拒绝该正文窗口；论文标题、引用标记和专业术语可保留原文。"
     )
     window_block = "\n\n".join(f"[{index}] {window['text']}" for index, window in enumerate(candidate_windows))
-    context_result = structured_context_llm.invoke(
+    context_result = invoke_llm_with_retry(
+        structured_context_llm,
         [
             {"role": "system", "content": context_prompt},
             {
@@ -141,7 +144,8 @@ def locate_reference_context_with_llm(
                     f"Candidate body windows:\n{window_block}"
                 ),
             },
-        ]
+        ],
+        "阶段6引用窗口选择",
     )
 
     if not context_result.matched or context_result.window_index < 0 or context_result.window_index >= len(candidate_windows):
