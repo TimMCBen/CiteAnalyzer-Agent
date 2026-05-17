@@ -14,6 +14,7 @@ if str(REPO_ROOT) not in sys.path:
 from packages.citation_sources.models import CitingPaper
 from packages.sentiment import FullTextDocument, analyze_citation_sentiments, grobid_is_alive
 from packages.sentiment.fulltext import fetch_fulltext_document
+from packages.sentiment.models import ReferenceMatch
 from packages.shared.models import TargetPaper
 from scripts.test_agent.stage_logging import StageLogger
 
@@ -165,6 +166,32 @@ def wrap_text(text: str, width: int) -> list[str]:
     return lines
 
 
+def fake_reference_matcher(
+    text: str,
+    target_paper: TargetPaper,
+    source_type: str | None = None,
+    extracted_dir: str | None = None,
+) -> ReferenceMatch:
+    _ = target_paper, source_type, extracted_dir
+    normalized = " ".join(text.split())
+    return ReferenceMatch(
+        matched_target_reference="fixture_target_reference",
+        context_text=normalized[:700],
+        mention_span=None,
+        evidence_note="matched_by_llm_reference_and_context:fixture_reference_match | fixture_context_match",
+    )
+
+
+def fake_classify_sentiment(context_text: str, target_paper: TargetPaper) -> tuple[str, str]:
+    _ = target_paper
+    lowered = context_text.lower()
+    if "clear weakness" in lowered or "cannot explain" in lowered or "misses a critical" in lowered:
+        return "critical", "llm_sentiment:fixture detected explicit limitation language."
+    if "builds on" in lowered or "following" in lowered or "extend the analysis" in lowered:
+        return "positive", "llm_sentiment:fixture detected use or extension of the target work."
+    return "neutral", "llm_sentiment:fixture detected background or framing usage."
+
+
 def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_PATH):
     target_paper, citing_papers = load_stage2_sample(sample_path)
     citing_papers.append(
@@ -177,6 +204,10 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
         )
     )
     temp_dir = build_local_source_links(citing_papers, target_paper.doi or "")
+    import packages.sentiment.workflow as workflow
+
+    original_classifier = workflow.classify_sentiment
+    workflow.classify_sentiment = fake_classify_sentiment
     try:
         result = analyze_citation_sentiments(
             target_paper=target_paper,
@@ -185,8 +216,10 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
             allow_network=True,
             search_arxiv_fallback=False,
             use_llm_reference_fallback=True,
+            llm_reference_matcher=fake_reference_matcher,
         )
     finally:
+        workflow.classify_sentiment = original_classifier
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     labels = {context.citing_paper_id: context.sentiment_label for context in result.contexts}
