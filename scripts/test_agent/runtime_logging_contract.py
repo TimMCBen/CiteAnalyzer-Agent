@@ -54,9 +54,30 @@ class EmptyDBLPClient:
         return None
 
 
+class ProgressOpenAlexClient:
+    def lookup_author(self, name: str) -> dict[str, object] | None:
+        if name == "Failing Author":
+            raise ssl.SSLError("simulated TLS disconnect")
+        if name in {"Ada Lovelace", "Grace Hopper"}:
+            return {
+                "author_id": f"openalex:{name}",
+                "name": name,
+                "h_index": 40,
+                "citation_count": 1000,
+                "works_count": 80,
+                "source_ids": {"openalex": f"openalex:{name}"},
+                "evidence_sources": ["openalex"],
+            }
+        return None
+
+
 def capture_detail(callable_obj) -> str:
+    return capture_runtime(callable_obj, mode="detail")
+
+
+def capture_runtime(callable_obj, mode: str) -> str:
     stream = io.StringIO()
-    with redirect_stdout(stream), runtime_context(logger=RuntimeLogger(mode="detail")):
+    with redirect_stdout(stream), runtime_context(logger=RuntimeLogger(mode=mode)):
         callable_obj()
     return stream.getvalue()
 
@@ -155,6 +176,55 @@ def assert_openalex_warning_contract() -> None:
     assert "impact=single_author" in output, output
 
 
+def run_author_progress_fixture() -> None:
+    analyze_author_intel(
+        citing_papers=[
+            CitingPaper(
+                canonical_id="citing-progress",
+                title="Progress Fixture",
+                authors=[
+                    "Ada Lovelace",
+                    "Grace Hopper",
+                    "Weak Author",
+                    "Failing Author",
+                    "Another Weak Author",
+                    "Final Weak Author",
+                ],
+            )
+        ],
+        openalex_client=ProgressOpenAlexClient(),
+        dblp_client=EmptyDBLPClient(),
+    )
+
+
+def assert_stage4_progress_detail_contract() -> None:
+    output = capture_detail(run_author_progress_fixture)
+    progress_lines = [line for line in output.splitlines() if "PROGRESS 阶段4" in line]
+    assert len(progress_lines) == 6, output
+    assert "作者画像" in output, output
+    assert "1/6" in output, output
+    assert "6/6 100%" in output, output
+    assert "current=Ada Lovelace" in output, output
+    assert "status=matched" in output, output
+    assert "status=weak_signal" in output, output
+    assert "status=failed_lookup" in output, output
+    assert "matched=" in output, output
+    assert "weak=" in output, output
+    assert "failed=" in output, output
+
+
+def assert_stage4_progress_brief_contract() -> None:
+    output = capture_runtime(run_author_progress_fixture, mode="brief")
+    progress_lines = [line for line in output.splitlines() if "PROGRESS 阶段4" in line]
+    assert 1 <= len(progress_lines) < 6, output
+    assert "6/6 100%" in output, output
+
+
+def assert_stage4_progress_quiet_contract() -> None:
+    output = capture_runtime(run_author_progress_fixture, mode="quiet")
+    assert "PROGRESS 阶段4" not in output, output
+
+
 def assert_grobid_logging_contract() -> None:
     import packages.sentiment.workflow as workflow
 
@@ -216,6 +286,12 @@ def main() -> None:
     logger.pass_case("zero_citation_generates_report")
     assert_openalex_warning_contract()
     logger.pass_case("openalex_single_author_warning")
+    assert_stage4_progress_detail_contract()
+    logger.pass_case("stage4_progress_detail")
+    assert_stage4_progress_brief_contract()
+    logger.pass_case("stage4_progress_brief")
+    assert_stage4_progress_quiet_contract()
+    logger.pass_case("stage4_progress_quiet")
     assert_grobid_logging_contract()
     logger.pass_case("grobid_hit_and_miss_logging")
     logger.done("runtime logging contract passed")

@@ -13,6 +13,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.test_agent.stage_logging import LOG_MODE_ENV, StageLogger, get_log_mode
+from packages.shared.runtime_logging import RUNTIME_LOG_MODE_ENV
 
 IMPORT_CONTRACT_SCRIPT = SCRIPT_DIR / "import_contract.py"
 LLM_PROMPT_CONTRACT_SCRIPT = SCRIPT_DIR / "llm_prompt_contract.py"
@@ -57,6 +58,7 @@ def main(argv: list[str] | None = None) -> None:
     logger = StageLogger("aggregate", mode=log_mode)
     child_env = os.environ.copy()
     child_env[LOG_MODE_ENV] = log_mode
+    child_env[RUNTIME_LOG_MODE_ENV] = log_mode
 
     for script in AGGREGATED_STAGE_SCRIPTS:
         logger.start(script.name)

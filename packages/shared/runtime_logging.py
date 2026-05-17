@@ -37,6 +37,9 @@ class NoOpRuntimeLogger:
     def stage_done(self, stage: str, message: str, **fields: Any) -> None:
         return None
 
+    def progress(self, stage: str, message: str, completed: int, total: int, **fields: Any) -> None:
+        return None
+
     def detail(self, event: str, message: str, **fields: Any) -> None:
         return None
 
@@ -65,6 +68,13 @@ class RuntimeLogger(NoOpRuntimeLogger):
     def stage_done(self, stage: str, message: str, **fields: Any) -> None:
         if self.mode != "quiet":
             self._print("✅", "DONE", _stage_label(stage), message, fields)
+
+    def progress(self, stage: str, message: str, completed: int, total: int, **fields: Any) -> None:
+        if self.mode == "quiet":
+            return
+        if self.mode != "detail" and not _is_progress_milestone(completed, total):
+            return
+        self._print("📊", "PROGRESS", _stage_label(stage), f"{message} {_format_progress_bar(completed, total)}", fields)
 
     def detail(self, event: str, message: str, **fields: Any) -> None:
         if self.mode == "detail":
@@ -161,6 +171,25 @@ def _format_fields(fields: dict[str, Any]) -> str:
     if not visible:
         return ""
     return " | " + " ".join(visible)
+
+
+def _format_progress_bar(current: int, total: int, width: int = 16) -> str:
+    safe_total = max(1, int(total))
+    safe_current = min(max(0, int(current)), safe_total)
+    percent = round((safe_current / safe_total) * 100)
+    filled = round(width * safe_current / safe_total)
+    empty = width - filled
+    return f"[{'█' * filled}{'░' * empty}] {safe_current}/{safe_total} {percent}%"
+
+
+def _is_progress_milestone(current: int, total: int) -> bool:
+    if total <= 0 or current <= 0:
+        return False
+    if total <= 5 or current >= total:
+        return True
+    previous_bucket = ((current - 1) * 4) // total
+    current_bucket = (current * 4) // total
+    return current_bucket > previous_bucket
 
 
 def _clean_value(key: str, value: Any) -> str:

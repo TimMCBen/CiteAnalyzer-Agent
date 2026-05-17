@@ -31,8 +31,11 @@ def analyze_author_intel(
     result = AuthorIntelResult()
     network_failures = 0
     budget_warning_emitted = False
+    matched_profiles = 0
+    weak_signals = 0
+    logger = get_runtime_logger()
 
-    for candidate in candidates:
+    for index, candidate in enumerate(candidates, start=1):
         errors: list[str] = []
         openalex_record = None
         dblp_record = None
@@ -51,6 +54,19 @@ def analyze_author_intel(
             label = build_scholar_label(profile, candidate.frequency)
             result.author_profiles.append(profile)
             result.scholar_labels.append(label)
+            weak_signals += 1
+            logger.progress(
+                "stage4",
+                "作者画像",
+                completed=index,
+                total=len(candidates),
+                current=candidate.display_name,
+                status="skipped_budget",
+                matched=matched_profiles,
+                weak=weak_signals,
+                failed=network_failures,
+                remaining=len(candidates) - index,
+            )
             continue
 
         try:
@@ -86,6 +102,22 @@ def analyze_author_intel(
         result.author_profiles.append(profile)
         result.scholar_labels.append(label)
         result.errors.extend(errors)
+        if profile.evidence_sources:
+            matched_profiles += 1
+        if label.label == "weak_signal_candidate":
+            weak_signals += 1
+        logger.progress(
+            "stage4",
+            "作者画像",
+            completed=index,
+            total=len(candidates),
+            current=candidate.display_name,
+            status=_progress_status(profile, label, errors),
+            matched=matched_profiles,
+            weak=weak_signals,
+            failed=network_failures,
+            remaining=len(candidates) - index,
+        )
 
     result.author_summary = _build_summary(result.author_profiles, result.scholar_labels)
     return result
@@ -184,6 +216,16 @@ def _build_summary(author_profiles: list[AuthorProfile], scholar_labels: list) -
     summary.heavyweight_candidates = sum(1 for label in scholar_labels if label.label == "heavyweight_candidate")
     summary.weak_signal_candidates = sum(1 for label in scholar_labels if label.label == "weak_signal_candidate")
     return summary
+
+
+def _progress_status(profile: AuthorProfile, label: object, errors: list[str]) -> str:
+    if errors:
+        return "failed_lookup"
+    if getattr(label, "label", None) == "weak_signal_candidate":
+        return "weak_signal"
+    if profile.evidence_sources:
+        return "matched"
+    return "weak_signal"
 
 
 def _coerce_optional_int(value: object) -> int | None:

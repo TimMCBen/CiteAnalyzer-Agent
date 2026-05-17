@@ -167,9 +167,14 @@ logger.summary(...)
 
 ```text
 ▶ START 阶段4 | 查询施引作者画像 | authors=36
+📊 PROGRESS 阶段4 | 作者画像 [████░░░░░░░░░░░░] 9/36 25% | current=Lei Bai status=weak_signal matched=7 weak=2 failed=0
+📊 PROGRESS 阶段4 | 作者画像 [████████░░░░░░░░] 18/36 50% | current=Jun Xu status=matched matched=14 weak=4 failed=0
 ⚠ WARN openalex.lookup | OpenAlex 查询作者 Lei Bai 时 TLS 连接中断，已改用 DBLP 或弱证据 | impact=single_author
-✅ DONE 阶段4 | 完成作者画像 | matched=28 weak=8 heavyweight=0 high_impact=2
+📊 PROGRESS 阶段4 | 作者画像 [████████████████] 36/36 100% | current=Final Author status=weak_signal matched=28 weak=8 failed=0
+✅ DONE 阶段4 | 完成作者画像 | authors=36 matched=28 weak=8 heavyweight=0 high_impact=2
 ```
+
+阶段 4 进度条采用日志行式输出，不使用 `\r` 覆盖式动态进度条，保证详细日志落盘后仍可读。`detail` 模式每位作者输出一次 `PROGRESS 阶段4`，`brief` 模式只输出里程碑进度和最终 100%。
 
 #### 阶段 5：全文获取
 
