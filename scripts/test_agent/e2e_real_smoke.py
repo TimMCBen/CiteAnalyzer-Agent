@@ -34,9 +34,10 @@ def main() -> None:
         raise AssertionError("missing report_artifact")
     html_path = Path(artifact.export_paths["html"])
     json_path = Path(artifact.export_paths["json"])
-    if not html_path.exists() or not json_path.exists():
-        raise AssertionError(f"missing report files: html={html_path} json={json_path}")
-    print(f"✅ DONE e2e_real_smoke | html={html_path} json={json_path}", flush=True)
+    pdf_path = Path(artifact.export_paths["pdf"])
+    if not html_path.exists() or not json_path.exists() or not pdf_path.exists():
+        raise AssertionError(f"missing report files: html={html_path} json={json_path} pdf={pdf_path}")
+    print(f"✅ DONE e2e_real_smoke | html={html_path} json={json_path} pdf={pdf_path}", flush=True)
 
 
 if __name__ == "__main__":

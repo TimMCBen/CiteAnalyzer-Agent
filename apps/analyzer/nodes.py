@@ -295,7 +295,7 @@ def analyze_citation_sentiments_node(state: AnalysisState) -> AnalysisState:
 
 
 def generate_report_node(state: AnalysisState) -> AnalysisState:
-    get_runtime_logger().stage_start("stage7", "生成 HTML / JSON 报告")
+    get_runtime_logger().stage_start("stage7", "生成 HTML / JSON / PDF 报告")
     target_paper = state.get("target_paper")
     citing_papers = state.get("citing_papers")
     author_profiles = state.get("author_profiles")
@@ -330,6 +330,7 @@ def generate_report_node(state: AnalysisState) -> AnalysisState:
         "报告生成完成",
         html=artifact.export_paths.get("html"),
         json=artifact.export_paths.get("json"),
+        pdf=artifact.export_paths.get("pdf"),
     )
     return attach_report_artifact_to_state(state, artifact)
 

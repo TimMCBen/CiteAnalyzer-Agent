@@ -100,6 +100,7 @@ def assert_e2e_mvp_real_sample():
     assert state["report_artifact"].export_paths["html"], state["report_artifact"]
     assert Path(state["report_artifact"].export_paths["html"]).exists()
     assert Path(state["report_artifact"].export_paths["json"]).exists()
+    assert Path(state["report_artifact"].export_paths["pdf"]).exists()
     assert state["sentiment_summary"].unknown_count >= 1, state["sentiment_summary"]
     return state
 
@@ -114,6 +115,7 @@ def main() -> None:
             f"sample_path={DEFAULT_SAMPLE_PATH} status={state['status']} "
             f"html={state['report_artifact'].export_paths['html']} "
             f"json={state['report_artifact'].export_paths['json']} "
+            f"pdf={state['report_artifact'].export_paths['pdf']} "
             f"unknown={state['sentiment_summary'].unknown_count} errors={len(state['errors'])}"
         ),
     )

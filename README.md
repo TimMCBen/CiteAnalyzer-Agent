@@ -4,14 +4,14 @@
 
 `CiteAnalyzer-Agent` 是一个面向单篇目标论文的被引分析智能体项目。系统目标是输入一篇论文后，自动抓取施引文献，识别施引作者中的重点学者，分析引用语境与情感，并生成可视化分析报告。
 
-当前项目已经完成阶段 1 和阶段 2 的主链路落地，并在当前开发分支上把 analyzer 总控接回到阶段 4 / 5 / 6。当前最稳定的能力是目标论文输入理解、施引文献抓取、作者画像补全，以及面向真实论文全文的单上下文引用定位实验路径。
+当前项目已经完成阶段 1 / 2 / 4 / 5 / 6 / 7 的 MVP 主链路。当前最稳定的能力是目标论文输入理解、施引文献抓取、作者画像补全、面向真实论文全文的单上下文引用定位实验路径，以及 HTML / JSON / PDF 报告导出。
 
 ## 目标功能
 
 - 施引文献抓取：围绕目标论文抓取施引文献元数据，并做多源融合与去重
 - 学者识别：补充施引作者的 `h-index`、机构、领域信息，标注重量级学者候选
 - 引用情感分析：提取引用上下文并判断是正向、中性还是批评性引用
-- 可视化报告：生成引用趋势图、引用来源地图、学者分布和情感分布，并导出结构化结果与 HTML 报告
+- 可视化报告：生成引用趋势图、施引来源国家/地区分布、机构分布、学者分布和情感饼图，并导出结构化结果、HTML 报告与独立 PDF 报告
 
 ## 当前架构
 
@@ -21,7 +21,7 @@
 - `文献爬取子智能体`：负责施引文献抓取、多源融合、去重与来源保留
 - `学者识别子智能体`：负责作者画像补充、指标查询和重量级学者标注
 - `引用情感分析子智能体`：负责引用上下文提取与情感分类
-- `可视化报告子智能体`：负责汇总结果并生成 HTML 报告
+- `可视化报告子智能体`：负责汇总结果并生成 HTML / JSON / PDF 报告
 
 ```mermaid
 flowchart LR
@@ -31,8 +31,8 @@ flowchart LR
     scholar_stage["阶段 4<br/>学者识别与影响力标注"]
     fulltext_stage["阶段 5<br/>全文抓取与文本解析"]
     sentiment_stage["阶段 6<br/>引用上下文提取与情感分析"]
-    report_stage["阶段 7<br/>汇总结果并生成 HTML 报告"]
-    final_output["输出结果<br/>HTML 报告 + JSON"]
+    report_stage["阶段 7<br/>汇总结果并生成 HTML / JSON / PDF 报告"]
+    final_output["输出结果<br/>HTML 报告 + JSON + PDF"]
 
     paper_input --> parse_stage
     parse_stage --> fetch_stage
@@ -57,6 +57,7 @@ flowchart LR
 - 需要 **Python 3**
 - 如果要跑依赖 LLM 的能力，需要在项目根目录准备 `.env`
 - 当前仓库**还没有统一冻结的 Python 依赖清单**（例如 `requirements.txt` 或 `pyproject.toml`），因此首次运行前需要先在你的环境里补齐项目依赖
+- Stage 7 PDF 导出需要 `reportlab`；`requirements-ci.txt` 已包含 CI 最小依赖
 - `requirements-ci.txt` 只是 GitHub CI 的最小测试依赖清单，不等同于完整运行时依赖锁文件
 
 ### `.env` 最小配置
@@ -78,6 +79,7 @@ flowchart LR
 其中：
 
 - `API_KEY` / `BASE_URL` / `MODEL` 是 LLM 必填项
+- `scripts/test_agent/stage7.py` 和聚合入口会真实调用 LLM 验证国家/地区解析，缺少这些变量会失败
 - `GROBID_API_URL` 默认回退到 `http://localhost:8070/api`
 
 ### 项目级验证入口
@@ -226,7 +228,7 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 - 阶段 6 原型：`LangGraph` 工作流、`PDF -> GROBID -> context` 主路径、GROBID 不可用时的文本回退路径、真实 `citing-5` 冒烟测试
 - 阶段 4 模块级实现：`packages/author_intel/`、`AuthorProfile` / `ScholarLabel`、`OpenAlex + DBLP` 画像补全链路、`stage4.py` 验证脚本
 - analyzer 总控现已接回阶段 4 / 5 / 6，并把 scholar / fulltext / sentiment 结果写回共享状态
-- 阶段 7 报告实现：HTML / JSON 报告导出、chart payload、上游 partial failure / weak-signal / state error 的降级提示
+- 阶段 7 报告实现：HTML / JSON / PDF 报告导出、chart payload、情感饼图、机构与国家/地区分布、重要学者表格、代表性引用语境、上游 partial failure / weak-signal / state error 的降级提示
 - 独立 E2E 入口：`e2e_mvp.py` 通过已保存真实 stage2 样本和本地 fixture 跑通 analyzer 全链路
 - `run.py` 当前已聚合 `stage56_integration.py`，默认项目级入口 `bash ./scripts/check-project.sh` 在 bash/WSL 环境会优先复用可用的 `python.exe`
 - 关键边界约定

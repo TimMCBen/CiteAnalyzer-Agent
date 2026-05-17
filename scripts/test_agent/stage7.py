@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import sys
 import tempfile
@@ -12,6 +13,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from packages.citation_sources.models import CitingPaper
 from packages.citation_sources.models import FetchSummary, SourceTrace
+from packages.reporting.country_resolution import LLMCountryResolver
 from packages.reporting.service import build_report_artifact
 from packages.sentiment.models import CitationContext, SentimentSummary
 from packages.shared.models import AuthorProfile, AuthorSummary, ScholarLabel, TargetPaper
@@ -75,7 +77,7 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
                 AuthorProfile(
                     author_id="author-3",
                     name="Carol Li",
-                    affiliations=["Harbin Institute of Technology"],
+                    affiliations=["MIT"],
                     fields=["AI"],
                     h_index=31,
                     evidence_sources=["openalex"],
@@ -163,8 +165,11 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
 
         html_path = Path(artifact.export_paths["html"])
         json_path = Path(artifact.export_paths["json"])
+        pdf_path = Path(artifact.export_paths["pdf"])
         assert html_path.exists(), html_path
         assert json_path.exists(), json_path
+        assert pdf_path.exists(), pdf_path
+        assert pdf_path.stat().st_size > 0, pdf_path
 
         payload = json.loads(json_path.read_text(encoding="utf-8"))
         assert payload["summary"]["target_title"] == "Target Paper", payload
@@ -177,15 +182,30 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
         assert any("stage5:citing-1:no_fulltext" in item for item in payload["summary"]["manual_attention_items"]), payload["summary"]
         assert any("evidence_insufficient" in item for item in payload["summary"]["manual_attention_items"]), payload["summary"]
         assert "year_trend" in payload["charts"], payload["charts"]
+        assert "institution_distribution" in payload["charts"], payload["charts"]
+        assert "country_distribution" in payload["charts"], payload["charts"]
         assert "source_map" in payload["charts"], payload["charts"]
         assert "scholar_distribution" in payload["charts"], payload["charts"]
         assert "sentiment_distribution" in payload["charts"], payload["charts"]
         assert payload["charts"]["year_trend"] == {"2024": 1, "2025": 2}, payload["charts"]
+        assert payload["charts"]["institution_distribution"] == payload["charts"]["source_map"], payload["charts"]
+        assert payload["charts"]["country_distribution"]["China"] == 2, payload["charts"]
+        assert payload["charts"]["country_distribution"]["United States"] == 1, payload["charts"]
         assert payload["charts"]["sentiment_distribution"]["unknown"] == 1, payload["charts"]
         assert payload["charts"]["sentiment_distribution"]["neutral"] == 1, payload["charts"]
+        assert payload["summary"]["executive_summary"], payload["summary"]
+        assert payload["summary"]["top_scholars"], payload["summary"]
+        assert payload["summary"]["representative_contexts"]["neutral"], payload["summary"]
+        assert payload["summary"]["pdf_export_status"] == "generated", payload["summary"]
+        assert payload["provenance"]["pdf_export_status"] == "generated", payload["provenance"]
+        assert payload["provenance"]["country_resolution_trace"], payload["provenance"]
 
         html = html_path.read_text(encoding="utf-8")
         assert "Target Paper" in html
+        assert "分析摘要" in html
+        assert "重要学者" in html
+        assert "代表性引用语境" in html
+        assert "施引来源国家/地区分布" in html
         assert "Key Findings" in html
         assert "Manual Attention Items" in html
         assert "Citation Contexts" in html
@@ -195,7 +215,9 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
         assert 'id="yearTrendChart"' in html
         assert 'id="scholarDistributionChart"' in html
         assert 'id="sentimentDistributionChart"' in html
+        assert 'id="countryDistributionChart"' in html
         assert 'id="institutionDistributionChart"' in html
+        assert 'type: "pie"' in html
         assert "施引作者机构分布" in html
         assert "Source Map" not in html
         assert "查看 5 条人工关注项" in html
@@ -211,11 +233,30 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
             "output_dir": str(output_dir),
             "html_path": str(html_path),
             "json_path": str(json_path),
+            "pdf_path": str(pdf_path),
             "chart_keys": sorted(payload["charts"].keys()),
             "manual_attention_count": len(payload["summary"]["manual_attention_items"]),
         }
     finally:
         shutil.rmtree(output_dir, ignore_errors=True)
+
+
+def assert_live_llm_country_resolution(logger: StageLogger) -> None:
+    from apps.analyzer.config import load_local_env
+
+    load_local_env()
+    missing_env = [name for name in ("API_KEY", "BASE_URL", "MODEL") if not os.getenv(name)]
+    assert not missing_env, f"missing real LLM env for stage7 live test: {', '.join(missing_env)}"
+
+    result = LLMCountryResolver().resolve("ETH Zurich")
+    assert result.method == "llm", result
+    assert result.country != "Unknown", result
+    assert result.confidence in {"high", "medium", "low"}, result
+    assert result.evidence, result
+    logger.pass_case(
+        "live_llm_country_resolution",
+        detail=f"institution={result.institution} country={result.country} confidence={result.confidence}",
+    )
 
 
 def main() -> None:
@@ -225,10 +266,11 @@ def main() -> None:
     logger.pass_case(
         "reporting_contract",
         detail=(
-            f"output_dir={detail['output_dir']} html={detail['html_path']} json={detail['json_path']} "
+            f"output_dir={detail['output_dir']} html={detail['html_path']} json={detail['json_path']} pdf={detail['pdf_path']} "
             f"charts={detail['chart_keys']} manual_attention_count={detail['manual_attention_count']}"
         ),
     )
+    assert_live_llm_country_resolution(logger)
     logger.done("stage7 validation passed")
 
 

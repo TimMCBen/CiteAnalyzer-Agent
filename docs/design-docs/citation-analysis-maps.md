@@ -13,7 +13,7 @@
 - `stage3.py` 仍是补充源探索占位，不在默认主链路
 - 当前执行边是**线性**的，不是阶段 2 之后并行扇出
 - 阶段 6 当前冻结为：每篇 citing paper 只返回一条主 `CitationContext`
-- 阶段 7 当前默认输出为 `HTML + JSON`，并暴露降级与 provenance 信息
+- 阶段 7 当前默认输出为 `HTML + JSON + PDF`，并暴露降级与 provenance 信息
 - 为兼容 Typora 的 Mermaid 渲染，本文件避免使用较新的 `accTitle:` / `accDescr:` 语法
 
 ## 👤 用户视角流程图
@@ -28,8 +28,8 @@ flowchart LR
     s4["阶段4<br/>学者识别与重量级标注"]
     s5["阶段5<br/>全文抓取与解析"]
     s6["阶段6<br/>引用上下文与情感分析"]
-    s7["阶段7<br/>HTML / JSON 报告生成"]
-    output["输出<br/>报告摘要 / 图表 / HTML / JSON"]
+    s7["阶段7<br/>HTML / JSON / PDF 报告生成"]
+    output["输出<br/>报告摘要 / 图表 / HTML / JSON / PDF"]
 
     input --> s1 --> s2 --> s4 --> s5 --> s6 --> s7 --> output
 
@@ -60,7 +60,7 @@ flowchart LR
 | 阶段4 | 施引文献作者信息 | 作者画像、学者标注、聚合统计 |
 | 阶段5 | 施引文献列表 | 全文文本或降级结果 |
 | 阶段6 | 全文文本 + 目标论文信息 | 主引用上下文、情感标签、分类汇总 |
-| 阶段7 | 全部上游结果 | 最终 `ReportArtifact`、HTML、JSON |
+| 阶段7 | 全部上游结果 | 最终 `ReportArtifact`、HTML、JSON、PDF |
 
 ## 🧠 开发者视角状态演化图
 

@@ -133,8 +133,10 @@ def assert_zero_citation_runtime_contract() -> None:
         assert state["citation_contexts"] == [], state["citation_contexts"]
         html_path = Path(state["report_artifact"].export_paths["html"])
         json_path = Path(state["report_artifact"].export_paths["json"])
+        pdf_path = Path(state["report_artifact"].export_paths["pdf"])
         assert html_path.exists(), html_path
         assert json_path.exists(), json_path
+        assert pdf_path.exists(), pdf_path
 
     output = capture_detail(run_case)
     assert "SKIP" in output, output

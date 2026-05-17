@@ -121,9 +121,12 @@
 - 脚本：`scripts/test_agent/stage7.py`
 - 当前覆盖：
   - `ReportArtifact` contract
-  - HTML / JSON 报告导出路径
-  - 趋势、来源、学者、情感、降级说明区块
-  - ECharts 图表容器、图表数据 fallback、机构 Top N 文案
+  - HTML / JSON / PDF 报告导出路径
+  - 趋势、国家/地区来源、机构、学者、情感、降级说明区块
+  - ECharts 图表容器、情感饼图、图表数据 fallback、机构 Top N 文案
+  - 独立 PDF renderer 的真实产物存在性
+  - 规则国家/地区解析 trace 与真实 LLM 国家/地区解析 smoke；运行前必须在 `.env` 或环境变量中提供 `API_KEY`、`BASE_URL`、`MODEL`
+  - 分析摘要、重要学者表格、代表性引用语境
   - `report.json` 原始 `charts` 契约保持不变，HTML 才生成展示层图表
   - `fetch_summary` / `source_trace` / `state.errors` / 弱标注 `confidence_note` 的报告暴露
   - fixture 驱动的报告级验证
@@ -165,7 +168,7 @@
   - Semantic Scholar 默认字段不包含 `authors.name` / `citingPaper.authors.name`
   - arXiv 版本号在 Semantic Scholar client 边界归一化
   - runtime logger 对 API key / authorization 等敏感字段脱敏
-  - 0 施引 fake 样本最终生成 HTML / JSON 报告，且不写入 `state.errors`
+  - 0 施引 fake 样本最终生成 HTML / JSON / PDF 报告，且不写入 `state.errors`
   - OpenAlex 单作者异常输出 `WARN` 且标注 `impact=single_author`
   - GROBID 命中 / 未命中输出中文日志
 - 当前状态：

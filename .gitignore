@@ -46,6 +46,9 @@ venv/
 # Misc generated artifacts
 *.swp
 *.swo
+downloaded-papers/
+external/
+generated-reports/
 
 # Local private notes
 经验.md

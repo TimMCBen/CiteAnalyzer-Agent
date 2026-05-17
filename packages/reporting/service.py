@@ -6,8 +6,11 @@ from pathlib import Path
 from typing import Iterable
 
 from packages.citation_sources.models import CitingPaper, FetchSummary, SourceTrace
+from packages.reporting.country_resolution import CountryResolution, CountryResolverProtocol, HybridCountryResolver
+from packages.reporting.pdf_renderer import render_pdf_report
 from packages.sentiment.models import CitationContext, SentimentSummary
 from packages.shared.models import AnalysisState, AuthorProfile, AuthorSummary, ReportArtifact, ScholarLabel, TargetPaper
+from packages.shared.runtime_logging import get_runtime_logger
 
 
 DEFAULT_REPORT_DIR = Path("generated-reports")
@@ -45,6 +48,7 @@ def build_report_artifact(
     source_trace: list[SourceTrace] | None = None,
     state_errors: list[str] | None = None,
     output_dir: Path | None = None,
+    country_resolver: CountryResolverProtocol | None = None,
 ) -> ReportArtifact:
     report_id = target_paper.canonical_id or target_paper.doi or target_paper.title or "unknown-target"
     safe_report_id = _slugify(report_id)
@@ -52,9 +56,16 @@ def build_report_artifact(
     report_dir.mkdir(parents=True, exist_ok=True)
 
     provenance = _build_provenance(fetch_summary, source_trace, state_errors, scholar_labels)
+    institution_distribution = _build_institution_distribution(author_profiles)
+    country_distribution, country_trace = _build_country_distribution(author_profiles, country_resolver)
+    provenance["country_resolution_trace"] = country_trace
+    provenance["report_warnings"] = []
+    provenance["pdf_export_status"] = "pending"
     chart_payloads = {
         "year_trend": _build_year_trend(citing_papers),
-        "source_map": _build_source_map(author_profiles),
+        "institution_distribution": institution_distribution,
+        "source_map": institution_distribution,
+        "country_distribution": country_distribution,
         "scholar_distribution": _build_scholar_distribution(scholar_labels),
         "sentiment_distribution": dict(sentiment_summary.label_counts),
     }
@@ -70,20 +81,44 @@ def build_report_artifact(
         "partial_failure": provenance["partial_failure"],
         "source_trace_count": provenance["source_trace_count"],
         "source_trace_sources": provenance["source_trace_sources"],
+        "executive_summary": _build_executive_summary(citing_papers, scholar_labels, sentiment_summary, chart_payloads, provenance),
         "key_findings": _build_key_findings(citing_papers, scholar_labels, sentiment_summary, provenance),
+        "top_scholars": _build_top_scholars(author_profiles, scholar_labels),
+        "representative_contexts": _build_representative_contexts(citation_contexts),
         "manual_attention_items": _build_manual_attention_items(citation_contexts, scholar_labels, provenance),
+        "pdf_export_status": "pending",
     }
 
     json_path = report_dir / "report.json"
     html_path = report_dir / "report.html"
+    pdf_path = report_dir / "report.pdf"
+    payload = {
+        "summary": summary,
+        "charts": chart_payloads,
+        "provenance": provenance,
+        "contexts": [_serialize_context(context) for context in citation_contexts],
+    }
+
+    export_paths = {
+        "html": str(html_path),
+        "json": str(json_path),
+    }
+    try:
+        render_pdf_report(payload, pdf_path)
+    except Exception as exc:  # PDF export is not allowed to break HTML/JSON.
+        reason = f"pdf_export_unavailable:{exc.__class__.__name__}:{exc}"
+        provenance["pdf_export_status"] = "unavailable"
+        provenance["report_warnings"].append(reason)  # type: ignore[union-attr]
+        summary["pdf_export_status"] = "unavailable"
+        get_runtime_logger().warn("report.pdf", "PDF 导出不可用，HTML/JSON 已生成", reason=reason)
+    else:
+        provenance["pdf_export_status"] = "generated"
+        summary["pdf_export_status"] = "generated"
+        export_paths["pdf"] = str(pdf_path)
+
     json_path.write_text(
         json.dumps(
-            {
-                "summary": summary,
-                "charts": chart_payloads,
-                "provenance": provenance,
-                "contexts": [_serialize_context(context) for context in citation_contexts],
-            },
+            payload,
             ensure_ascii=False,
             indent=2,
         ),
@@ -99,10 +134,7 @@ def build_report_artifact(
         target_paper_id=target_paper.canonical_id or target_paper.doi or safe_report_id,
         summary=summary,
         charts=chart_payloads,
-        export_paths={
-            "html": str(html_path),
-            "json": str(json_path),
-        },
+        export_paths=export_paths,
     )
 
 
@@ -117,12 +149,45 @@ def _build_year_trend(citing_papers: Iterable[CitingPaper]) -> dict[str, int]:
     return dict(sorted(counts.items()))
 
 
-def _build_source_map(author_profiles: Iterable[AuthorProfile]) -> dict[str, int]:
+def _build_institution_distribution(author_profiles: Iterable[AuthorProfile]) -> dict[str, int]:
     counts = Counter()
     for profile in author_profiles:
         if profile.affiliations:
             counts[profile.affiliations[0]] += 1
     return dict(sorted(counts.items()))
+
+
+def _build_country_distribution(
+    author_profiles: Iterable[AuthorProfile],
+    resolver: CountryResolverProtocol | None = None,
+) -> tuple[dict[str, int], list[dict[str, object]]]:
+    active_resolver = resolver or HybridCountryResolver()
+    counts = Counter()
+    trace = []
+    resolved_by_institution: dict[str, CountryResolution] = {}
+    for profile in author_profiles:
+        institution = profile.affiliations[0] if profile.affiliations else ""
+        if not institution:
+            counts["Unknown"] += 1
+            trace.append(
+                {
+                    "institution": "",
+                    "country": "Unknown",
+                    "country_code": None,
+                    "confidence": "low",
+                    "method": "missing",
+                    "evidence": f"{profile.name}: missing affiliation",
+                    "needs_review": True,
+                }
+            )
+            continue
+        result = resolved_by_institution.get(institution)
+        if result is None:
+            result = active_resolver.resolve(institution)
+            resolved_by_institution[institution] = result
+        counts[result.country] += 1
+        trace.append(result.to_dict())
+    return dict(sorted(counts.items())), trace
 
 
 def _build_scholar_distribution(labels: Iterable[ScholarLabel]) -> dict[str, int]:
@@ -144,6 +209,82 @@ def _build_key_findings(
     if provenance["partial_failure"]:
         findings.append("上游抓取或解析存在部分失败，结论需结合注意事项复核。")
     return findings
+
+
+def _build_executive_summary(
+    citing_papers: list[CitingPaper],
+    scholar_labels: list[ScholarLabel],
+    sentiment_summary: SentimentSummary,
+    charts: dict[str, object],
+    provenance: dict[str, object],
+) -> list[str]:
+    year_trend = _coerce_int_map(charts.get("year_trend"))
+    country_distribution = _coerce_int_map(charts.get("country_distribution"))
+    sentiment_counts = sentiment_summary.label_counts
+    total_sentiments = max(1, sum(sentiment_counts.values()))
+    dominant_sentiment = max(sentiment_counts.items(), key=lambda item: item[1])[0] if sentiment_counts else "unknown"
+    high_value_scholars = sum(
+        1
+        for label in scholar_labels
+        if label.label in {"heavyweight_candidate", "high_impact_candidate"}
+    )
+    summary = [
+        f"本次共识别 {len(citing_papers)} 篇施引文献，形成当前可复核的数据快照。",
+        f"引用情感以{_display_sentiment_label(dominant_sentiment)}为主，占 {round(sentiment_counts.get(dominant_sentiment, 0) / total_sentiments * 100)}%。",
+        f"重要学者候选共 {high_value_scholars} 位，其中包含重量级候选和高影响力候选。",
+    ]
+    if year_trend:
+        peak_year, peak_count = max(year_trend.items(), key=lambda item: item[1])
+        summary.append(f"施引年份峰值出现在 {peak_year} 年，共 {peak_count} 篇。")
+    if country_distribution:
+        top_country, top_count = max(country_distribution.items(), key=lambda item: item[1])
+        summary.append(f"施引来源国家/地区分布中，{top_country} 当前最多，共 {top_count} 位作者画像命中。")
+    if provenance.get("partial_failure") or provenance.get("state_errors"):
+        summary.append("报告存在上游失败或状态错误，结论应结合 Data Quality 与人工关注项复核。")
+    return summary[:5]
+
+
+def _build_top_scholars(author_profiles: list[AuthorProfile], scholar_labels: list[ScholarLabel], limit: int = 10) -> list[dict[str, object]]:
+    labels_by_author = {label.author_id: label for label in scholar_labels}
+    ranked_profiles = sorted(
+        author_profiles,
+        key=lambda profile: (
+            0 if labels_by_author.get(profile.author_id, None) and labels_by_author[profile.author_id].label == "heavyweight_candidate" else
+            1 if labels_by_author.get(profile.author_id, None) and labels_by_author[profile.author_id].label == "high_impact_candidate" else
+            2,
+            -(profile.h_index or 0),
+            profile.name,
+        ),
+    )
+    result = []
+    for profile in ranked_profiles[:limit]:
+        label = labels_by_author.get(profile.author_id)
+        result.append(
+            {
+                "author_id": profile.author_id,
+                "name": profile.name,
+                "label": _display_scholar_label(label.label) if label else "未标注",
+                "raw_label": label.label if label else None,
+                "h_index": profile.h_index,
+                "citation_count": profile.citation_count,
+                "works_count": profile.works_count,
+                "affiliations": list(profile.affiliations),
+                "fields": list(profile.fields),
+                "evidence": list(label.evidence) if label else list(profile.evidence_sources),
+            }
+        )
+    return result
+
+
+def _build_representative_contexts(citation_contexts: list[CitationContext], limit_per_label: int = 3) -> dict[str, list[dict[str, object]]]:
+    grouped: dict[str, list[dict[str, object]]] = {"positive": [], "critical": [], "neutral": []}
+    for context in citation_contexts:
+        if context.sentiment_label not in grouped or not context.context_text:
+            continue
+        if len(grouped[context.sentiment_label]) >= limit_per_label:
+            continue
+        grouped[context.sentiment_label].append(_serialize_context(context))
+    return grouped
 
 
 def _build_manual_attention_items(
@@ -231,6 +372,42 @@ def _render_html(
             for key, value in items.items()
         )
 
+    def render_top_scholars(items: list[dict[str, object]]) -> str:
+        if not items:
+            return "<p class='muted'>暂无重要学者数据。</p>"
+        rows = "".join(
+            (
+                "<tr>"
+                f"<td>{item.get('name', '')}</td>"
+                f"<td>{item.get('label', '')}</td>"
+                f"<td>{item.get('h_index') or 'N/A'}</td>"
+                f"<td>{', '.join(list(item.get('affiliations', []))[:1]) if isinstance(item.get('affiliations'), list) else ''}</td>"
+                f"<td>{', '.join(list(item.get('fields', []))[:2]) if isinstance(item.get('fields'), list) else ''}</td>"
+                "</tr>"
+            )
+            for item in items
+        )
+        return f"<table class='data-table'><thead><tr><th>作者</th><th>标签</th><th>h-index</th><th>机构</th><th>领域</th></tr></thead><tbody>{rows}</tbody></table>"
+
+    def render_representative_contexts(items: dict[str, list[dict[str, object]]]) -> str:
+        sections = []
+        for label in ("positive", "critical", "neutral"):
+            contexts = items.get(label, [])
+            if not contexts:
+                continue
+            cards = "".join(
+                (
+                    "<article class='context-card compact'>"
+                    f"<div class='context-head'><h3>{context.get('citing_paper_id', 'unknown')}</h3><span class='sentiment-tag'>{_display_sentiment_label(label)}</span></div>"
+                    f"<p>{context.get('context_text') or 'No context available.'}</p>"
+                    f"<p class='muted'>{context.get('evidence_note') or ''}</p>"
+                    "</article>"
+                )
+                for context in contexts
+            )
+            sections.append(f"<h3>{_display_sentiment_label(label)}引用</h3>{cards}")
+        return "".join(sections) or "<p class='muted'>暂无代表性引用语境。</p>"
+
     chart_data = _build_html_chart_data(charts, summary, provenance)
     chart_data_json = _json_for_script(chart_data)
 
@@ -276,6 +453,7 @@ def _render_html(
     year_fallback = _render_year_fallback(chart_data["yearTrend"])
     scholar_fallback = render_map(chart_data["scholarDistribution"]["fallback"])
     sentiment_fallback = render_map(chart_data["sentimentDistribution"]["fallback"])
+    country_fallback = render_map(chart_data["countryDistribution"]["fallback"])
     institution_fallback = render_map(chart_data["institutionDistribution"]["fallback"])
     attention_html = (
         "<p class='muted'>当前没有需要人工关注的项目。</p>"
@@ -340,9 +518,13 @@ def _render_html(
     .data-list span {{ color: var(--muted); overflow-wrap: anywhere; }}
     .attention-list li {{ color: var(--accent); }}
     .attention-details summary {{ cursor: pointer; color: var(--accent); font-weight: 700; margin-bottom: 0.75rem; }}
+    .data-table {{ width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 14px; background: rgba(255, 250, 242, 0.96); }}
+    .data-table th, .data-table td {{ border: 1px solid var(--line); padding: 0.65rem; text-align: left; vertical-align: top; }}
+    .data-table th {{ background: var(--accent-soft); color: var(--accent); }}
     .context-list {{ border: 1px solid var(--line); border-radius: 18px; padding: 1.25rem; background: rgba(255, 250, 242, 0.92); }}
     .context-card {{ border-top: 1px solid var(--line); padding-top: 1rem; margin-top: 1rem; }}
     .context-card:first-child {{ border-top: 0; margin-top: 0; padding-top: 0; }}
+    .context-card.compact {{ border: 1px solid var(--line); border-radius: 14px; padding: 0.9rem; background: rgba(255, 250, 242, 0.72); }}
     .context-head {{ display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }}
     .sentiment-tag {{ color: var(--accent); font-weight: 700; text-transform: capitalize; }}
     @media (max-width: 720px) {{
@@ -362,6 +544,8 @@ def _render_html(
     <a href="#overview">Overview</a>
     <a href="#metrics">Metrics</a>
     <a href="#charts">Charts</a>
+    <a href="#summary">Summary</a>
+    <a href="#scholars">Scholars</a>
     <a href="#findings">Findings</a>
     <a href="#quality">Quality</a>
     <a href="#attention">Attention</a>
@@ -379,6 +563,10 @@ def _render_html(
       <span class="quality-badge" data-level="{quality_summary['level']}">{quality_summary['label']}</span>
     </div>
     <div class="quality-grid">{quality_cards}</div>
+  </section>
+  <section id="summary" class="card list-card">
+    <h2>分析摘要</h2>
+    <ul class="finding-list">{render_list(list(summary.get('executive_summary', [])), '暂无分析摘要')}</ul>
   </section>
   <section class="chart-grid" id="charts">
     <article class="card chart-card" data-chart-state="{chart_data['yearTrend']['state']}">
@@ -399,12 +587,26 @@ def _render_html(
       <div class="chart-panel" id="sentimentDistributionChart" role="img" aria-label="引用情感分布图"></div>
       <ul class="data-list chart-fallback">{sentiment_fallback}</ul>
     </article>
+    <article class="card chart-card" data-chart-state="{chart_data['countryDistribution']['state']}">
+      <h2>施引来源国家/地区分布</h2>
+      <p class="chart-note">{chart_data['countryDistribution']['note']}</p>
+      <div class="chart-panel" id="countryDistributionChart" role="img" aria-label="施引来源国家地区分布图"></div>
+      <ul class="data-list chart-fallback">{country_fallback}</ul>
+    </article>
     <article class="card chart-card" data-chart-state="{chart_data['institutionDistribution']['state']}">
       <h2>施引作者机构分布 Top {INSTITUTION_TOP_N}</h2>
       <p class="chart-note">{chart_data['institutionDistribution']['note']}</p>
       <div class="chart-panel" id="institutionDistributionChart" role="img" aria-label="施引作者机构分布图"></div>
       <ul class="data-list chart-fallback">{institution_fallback}</ul>
     </article>
+  </section>
+  <section id="scholars" class="card">
+    <h2>重要学者</h2>
+    {render_top_scholars(list(summary.get('top_scholars', [])))}
+  </section>
+  <section id="representative-contexts" class="context-list">
+    <h2>代表性引用语境</h2>
+    {render_representative_contexts(summary.get('representative_contexts', {}))}
   </section>
   <section id="findings">
     <h2>Key Findings</h2>
@@ -455,11 +657,25 @@ def _render_html(
       }});
 
       initChart("sentimentDistributionChart", payload.sentimentDistribution.state, {{
+        tooltip: {{ trigger: "item" }},
+        legend: {{ bottom: 0, textStyle: axisLabel }},
+        series: [{{
+          type: "pie",
+          radius: ["38%", "68%"],
+          center: ["50%", "45%"],
+          data: payload.sentimentDistribution.items,
+          label: {{ formatter: "{{b}}: {{c}}" }},
+          itemStyle: {{ color: item => item.data.color }}
+        }}]
+      }});
+
+      initChart("countryDistributionChart", payload.countryDistribution.state, {{
+        color: ["#6f8f5b"],
         tooltip: {{ trigger: "axis", axisPointer: {{ type: "shadow" }} }},
-        grid: {{ left: 78, right: 22, top: 22, bottom: 26 }},
+        grid: {{ left: 118, right: 22, top: 22, bottom: 26 }},
         xAxis: {{ type: "value", minInterval: 1, axisLabel, splitLine }},
-        yAxis: {{ type: "category", data: payload.sentimentDistribution.labels, axisLabel }},
-        series: [{{ type: "bar", data: payload.sentimentDistribution.items, barMaxWidth: 24, itemStyle: {{ color: item => item.data.color, borderRadius: [0, 8, 8, 0] }} }}]
+        yAxis: {{ type: "category", data: payload.countryDistribution.labels, axisLabel: {{ ...axisLabel, width: 110, overflow: "truncate" }} }},
+        series: [{{ type: "bar", data: payload.countryDistribution.values, barMaxWidth: 22, itemStyle: {{ borderRadius: [0, 8, 8, 0] }} }}]
       }});
 
       initChart("institutionDistributionChart", payload.institutionDistribution.state, {{
@@ -485,17 +701,18 @@ def _build_html_chart_data(
     year_trend = _coerce_int_map(charts.get("year_trend"))
     scholar_distribution = _coerce_int_map(charts.get("scholar_distribution"))
     sentiment_distribution = _coerce_int_map(charts.get("sentiment_distribution"))
-    institution_distribution = _coerce_int_map(charts.get("source_map"))
+    country_distribution = _coerce_int_map(charts.get("country_distribution"))
+    institution_distribution = _coerce_int_map(charts.get("institution_distribution")) or _coerce_int_map(charts.get("source_map"))
 
     year_labels = list(year_trend.keys())
     year_values = list(year_trend.values())
-    year_state = "chart" if len(year_labels) >= 2 else "fallback"
+    year_state = "chart" if len(year_labels) >= 1 else "fallback"
 
     scholar_items = [
         (_display_scholar_label(label), count)
         for label, count in _nonzero_items(scholar_distribution)
     ]
-    scholar_state = "chart" if len(scholar_items) >= 2 else "fallback"
+    scholar_state = "chart" if len(scholar_items) >= 1 else "fallback"
 
     sentiment_items = [
         (
@@ -506,10 +723,12 @@ def _build_html_chart_data(
         for label in SENTIMENT_ORDER
         if sentiment_distribution.get(label, 0) > 0
     ]
-    sentiment_state = "chart" if len(sentiment_items) >= 2 else "fallback"
+    sentiment_state = "chart" if len(sentiment_items) >= 1 else "fallback"
 
+    country_items = _top_n_with_others(country_distribution, limit=INSTITUTION_TOP_N)
+    country_state = "chart" if len(country_items) >= 1 else "fallback"
     institution_items = _top_n_with_others(institution_distribution, limit=INSTITUTION_TOP_N)
-    institution_state = "chart" if len(institution_distribution) >= 3 and len(institution_items) >= 2 else "fallback"
+    institution_state = "chart" if len(institution_items) >= 1 else "fallback"
 
     return {
         "yearTrend": {
@@ -542,9 +761,17 @@ def _build_html_chart_data(
             }
             or {"暂无情感分类": 0},
         },
+        "countryDistribution": {
+            "state": country_state,
+            "note": "基于机构文本和可选 LLM 辅助推断；Unknown 表示证据不足或需要复核。",
+            "labels": [label for label, _ in country_items],
+            "values": [count for _, count in country_items],
+            "fallback": dict(country_items) or {"暂无国家/地区信息": 0},
+            "raw_count": len(country_distribution),
+        },
         "institutionDistribution": {
             "state": institution_state,
-            "note": "当前按作者首条机构文本近似聚合，不代表地理地图。",
+            "note": "按作者首条机构文本聚合；这不是世界地图。",
             "labels": [label for label, _ in institution_items],
             "values": [count for _, count in institution_items],
             "fallback": dict(institution_items) or {"暂无机构信息": 0},
