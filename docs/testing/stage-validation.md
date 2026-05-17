@@ -31,6 +31,7 @@
 当前 `run.py` 仍只聚合：
 
 - `import_contract.py`
+- `llm_prompt_contract.py`
 - `stage1.py`
 - `stage2.py`
 - `stage4.py`
@@ -121,6 +122,8 @@
   - `ReportArtifact` contract
   - HTML / JSON 报告导出路径
   - 趋势、来源、学者、情感、降级说明区块
+  - ECharts 图表容器、图表数据 fallback、机构 Top N 文案
+  - `report.json` 原始 `charts` 契约保持不变，HTML 才生成展示层图表
   - `fetch_summary` / `source_trace` / `state.errors` / 弱标注 `confidence_note` 的报告暴露
   - fixture 驱动的报告级验证
 - 当前状态：

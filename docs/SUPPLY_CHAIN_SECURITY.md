@@ -25,6 +25,13 @@
 - 只有当 `scripts/release-package.sh` 真的代表项目的构建产物时，provenance 才真正有意义。
 - OpenSSF Scorecard 默认不启用，因为新模板仓库还没有真实分支保护、release 历史和 SAST 姿态可以评分；等仓库规则配置完成后再按需加回。
 
+## 报告前端外部资源
+
+- 阶段 7 HTML 报告当前通过 CDN 引入 `echarts@6.0.0`，用于静态报告图表渲染。
+- CDN 地址必须固定到具体版本，不使用浮动 major/minor 标签。
+- 报告必须保留无 JavaScript / CDN 加载失败时可读的 fallback 内容，避免图表资源失败导致报告不可读。
+- 若报告进入离线分发或正式发布制品，应改为 vendored asset 或纳入 release artifact，并进入 SBOM / provenance 管理。
+
 ## 项目落地后建议继续做的事
 
 - 锁定并提交项目真实依赖的 lockfile。
