@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import sys
 import tempfile
@@ -243,9 +244,13 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
 def assert_live_llm_country_resolution(logger: StageLogger) -> None:
     from apps.analyzer.config import get_llm_env_config
 
+    if os.getenv("CI", "").strip().lower() != "true":
+        logger.skip("live_llm_country_resolution", reason="ci_only")
+        return
+
     config = get_llm_env_config(override=True)
     assert config.model == "gpt-5.4", (
-        f"stage7 live LLM test requires MODEL=gpt-5.4 from {config.env_path}; "
+        f"stage7 CI live LLM test requires MODEL=gpt-5.4 from CI env or {config.env_path}; "
         f"got MODEL={config.model}"
     )
 

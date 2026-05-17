@@ -259,7 +259,7 @@
 - 报告应导出 HTML / JSON / PDF 三类产物。
 - 报告应标记数据缺失和低置信度部分。
 - `stage7.py` 仅验证报告 contract 与报告产物，不承担真实样本总控联调。
-- `stage7.py` 会强制真实调用 LLM 验证国家/地区解析，运行前必须提供 `API_KEY`、`BASE_URL`、`MODEL`。
+- `stage7.py` 在本地默认跳过真实 LLM smoke；GitHub CI 中会强制真实调用 LLM 验证国家/地区解析，并要求 `MODEL=gpt-5.4`。
 - 真实样本总控联调由独立 `scripts/test_agent/e2e_mvp.py` 验证入口承担。
 - 当前聚合验证入口 `scripts/test_agent/run.py` 会执行 `stage56_integration.py`、`stage7.py` 与 `e2e_mvp.py`，而 `Google Scholar` 对应的 `stage3.py` 仍是占位入口。
 

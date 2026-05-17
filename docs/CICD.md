@@ -5,6 +5,7 @@
 ## 默认包含的内容
 
 - `ci.yml`：仓库级检查，覆盖 docs、repo hygiene、Markdown 和 shell 脚本校验。
+- `ci.yml` 当前会在项目级验证中执行 Stage 7 真实 LLM smoke；仓库 Secrets 必须提供 `API_KEY` 和 `BASE_URL`，workflow 固定传入 `MODEL=gpt-5.4`。
 - `supply-chain-security.yml`：在 PR 上做依赖变更检查，并在 PR、定时任务和手动触发时运行 OSV 扫描。
 - `release.yml`：手动触发的 release 流水线，用来打包仓库级制品、生成 provenance，并创建 GitHub Release。
 

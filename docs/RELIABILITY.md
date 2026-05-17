@@ -18,6 +18,7 @@ CI/CD 流程结构和 release 自动化的默认方案，统一写在 `docs/CICD
 - 正式 analyzer 运行链路使用 `CITE_ANALYZER_RUNTIME_LOG=quiet|brief|detail` 控制中文可读日志。
 - 测试阶段脚本继续使用 `CITE_ANALYZER_STAGE_LOG=brief|detail`，两套变量不要混用。
 - 外部 API live smoke 入口 `scripts/test_agent/e2e_real_smoke.py` 是 opt-in，不接入默认 `scripts/check-project.sh`。
+- Stage 7 国家/地区解析的真实 LLM smoke 是 GitHub CI 专用检查；本地默认跳过，CI 需要 `API_KEY`、`BASE_URL` 和 `MODEL=gpt-5.4`。
 - 0 施引、OpenAlex 单作者失败、GROBID 命中 / 未命中和 Semantic Scholar 限速等关键分支由 `scripts/test_agent/runtime_logging_contract.py` 的 fake/fixture contract 稳定覆盖。
 
 ## 当前网络重试约定
