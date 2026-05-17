@@ -15,7 +15,13 @@ from packages.author_intel.service import analyze_author_intel
 from packages.citation_sources.models import CitationFetchResult
 from packages.shared.models import TargetPaper
 from scripts.test_agent.stage4 import FakeDBLPClient, FakeOpenAlexClient
-from scripts.test_agent.stage6 import DEFAULT_SAMPLE_PATH, build_local_source_links, load_stage2_sample
+from scripts.test_agent.stage6 import (
+    DEFAULT_SAMPLE_PATH,
+    build_local_source_links,
+    fake_classify_sentiment,
+    fake_reference_matcher,
+    load_stage2_sample,
+)
 from scripts.test_agent.stage_logging import StageLogger
 
 
@@ -26,6 +32,11 @@ def assert_e2e_mvp_real_sample():
     original_resolve = nodes.resolve_target_paper_metadata
     original_fetch = nodes.fetch_citation_candidates_with_live_clients
     original_author_intel = nodes.analyze_author_intel_with_live_clients
+    original_sentiment = nodes.analyze_citation_sentiments
+
+    import packages.sentiment.workflow as workflow
+
+    original_classifier = workflow.classify_sentiment
 
     def fake_resolve_target_paper_metadata(target: TargetPaper) -> TargetPaper:
         _ = target
@@ -60,9 +71,17 @@ def assert_e2e_mvp_real_sample():
             dblp_client=FakeDBLPClient(),
         )
 
+    def fake_analyze_citation_sentiments(*args, **kwargs):
+        from packages.sentiment.service import analyze_citation_sentiments
+
+        kwargs["llm_reference_matcher"] = fake_reference_matcher
+        return analyze_citation_sentiments(*args, **kwargs)
+
     nodes.resolve_target_paper_metadata = fake_resolve_target_paper_metadata
     nodes.fetch_citation_candidates_with_live_clients = fake_fetch_citation_candidates_with_live_clients
     nodes.analyze_author_intel_with_live_clients = fake_analyze_author_intel_with_live_clients
+    nodes.analyze_citation_sentiments = fake_analyze_citation_sentiments
+    workflow.classify_sentiment = fake_classify_sentiment
 
     try:
         state = run_analysis("请查看 DOI 为 10.1145/3368089.3409740 的论文有哪些施引文献、重点学者和引用情感")
@@ -70,6 +89,8 @@ def assert_e2e_mvp_real_sample():
         nodes.resolve_target_paper_metadata = original_resolve
         nodes.fetch_citation_candidates_with_live_clients = original_fetch
         nodes.analyze_author_intel_with_live_clients = original_author_intel
+        nodes.analyze_citation_sentiments = original_sentiment
+        workflow.classify_sentiment = original_classifier
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     assert state["status"] == "report_generated", state["status"]
