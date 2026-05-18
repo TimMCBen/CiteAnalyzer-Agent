@@ -45,28 +45,28 @@ class IntentExtractionModel(BaseModel):
 
 
 def fetch_fulltext_document(*args, **kwargs):
-    """Fetch fulltext document for the analyzer pipeline."""
+    """Lazy-load the full-text fetcher used by Stage 5 nodes."""
     from packages.sentiment.fulltext import fetch_fulltext_document as impl
 
     return impl(*args, **kwargs)
 
 
 def analyze_citation_sentiments(*args, **kwargs):
-    """Analyze citation sentiments for the analyzer pipeline."""
+    """Lazy-load the sentiment analyzer used by Stage 6 nodes."""
     from packages.sentiment.service import analyze_citation_sentiments as impl
 
     return impl(*args, **kwargs)
 
 
 def attach_sentiment_result_to_state(*args, **kwargs):
-    """Attach sentiment result to state for the analyzer pipeline."""
+    """Lazy-load the state adapter for sentiment outputs."""
     from packages.sentiment.service import attach_sentiment_result_to_state as impl
 
     return impl(*args, **kwargs)
 
 
 def initialize_state(user_query: UserQuery) -> AnalysisState:
-    """Create the initial analyzer state for a user query for the analyzer pipeline."""
+    """Create the initial analyzer state for a raw user query."""
     return AnalysisState(
         raw_query=user_query.raw_text,
         request_type="pending",
@@ -79,7 +79,7 @@ def initialize_state(user_query: UserQuery) -> AnalysisState:
 
 
 def parse_user_query(state: AnalysisState) -> AnalysisState:
-    """Parse user query for the analyzer pipeline."""
+    """Classify the user request and extract the target-paper clue."""
     get_runtime_logger().stage_start("stage1", "理解用户输入")
     try:
         parsed = parse_with_llm(state["raw_query"])
@@ -128,7 +128,7 @@ def parse_user_query(state: AnalysisState) -> AnalysisState:
 
 
 def fetch_citation_candidates_node(state: AnalysisState) -> AnalysisState:
-    """Fetch citation candidates node for the analyzer pipeline."""
+    """Fetch and attach citing-paper candidates for the resolved target."""
     get_runtime_logger().stage_start("stage2", "抓取施引文献")
     target_paper = state.get("target_paper")
     if not isinstance(target_paper, TargetPaper):
@@ -156,7 +156,7 @@ def fetch_citation_candidates_node(state: AnalysisState) -> AnalysisState:
 
 
 def resolve_target_paper_node(state: AnalysisState) -> AnalysisState:
-    """Resolve target paper node for the analyzer pipeline."""
+    """Resolve target-paper metadata before citation collection."""
     get_runtime_logger().stage_start("stage1", "解析目标论文元数据")
     target_paper = state.get("target_paper")
     if not isinstance(target_paper, TargetPaper):
@@ -188,7 +188,7 @@ def resolve_target_paper_node(state: AnalysisState) -> AnalysisState:
 
 
 def analyze_author_intel_node(state: AnalysisState) -> AnalysisState:
-    """Analyze author intel node for the analyzer pipeline."""
+    """Build author profiles and scholar labels for citing papers."""
     get_runtime_logger().stage_start("stage4", "查询施引作者画像")
     citing_papers = state.get("citing_papers")
     if not isinstance(citing_papers, list):
@@ -214,7 +214,7 @@ def analyze_author_intel_node(state: AnalysisState) -> AnalysisState:
 
 
 def fetch_fulltext_documents_node(state: AnalysisState) -> AnalysisState:
-    """Fetch fulltext documents node for the analyzer pipeline."""
+    """Fetch available full-text artifacts for each citing paper."""
     get_runtime_logger().stage_start("stage5", "获取施引论文全文")
     citing_papers = state.get("citing_papers")
     if not isinstance(citing_papers, list):
@@ -271,7 +271,7 @@ def fetch_fulltext_documents_node(state: AnalysisState) -> AnalysisState:
 
 
 def analyze_citation_sentiments_node(state: AnalysisState) -> AnalysisState:
-    """Analyze citation sentiments node for the analyzer pipeline."""
+    """Extract citation contexts and attach sentiment classifications."""
     get_runtime_logger().stage_start("stage6", "提取引用上下文并判断情感")
     target_paper = state.get("target_paper")
     citing_papers = state.get("citing_papers")
@@ -307,7 +307,7 @@ def analyze_citation_sentiments_node(state: AnalysisState) -> AnalysisState:
 
 
 def generate_report_node(state: AnalysisState) -> AnalysisState:
-    """Generate report node for the analyzer pipeline."""
+    """Generate and attach the final HTML, JSON, and PDF report artifacts."""
     get_runtime_logger().stage_start("stage7", "生成 HTML / JSON / PDF 报告")
     target_paper = state.get("target_paper")
     citing_papers = state.get("citing_papers")
@@ -349,7 +349,7 @@ def generate_report_node(state: AnalysisState) -> AnalysisState:
 
 
 def parse_with_llm(raw_query: str) -> ParsedUserIntent:
-    """Parse with LLM for the analyzer pipeline."""
+    """Use the configured LLM to extract structured intent from a query."""
     llm = build_llm()
     structured_llm = llm.with_structured_output(IntentExtractionModel, method="function_calling")
 
@@ -381,7 +381,7 @@ def parse_with_llm(raw_query: str) -> ParsedUserIntent:
 
 
 def parse_with_fallback_rules(raw_query: str) -> ParsedUserIntent:
-    """Parse with fallback rules for the analyzer pipeline."""
+    """Extract target-paper intent with deterministic fallback patterns."""
     lowered = raw_query.lower()
 
     if not looks_like_citation_analysis(raw_query):
@@ -438,7 +438,7 @@ def parse_with_fallback_rules(raw_query: str) -> ParsedUserIntent:
 
 
 def should_retry_fallback_for_concrete_id(parsed: ParsedUserIntent, raw_query: str) -> bool:
-    """Return whether retry fallback for concrete id for the analyzer pipeline."""
+    """Return whether deterministic parsing should override weak LLM intent."""
     if parsed.request_type != "citation_analysis":
         return False
     if parsed.paper_query_type in {"doi", "paper_id", "arxiv"}:
@@ -447,7 +447,7 @@ def should_retry_fallback_for_concrete_id(parsed: ParsedUserIntent, raw_query: s
 
 
 def extract_title_clue(raw_query: str) -> Optional[str]:
-    """Extract title clue for the analyzer pipeline."""
+    """Extract a quoted title clue from a natural-language query."""
     matches = re.findall(r"[\"“”](.*?)[\"“”]", raw_query)
     if matches:
         return matches[0].strip()
@@ -455,7 +455,7 @@ def extract_title_clue(raw_query: str) -> Optional[str]:
 
 
 def clean_title_like_query(raw_query: str) -> str:
-    """Normalize title-like user queries before fallback parsing for the analyzer pipeline."""
+    """Normalize title-like user queries before fallback parsing."""
     cleaned = raw_query
     for fragment in ["帮我分析一下", "请查看", "分析一下", "我想知道", "这篇论文", "的被引情况", "有哪些施引文献", "的引用情感", "的主要引用者和情感倾向"]:
         cleaned = cleaned.replace(fragment, "")
@@ -463,7 +463,7 @@ def clean_title_like_query(raw_query: str) -> str:
 
 
 def looks_like_citation_analysis(raw_query: str) -> bool:
-    """Return whether like citation analysis for the analyzer pipeline."""
+    """Return whether a query appears to request paper citation analysis."""
     lowered = raw_query.lower()
     if DOI_PATTERN.search(raw_query) or ARXIV_PATTERN.search(raw_query) or OPENALEX_PATTERN.search(raw_query):
         return True

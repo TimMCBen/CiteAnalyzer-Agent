@@ -1,4 +1,4 @@
-"""Command-line validation helpers for network retry contract."""
+"""Validate shared retry behavior and client retry integration."""
 from __future__ import annotations
 
 import contextlib
@@ -79,9 +79,9 @@ def assert_retry_after_controls_delay() -> None:
     sleeps: list[float] = []
 
     class Headers(dict):
-        """Store headers information used by stage validation."""
+        """Header mapping used to exercise Retry-After parsing."""
         def get(self, key, default=None):
-            """Return get for headers."""
+            """Return header values using the mapping interface."""
             return super().get(key, default)
 
     def rate_limited() -> str:
@@ -168,7 +168,7 @@ def assert_openalex_client_retries_tls_disconnect() -> None:
             return None
 
         def read(self) -> bytes:
-            """Read read for fake response."""
+            """Return a fake OpenAlex response body."""
             return (
                 b'{"results":[{"id":"https://openalex.org/A1","display_name":"Lei Bai",'
                 b'"summary_stats":{"h_index":31},"cited_by_count":500,"works_count":40}]}'
@@ -213,7 +213,7 @@ def assert_dblp_client_retries_transient_failure() -> None:
             return None
 
         def read(self) -> bytes:
-            """Read read for fake response."""
+            """Return a fake DBLP response body."""
             return b'{"result":{"hits":{"hit":[{"info":{"author":"Lei Bai","url":"https://dblp.org/pid/x/y"}}]}}}'
 
     def fake_urlopen(*args, **kwargs):
@@ -236,7 +236,7 @@ def assert_dblp_client_retries_transient_failure() -> None:
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run retry-policy and transient-client contract assertions."""
     logger = StageLogger("network_retry")
     logger.start()
     assert_retry_then_success()

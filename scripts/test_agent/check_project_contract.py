@@ -1,4 +1,4 @@
-"""Command-line validation helpers for check project contract."""
+"""Validate the repository-level check-project shell wrapper."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -37,7 +37,7 @@ def assert_check_project_does_not_override_stage_log_env() -> None:
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run check-project wrapper contract assertions."""
     logger = StageLogger("check_project_contract")
     logger.start()
     assert_check_project_prefers_python_exe_before_python3()

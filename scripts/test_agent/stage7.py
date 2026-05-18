@@ -1,4 +1,4 @@
-"""Command-line validation helpers for stage7."""
+"""Validate Stage 7 report artifact structure and chart contracts."""
 from __future__ import annotations
 
 import json
@@ -267,7 +267,7 @@ def assert_live_llm_country_resolution(logger: StageLogger) -> None:
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run Stage 7 report contract and optional live country-resolution checks."""
     logger = StageLogger("stage7")
     logger.start()
     detail = assert_stage7_reporting_contract()

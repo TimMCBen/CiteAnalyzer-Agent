@@ -1,4 +1,4 @@
-"""Command-line validation helpers for paper identity run LLM baseline."""
+"""Run the LLM-only paper identity baseline over evaluation evidence."""
 from __future__ import annotations
 
 import argparse
@@ -21,7 +21,7 @@ from scripts.eval.paper_identity_run_pipeline import read_jsonl, to_citing_paper
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse args for paper identity evaluation."""
+    """Parse CLI options for the LLM baseline runner."""
     parser = argparse.ArgumentParser(description="Run pure GPT paper identity baseline over the same evidence packet.")
     parser.add_argument("--dataset", required=True, type=Path)
     parser.add_argument("--out", type=Path, default=Path("reports/eval/llm_baseline_predictions.jsonl"))
@@ -29,7 +29,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Write baseline identity predictions for every dataset row."""
     args = parse_args()
     papers = [to_citing_paper(row) for row in read_jsonl(args.dataset)]
     openalex = OpenAlexWorkClient()
@@ -72,6 +72,7 @@ def main() -> None:
 
 
 def _evidence_packet(paper: CitingPaper, evidence) -> dict[str, Any]:
+    """Build the evidence packet passed to the baseline LLM."""
     return {
         "s2_paper_id": paper.canonical_id,
         "s2_title": paper.title,
@@ -87,7 +88,7 @@ def _evidence_packet(paper: CitingPaper, evidence) -> dict[str, Any]:
 
 
 def _work_packet(work) -> dict[str, Any] | None:
-    """Serialize candidate work evidence for LLM baseline review for paper identity evaluation."""
+    """Serialize one candidate work for LLM baseline review."""
     if work is None:
         return None
     return {
@@ -104,7 +105,7 @@ def _work_packet(work) -> dict[str, Any] | None:
 
 
 def _selected_work_id(selected_source: str, evidence) -> str | None:
-    """Choose the selected work identifier for baseline output for paper identity evaluation."""
+    """Choose the selected work identifier for baseline output."""
     if selected_source == "doi_candidate" and evidence.doi_work:
         return evidence.doi_work.work_id
     if selected_source == "openalex_title_candidate" and evidence.title_work_candidates:
@@ -115,7 +116,7 @@ def _selected_work_id(selected_source: str, evidence) -> str | None:
 
 
 def _doi_status(assessment: str) -> str:
-    """Classify DOI verification status for baseline output for paper identity evaluation."""
+    """Classify DOI verification status for baseline output."""
     if assessment == "mismatch":
         return "present_mismatch"
     if assessment == "verified":

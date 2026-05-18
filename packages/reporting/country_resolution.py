@@ -1,4 +1,4 @@
-"""Country resolution helpers for report generation."""
+"""Resolve institution strings into reportable country or region buckets."""
 from __future__ import annotations
 
 import json
@@ -22,7 +22,7 @@ except ImportError:
 
 @dataclass(frozen=True)
 class CountryResolution:
-    """Store country resolution information used by report generation."""
+    """Record one institution-to-country decision with confidence and evidence."""
     institution: str
     country: str
     country_code: str | None
@@ -50,7 +50,7 @@ class CountryResolverProtocol(Protocol):
 
 
 class LLMCountryResolutionModel(BaseModel):
-    """Validate structured LLM country resolution data for report generation."""
+    """Validate the structured country inference returned by the LLM."""
     country: str = Field(description="Country or region name in English, or Unknown if not enough evidence.")
     country_code: Optional[str] = Field(default=None, description="ISO 3166-1 alpha-2 code when known, otherwise null.")
     confidence: str = Field(description="high, medium, or low")
@@ -74,9 +74,9 @@ COUNTRY_RULES: tuple[tuple[tuple[str, ...], str, str], ...] = (
 
 
 class RuleBasedCountryResolver:
-    """Store rule based country resolver information used by report generation."""
+    """Resolve common institution names with deterministic country keyword rules."""
     def resolve(self, institution: str) -> CountryResolution:
-        """Resolve resolve for rule based country resolver."""
+        """Return a high-confidence country when an institution matches known rules."""
         normalized = f" {institution.strip().casefold()} "
         if not normalized.strip():
             return unknown_country_resolution(institution, method="rule", evidence="机构字段为空。")
@@ -96,9 +96,9 @@ class RuleBasedCountryResolver:
 
 
 class LLMCountryResolver:
-    """Store LLM country resolver information used by report generation."""
+    """Use the configured LLM for institution locations not covered by rules."""
     def resolve(self, institution: str) -> CountryResolution:
-        """Resolve resolve for LLM country resolver."""
+        """Infer an institution country with structured confidence and review flags."""
         from apps.analyzer.config import build_llm, invoke_llm_with_retry
 
         llm = build_llm()
@@ -135,7 +135,7 @@ class LLMCountryResolver:
 
 
 class HybridCountryResolver:
-    """Store hybrid country resolver information used by report generation."""
+    """Prefer deterministic country rules and fall back to LLM inference when needed."""
     def __init__(
         self,
         rule_resolver: CountryResolverProtocol | None = None,
@@ -148,7 +148,7 @@ class HybridCountryResolver:
         self._use_llm = use_llm
 
     def resolve(self, institution: str) -> CountryResolution:
-        """Resolve resolve for hybrid country resolver."""
+        """Return the strongest available country inference for an institution."""
         rule_result = self._rule_resolver.resolve(institution)
         if rule_result.country != "Unknown" and rule_result.confidence == "high":
             return rule_result
@@ -173,7 +173,7 @@ def unknown_country_resolution(
     evidence: str,
     needs_review: bool = True,
 ) -> CountryResolution:
-    """Build an unresolved country-resolution result for report generation."""
+    """Create an Unknown country result that preserves why resolution failed."""
     return CountryResolution(
         institution=institution,
         country="Unknown",
@@ -186,7 +186,7 @@ def unknown_country_resolution(
 
 
 def normalize_confidence(value: str) -> str:
-    """Normalize confidence for report generation."""
+    """Constrain country-resolution confidence values to the supported levels."""
     normalized = value.strip().casefold()
     if normalized in {"high", "medium", "low"}:
         return normalized
@@ -194,5 +194,5 @@ def normalize_confidence(value: str) -> str:
 
 
 def trace_to_json(trace: list[CountryResolution]) -> str:
-    """Serialize country-resolution trace data for reports for report generation."""
+    """Serialize country-resolution evidence for inclusion in report provenance."""
     return json.dumps([item.to_dict() for item in trace], ensure_ascii=False, indent=2)

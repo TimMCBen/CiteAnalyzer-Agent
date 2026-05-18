@@ -1,4 +1,4 @@
-"""Command-line validation helpers for stage4."""
+"""Validate Stage 4 author profile enrichment and scholar labels."""
 from __future__ import annotations
 
 import sys
@@ -14,9 +14,9 @@ from scripts.test_agent.stage_logging import StageLogger
 
 
 class FakeOpenAlexClient:
-    """Client wrapper for fake open alex operations used by stage validation."""
+    """Fake OpenAlex client returning author profile fixtures."""
     def lookup_author(self, name: str):
-        """Look up author for fake open alex client."""
+        """Return an OpenAlex-style author profile for known names."""
         mapping = {
             "Alice Smith": {
                 "author_id": "https://openalex.org/A1",
@@ -56,9 +56,9 @@ class FakeOpenAlexClient:
 
 
 class FakeDBLPClient:
-    """Client wrapper for fake d b l p operations used by stage validation."""
+    """Fake DBLP client returning fallback author profile fixtures."""
     def lookup_author(self, name: str):
-        """Look up author for fake d b l p client."""
+        """Return a DBLP-style fallback profile for known names."""
         mapping = {
             "Carol Ng": {
                 "author_id": "https://dblp.org/pid/03/9999",
@@ -76,7 +76,7 @@ class FakeDBLPClient:
 
 
 def build_citing_papers() -> list[CitingPaper]:
-    """Build citing papers for stage validation."""
+    """Build citing-paper fixtures with repeated and weak authors."""
     return [
         CitingPaper(
             canonical_id="paper-1",
@@ -140,7 +140,7 @@ def assert_stage4_labels():
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run Stage 4 author-intelligence assertions."""
     logger = StageLogger("stage4")
     logger.start()
     result = assert_stage4_labels()

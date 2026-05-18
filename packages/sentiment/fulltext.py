@@ -1,4 +1,4 @@
-"""Fulltext helpers for citation sentiment analysis."""
+"""Acquire and normalize citing-paper text for citation-context analysis."""
 from __future__ import annotations
 
 import io
@@ -36,7 +36,7 @@ _ARXIV_METADATA_CLIENT = ArxivMetadataClient()
 
 @dataclass
 class LoadedDocumentPayload:
-    """Store loaded document payload information used by citation sentiment analysis."""
+    """Carry parsed text plus raw artifacts collected from a full-text candidate."""
     document: Optional[FullTextDocument]
     raw_bytes: Optional[bytes] = None
     raw_suffix: Optional[str] = None
@@ -46,7 +46,7 @@ class LoadedDocumentPayload:
 
 @dataclass
 class FullTextAttemptFailure:
-    """Store full text attempt failure information used by citation sentiment analysis."""
+    """Record why one full-text candidate could not supply usable text."""
     source_label: str
     candidate: str
     reason: str
@@ -59,7 +59,7 @@ def select_text_source(
     search_arxiv_fallback: bool = True,
     save_dir: Optional[Path] = None,
 ) -> TextSourceSelection:
-    """Select text source for citation sentiment analysis."""
+    """Choose the best available text for one citing paper with fallback evidence."""
     attempt_failures: list[FullTextAttemptFailure] = []
     document = (provided_documents or {}).get(citing_paper.canonical_id)
     if document and (document.text.strip() or document.raw_path):
@@ -155,7 +155,7 @@ def fetch_fulltext_document(
     save_dir: Optional[Path] = None,
     attempt_failures: Optional[list[FullTextAttemptFailure]] = None,
 ) -> Optional[FullTextDocument]:
-    """Fetch fulltext document for citation sentiment analysis."""
+    """Try candidate full-text sources until one yields enough extracted text."""
     for source_label, candidate in iter_fulltext_candidates(citing_paper, search_arxiv_fallback=search_arxiv_fallback):
         try:
             payload = load_candidate_text(citing_paper.canonical_id, source_label, candidate)
@@ -215,7 +215,7 @@ def fetch_fulltext_document(
 
 
 def iter_fulltext_candidates(citing_paper: CitingPaper, search_arxiv_fallback: bool = True) -> Iterable[tuple[str, str]]:
-    """Iterate over fulltext candidates for citation sentiment analysis."""
+    """Yield prioritized source labels and URLs or paths for full-text loading."""
     scored: list[tuple[int, str, str]] = []
     seen: set[str] = set()
 
@@ -240,7 +240,7 @@ def iter_fulltext_candidates(citing_paper: CitingPaper, search_arxiv_fallback: b
 
 
 def expand_candidate_variants(candidate: str) -> list[str]:
-    """Expand candidate variants for citation sentiment analysis."""
+    """Expand arXiv source archive links into easier PDF, HTML, and abstract URLs."""
     lowered = candidate.lower()
     arxiv_id = extract_arxiv_id(candidate)
     if arxiv_id and ("arxiv.org/e-print/" in lowered or "arxiv.org/src/" in lowered):
@@ -253,7 +253,7 @@ def expand_candidate_variants(candidate: str) -> list[str]:
 
 
 def score_candidate(candidate: str) -> int:
-    """Score candidate for citation sentiment analysis."""
+    """Rank candidate sources so likely full-text files are tried first."""
     lowered = candidate.lower()
     if lowered.startswith("file://") or re.match(r"^[a-zA-Z]:[\\/]", candidate):
         if lowered.endswith(".pdf"):
@@ -277,7 +277,7 @@ def score_candidate(candidate: str) -> int:
 
 
 def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str) -> LoadedDocumentPayload:
-    """Load candidate text for citation sentiment analysis."""
+    """Load local or remote candidate content and normalize it into text."""
     parsed = urlparse(candidate)
     if looks_like_local_path(candidate, parsed):
         path = Path(parsed.path if parsed.scheme == "file" else candidate)
@@ -403,7 +403,7 @@ def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str)
 
 
 def looks_like_local_path(candidate: str, parsed) -> bool:
-    """Return whether like local path for citation sentiment analysis."""
+    """Return whether a candidate string points to a local filesystem path."""
     if parsed.scheme == "file":
         return True
     if parsed.scheme == "":
@@ -412,14 +412,14 @@ def looks_like_local_path(candidate: str, parsed) -> bool:
 
 
 def extract_pdf_text(content: bytes) -> str:
-    """Extract PDF text for citation sentiment analysis."""
+    """Extract normalized text from PDF bytes for downstream citation matching."""
     reader = PdfReader(io.BytesIO(content))
     chunks = [page.extract_text() or "" for page in reader.pages]
     return normalize_whitespace("\n".join(chunks))
 
 
 def extract_html_text(content: str) -> str:
-    """Extract HTML text for citation sentiment analysis."""
+    """Extract visible normalized text from HTML while ignoring script content."""
     soup = BeautifulSoup(content, "html.parser")
     for tag in soup(["script", "style", "noscript"]):
         tag.decompose()
@@ -427,7 +427,7 @@ def extract_html_text(content: str) -> str:
 
 
 def extract_latex_text(content: str) -> str:
-    """Extract latex text for citation sentiment analysis."""
+    """Strip common LaTeX markup into a normalized text approximation."""
     text = re.sub(r"(?<!\\)%.*", " ", content)
     text = re.sub(r"\\begin\{.*?\}|\\end\{.*?\}", " ", text)
     text = re.sub(r"\\[a-zA-Z]+\*?(?:\[[^\]]*\])?(?:\{([^{}]*)\})?", r" \1 ", text)
@@ -436,7 +436,7 @@ def extract_latex_text(content: str) -> str:
 
 
 def search_arxiv_candidates_by_title(title: str) -> list[str]:
-    """Search arXiv candidates by title for citation sentiment analysis."""
+    """Find arXiv full-text candidate URLs when source links are insufficient."""
     if not title.strip():
         return []
 
@@ -468,19 +468,19 @@ def search_arxiv_candidates_by_title(title: str) -> list[str]:
 
 
 def set_arxiv_metadata_client_for_testing(client: ArxivMetadataClient) -> None:
-    """Set arXiv metadata client for testing for citation sentiment analysis."""
+    """Inject an arXiv metadata client so tests can avoid live network calls."""
     global _ARXIV_METADATA_CLIENT
     _ARXIV_METADATA_CLIENT = client
 
 
 def reset_arxiv_metadata_client_for_testing() -> None:
-    """Reset arXiv metadata client for testing for citation sentiment analysis."""
+    """Restore the default live arXiv metadata client after tests."""
     global _ARXIV_METADATA_CLIENT
     _ARXIV_METADATA_CLIENT = ArxivMetadataClient()
 
 
 def _get_with_retry(url: str, policy: RetryPolicy) -> requests.Response:
-    """Return with retry for citation sentiment analysis."""
+    """Download a full-text candidate through the shared retry policy."""
     def fetch() -> requests.Response:
         response = requests.get(
             url,
@@ -494,7 +494,7 @@ def _get_with_retry(url: str, policy: RetryPolicy) -> requests.Response:
 
 
 def titles_look_related(left: str, right: str) -> bool:
-    """Check whether two titles are related enough for fallback use for citation sentiment analysis."""
+    """Return whether two normalized titles overlap enough for arXiv fallback."""
     left_tokens = set(left.split())
     right_tokens = set(right.split())
     if not left_tokens or not right_tokens:
@@ -504,7 +504,7 @@ def titles_look_related(left: str, right: str) -> bool:
 
 
 def extract_arxiv_id(value: str) -> Optional[str]:
-    """Extract arXiv id for citation sentiment analysis."""
+    """Extract an arXiv identifier from common arXiv URL and DOI forms."""
     if not value:
         return None
     match = re.search(r"(?:arxiv\.org/(?:abs|pdf|html|e-print)/|10\.48550/arxiv\.)(?P<identifier>\d{4}\.\d{4,5}(?:v\d+)?)", value, re.IGNORECASE)
@@ -514,12 +514,12 @@ def extract_arxiv_id(value: str) -> Optional[str]:
 
 
 def normalize_for_title(text: str) -> str:
-    """Normalize for title for citation sentiment analysis."""
+    """Convert titles into lowercase token strings for fuzzy source matching."""
     return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
 
 
 def normalize_whitespace(text: str) -> str:
-    """Normalize whitespace for citation sentiment analysis."""
+    """Collapse whitespace in text extracted from heterogeneous source formats."""
     return " ".join(text.split())
 
 
@@ -528,7 +528,7 @@ def build_recovery_evidence_note(
     citing_paper: CitingPaper,
     attempt_failures: list[FullTextAttemptFailure],
 ) -> str:
-    """Build recovery evidence note for citation sentiment analysis."""
+    """Describe text-acquisition fallbacks for unknown sentiment evidence notes."""
     parts = [base_note]
     if attempt_failures:
         sample = ",".join(
@@ -542,13 +542,13 @@ def build_recovery_evidence_note(
 
 
 def short_reason(reason: str) -> str:
-    """Build short user-facing fetch failure reasons for citation sentiment analysis."""
+    """Compress a fetch failure reason for inclusion in compact evidence notes."""
     normalized = normalize_whitespace(reason).replace(" ", "_").lower()
     return normalized[:60] or "unknown"
 
 
 def build_recovery_hint(citing_paper: CitingPaper) -> str:
-    """Build recovery hint for citation sentiment analysis."""
+    """Suggest practical ways to recover missing full text for a citing paper."""
     hints: list[str] = []
     if citing_paper.doi:
         hints.append("check_doi_landing_page")
@@ -565,7 +565,7 @@ def persist_fulltext_document(
     payload: LoadedDocumentPayload,
     save_dir: Optional[Path] = None,
 ) -> None:
-    """Persist fulltext document for citation sentiment analysis."""
+    """Persist parsed text and any raw source artifact for inspection and reuse."""
     base_dir = (save_dir or DEFAULT_STAGE5_DOWNLOAD_DIR).resolve()
     base_dir.mkdir(parents=True, exist_ok=True)
     slug = slugify(citing_paper.title)
@@ -597,7 +597,7 @@ def persist_fulltext_document(
 
 
 def slugify(text: str, limit: int = 80) -> str:
-    """Create filesystem-safe slugs for saved full-text artifacts for citation sentiment analysis."""
+    """Create filesystem-safe directory names for saved full-text artifacts."""
     normalized = re.sub(r"[^a-zA-Z0-9]+", "_", text.strip()).strip("_").lower()
     if not normalized:
         return "untitled"

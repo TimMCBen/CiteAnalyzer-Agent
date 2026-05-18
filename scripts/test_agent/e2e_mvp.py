@@ -1,4 +1,4 @@
-"""Command-line validation helpers for e2e mvp."""
+"""Validate the fixture-backed MVP analyzer workflow end to end."""
 from __future__ import annotations
 
 import shutil
@@ -27,6 +27,7 @@ from scripts.test_agent.stage_logging import StageLogger
 
 
 def assert_e2e_mvp_real_sample():
+    """Run the analyzer against saved samples and fake external clients."""
     target_paper, citing_papers = load_stage2_sample(DEFAULT_SAMPLE_PATH)
     temp_dir = build_local_source_links(citing_papers, target_paper.doi or "")
 
@@ -107,7 +108,7 @@ def assert_e2e_mvp_real_sample():
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run the fixture-backed MVP E2E contract."""
     logger = StageLogger("e2e")
     logger.start()
     state = assert_e2e_mvp_real_sample()

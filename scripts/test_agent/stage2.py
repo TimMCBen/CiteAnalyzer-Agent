@@ -1,4 +1,4 @@
-"""Command-line validation helpers for stage2."""
+"""Validate Stage 2 citation fetching, enrichment, and deduplication."""
 from __future__ import annotations
 
 import sys
@@ -15,9 +15,9 @@ from scripts.test_agent.stage_logging import StageLogger
 
 
 class FakeSemanticScholarClient:
-    """Client wrapper for fake Semantic Scholar operations used by stage validation."""
+    """Fake Semantic Scholar client returning two citation candidates."""
     def resolve_target_paper(self, target_paper: TargetPaper):
-        """Resolve target paper for fake Semantic Scholar client."""
+        """Return the target-paper reference expected by citation lookup."""
         return {
             "paper_id": "S2-TARGET-1",
             "title": target_paper.title,
@@ -25,7 +25,7 @@ class FakeSemanticScholarClient:
         }
 
     def fetch_citations(self, target_paper: TargetPaper, max_results: int = 20):
-        """Fetch citations for fake Semantic Scholar client."""
+        """Return fixture citation rows for Stage 2 merge tests."""
         return [
             {
                 "source_name": "semantic_scholar",
@@ -53,9 +53,9 @@ class FakeSemanticScholarClient:
 
 
 class FakeCrossrefClient:
-    """Client wrapper for fake Crossref operations used by stage validation."""
+    """Fake Crossref client that enriches Semantic Scholar candidates."""
     def enrich_candidate(self, candidate: dict[str, object]):
-        """Enrich a citation candidate fixture for fake Crossref client."""
+        """Attach Crossref metadata to fixture candidates."""
         source_names = list(candidate.get("source_names") or [])
         if candidate.get("source_record_id") == "S2-1":
             source_names.append("crossref")
@@ -83,14 +83,14 @@ class FakeCrossrefClient:
 
 
 class FailingCrossrefClient:
-    """Client wrapper for failing Crossref operations used by stage validation."""
+    """Fake Crossref client that exercises partial-failure handling."""
     def enrich_candidate(self, candidate: dict[str, object]):
-        """Enrich a citation candidate fixture for failing Crossref client."""
+        """Raise the Crossref failure used by the partial-failure test."""
         raise RuntimeError("crossref unavailable")
 
 
 def build_target_paper() -> TargetPaper:
-    """Build target paper for stage validation."""
+    """Build the resolved target-paper fixture for Stage 2 tests."""
     return TargetPaper(
         canonical_id="paper-1",
         paper_query="10.1145/3368089.3409740",
@@ -167,7 +167,7 @@ def assert_missing_title_rejected() -> None:
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run Stage 2 merge, failure, and live-smoke assertions."""
     logger = StageLogger("stage2")
     logger.start()
     merge_result = assert_merge_across_sources()
@@ -187,7 +187,7 @@ def main() -> None:
 
 
 def stage2_result_detail(result, live_enabled: bool) -> str:
-    """Format Stage 2 result details for logs for stage validation."""
+    """Format Stage 2 result counts for validation logs."""
     summary = result.fetch_summary
     return (
         f"live_enabled={live_enabled} target={summary.target_doi or summary.target_title} "
@@ -198,7 +198,7 @@ def stage2_result_detail(result, live_enabled: bool) -> str:
 
 
 def maybe_run_live_smoke(logger: StageLogger) -> None:
-    """Conditionally run run live smoke for stage validation."""
+    """Run the optional live Stage 2 smoke test when enabled."""
     os = __import__("os")
     live_mode = str(os.getenv("STAGE2_LIVE", "")).strip().lower()
     if live_mode not in {"1", "true", "yes"}:

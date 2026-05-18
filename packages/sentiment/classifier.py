@@ -1,4 +1,4 @@
-"""Classifier helpers for citation sentiment analysis."""
+"""LLM-backed classifier for labeling citation-context sentiment."""
 from __future__ import annotations
 
 try:
@@ -20,13 +20,13 @@ from packages.shared.models import TargetPaper
 
 
 class SentimentClassificationModel(BaseModel):
-    """Validate structured sentiment classification data for citation sentiment analysis."""
+    """Validate the sentiment label and Chinese evidence returned by the LLM."""
     label: SentimentLabel = Field(description="positive, neutral, critical, or unknown")
     evidence_note: str = Field(description="用中文简明说明选择该 label 的依据。")
 
 
 def classify_sentiment(context_text: str, target_paper: TargetPaper) -> tuple[SentimentLabel, str]:
-    """Classify sentiment for citation sentiment analysis."""
+    """Label one citation context as positive, neutral, critical, or unknown."""
     normalized = " ".join(context_text.split())
     if len(normalized) < 24:
         return "unknown", "context_too_short_for_llm_classification"

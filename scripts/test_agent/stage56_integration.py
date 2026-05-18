@@ -1,4 +1,4 @@
-"""Command-line validation helpers for stage56 integration."""
+"""Validate analyzer node integration across author, full-text, and sentiment stages."""
 from __future__ import annotations
 
 import sys
@@ -16,6 +16,7 @@ from scripts.test_agent.stage_logging import StageLogger
 
 
 def fake_author_intel(citing_papers: list[CitingPaper]):
+    """Return deterministic author-intelligence outputs for node integration."""
     _ = citing_papers
     from packages.author_intel.models import AuthorIntelResult
 
@@ -53,6 +54,7 @@ def fake_fetch_fulltext_document(
     search_arxiv_fallback: bool = True,
     save_dir: Path | None = None,
 ):
+    """Return a deterministic full-text document for a citing paper."""
     _ = search_arxiv_fallback
     _ = save_dir
     return FullTextDocument(
@@ -71,6 +73,7 @@ def fake_analyze_sentiments(
     search_arxiv_fallback: bool = True,
     **_: object,
 ):
+    """Return deterministic sentiment outputs from provided full-text documents."""
     _ = target_paper
     _ = allow_network
     _ = search_arxiv_fallback
@@ -98,6 +101,7 @@ def fake_analyze_sentiments(
 
 
 def assert_stage56_node_integration():
+    """Assert analyzer nodes pass state through Stages 4, 5, and 6."""
     original_author_intel = nodes.analyze_author_intel_with_live_clients
     original_fetch_fulltext = nodes.fetch_fulltext_document
     original_analyze_sentiments = nodes.analyze_citation_sentiments
@@ -146,7 +150,7 @@ def assert_stage56_node_integration():
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run Stage 5/6 analyzer-node integration assertions."""
     logger = StageLogger("stage56")
     logger.start()
     state = assert_stage56_node_integration()

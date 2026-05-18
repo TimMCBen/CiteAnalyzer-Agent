@@ -1,4 +1,4 @@
-"""Rules helpers for author intelligence."""
+"""Heuristic scholar-label rules for enriched author profiles."""
 from __future__ import annotations
 
 from packages.shared.models import AuthorProfile, ScholarLabel
@@ -9,7 +9,7 @@ HEAVYWEIGHT_MIN_FREQUENCY = 2
 
 
 def build_scholar_label(profile: AuthorProfile, frequency: int) -> ScholarLabel:
-    """Build scholar label for author intelligence."""
+    """Assign an impact label from h-index availability and citation frequency."""
     evidence = [f"citation_frequency={frequency}"]
     trigger_rules: list[str] = []
     confidence_note: str | None = None

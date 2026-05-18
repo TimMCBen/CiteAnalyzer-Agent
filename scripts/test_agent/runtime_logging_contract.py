@@ -1,4 +1,4 @@
-"""Command-line validation helpers for runtime logging contract."""
+"""Validate runtime logging redaction, skip, warning, and GROBID messages."""
 from __future__ import annotations
 
 import io
@@ -33,39 +33,39 @@ from scripts.test_agent.stage_logging import StageLogger
 
 
 class FakeSemanticScholarNoCitations:
-    """Test double that simulates fake Semantic Scholar no citations behavior."""
+    """Fake Semantic Scholar client that returns no citing papers."""
     def resolve_target_paper(self, target_paper: TargetPaper) -> dict[str, object]:
-        """Resolve target paper for fake Semantic Scholar no citations."""
+        """Return a minimal resolved-paper reference."""
         return {"paper_id": target_paper.canonical_id or "fixture:no-citations"}
 
     def fetch_citations(self, paper_ref: dict[str, object], max_results: int = 20) -> list[dict[str, object]]:
-        """Fetch citations for fake Semantic Scholar no citations."""
+        """Return an empty citation list for zero-citation flow tests."""
         return []
 
 
 class FakeCrossrefClient:
-    """Client wrapper for fake Crossref operations used by stage validation."""
+    """Fake Crossref client that preserves citation candidates."""
     def enrich_candidate(self, candidate: dict[str, object]) -> dict[str, object]:
-        """Enrich a citation candidate fixture for fake Crossref client."""
+        """Return the candidate unchanged for zero-citation tests."""
         return candidate
 
 
 class FailingOpenAlexClient:
-    """Client wrapper for failing open alex operations used by stage validation."""
+    """Fake OpenAlex client that raises a transient lookup failure."""
     def lookup_author(self, name: str) -> dict[str, object] | None:
-        """Look up author for failing open alex client."""
+        """Raise a simulated TLS disconnect for author lookup."""
         raise ssl.SSLError("simulated TLS disconnect")
 
 
 class EmptyDBLPClient:
-    """Client wrapper for empty d b l p operations used by stage validation."""
+    """Fake DBLP client that returns no author profile."""
     def lookup_author(self, name: str) -> dict[str, object] | None:
-        """Look up author for empty d b l p client."""
+        """Return no DBLP match for author lookup."""
         return None
 
 
 def capture_detail(callable_obj) -> str:
-    """Capture runtime detail events for assertions for stage validation."""
+    """Capture detail-mode runtime logs from a callable."""
     stream = io.StringIO()
     with redirect_stdout(stream), runtime_context(logger=RuntimeLogger(mode="detail")):
         callable_obj()
@@ -219,7 +219,7 @@ def assert_grobid_logging_contract() -> None:
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run runtime logging contract assertions."""
     logger = StageLogger("runtime_logging")
     logger.start()
     assert_semantic_scholar_field_and_arxiv_contract()

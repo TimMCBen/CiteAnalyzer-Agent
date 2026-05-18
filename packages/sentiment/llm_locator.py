@@ -1,4 +1,4 @@
-"""Llm locator helpers for citation sentiment analysis."""
+"""LLM-assisted target-reference and context locator for citing papers."""
 from __future__ import annotations
 
 import os
@@ -28,7 +28,7 @@ LATEX_CITE_PATTERN = re.compile(r"\\cite[t|p]?\{([^}]+)\}")
 
 
 class ReferenceSelectionModel(BaseModel):
-    """Validate structured reference selection data for citation sentiment analysis."""
+    """Validate the LLM decision that selects the target reference entry."""
     matched: bool = Field(description="Whether one reference entry matches the target paper.")
     reference_index: int = Field(description="Selected reference entry index, or -1 if no match.")
     citation_marker: Optional[str] = Field(default=None, description="The body citation marker linked to that entry, such as [7] or (Smith, 2020).")
@@ -37,7 +37,7 @@ class ReferenceSelectionModel(BaseModel):
 
 
 class ContextSelectionModel(BaseModel):
-    """Validate structured context selection data for citation sentiment analysis."""
+    """Validate the LLM decision that selects a body citation window."""
     matched: bool = Field(description="Whether one context window clearly cites the selected target reference.")
     window_index: int = Field(description="Selected window index, or -1 if no match.")
     evidence_note: str = Field(description="用中文说明为什么选择或拒绝该正文窗口。")
@@ -51,7 +51,7 @@ def locate_reference_context_with_llm(
     max_reference_entries: int = 24,
     max_candidate_windows: int = 16,
 ) -> ReferenceMatch:
-    """Use the LLM to locate target-paper citation context for citation sentiment analysis."""
+    """Match the target paper to references and body windows using structured LLM calls."""
     if not (target_paper.title or target_paper.doi or target_paper.paper_query):
         raise RuntimeError("stage5 llm locator requires target paper hints")
 
@@ -170,7 +170,7 @@ def locate_reference_context_with_llm(
 
 
 def split_document_sections(text: str) -> tuple[str, str, str]:
-    """Split extracted text into citation-search sections for citation sentiment analysis."""
+    """Separate body text from reference text when a bibliography heading is reliable."""
     match = find_bibliography_heading(text)
     if not match:
         return text, "", "reference_section=not_found"
@@ -180,7 +180,7 @@ def split_document_sections(text: str) -> tuple[str, str, str]:
 
 
 def extract_reference_entries(reference_text: str, max_entries: int = 24) -> List[str]:
-    """Extract reference entries for citation sentiment analysis."""
+    """Split a reference section into candidate bibliography entries."""
     if not reference_text.strip():
         return []
 
@@ -193,7 +193,7 @@ def extract_reference_entries(reference_text: str, max_entries: int = 24) -> Lis
 
 
 def build_candidate_windows(body_text: str, citation_marker: Optional[str], max_windows: int = 16) -> List[dict[str, int | str]]:
-    """Build candidate windows for citation sentiment analysis."""
+    """Build body-text windows likely to contain citations for LLM selection."""
     sentences = split_sentences(body_text)
     spans = sentence_spans(body_text)
     windows: List[dict[str, int | str]] = []
@@ -243,7 +243,7 @@ def build_candidate_windows(body_text: str, citation_marker: Optional[str], max_
 
 
 def dedupe_windows(windows: List[dict[str, int | str]]) -> List[dict[str, int | str]]:
-    """Deduplicate windows for citation sentiment analysis."""
+    """Remove duplicate context windows while preserving their first occurrence."""
     unique: List[dict[str, int | str]] = []
     seen: set[str] = set()
     for window in windows:
@@ -256,7 +256,7 @@ def dedupe_windows(windows: List[dict[str, int | str]]) -> List[dict[str, int | 
 
 
 def build_target_hints(target_paper: TargetPaper) -> str:
-    """Build target hints for citation sentiment analysis."""
+    """Format target-paper identifiers for reference-matching prompts."""
     parts = []
     if target_paper.title:
         parts.append(f"title={target_paper.title}")
@@ -268,12 +268,12 @@ def build_target_hints(target_paper: TargetPaper) -> str:
 
 
 def normalize_window_text(text: str) -> str:
-    """Normalize window text for citation sentiment analysis."""
+    """Collapse whitespace in reference entries and candidate windows."""
     return " ".join(text.split())
 
 
 def find_bibliography_heading(text: str) -> Optional[re.Match[str]]:
-    """Find bibliography headings in extracted text for citation sentiment analysis."""
+    """Find a likely References or Bibliography heading near the document end."""
     heading_pattern = re.compile(r"(?im)^(references|bibliography)\s*$")
     matches = list(heading_pattern.finditer(text))
     if not matches:
@@ -301,7 +301,7 @@ def find_bibliography_heading(text: str) -> Optional[re.Match[str]]:
 
 
 def score_bibliography_region(text: str) -> int:
-    """Score bibliography region for citation sentiment analysis."""
+    """Score text after a heading for signals that it is a bibliography."""
     score = 0
     if re.search(r"@(?:article|inproceedings|book|misc)\{", text, re.IGNORECASE):
         score += 5
@@ -319,7 +319,7 @@ def score_bibliography_region(text: str) -> int:
 
 
 def locate_reference_context_from_tex_sources(target_paper: TargetPaper, extracted_dir: Path) -> ReferenceMatch:
-    """Locate target-paper citation context from TeX sources for citation sentiment analysis."""
+    """Recover target citation context directly from extracted TeX source files."""
     if not extracted_dir.exists() or not extracted_dir.is_dir():
         return ReferenceMatch(
             matched_target_reference=None,
@@ -360,7 +360,7 @@ def locate_reference_context_from_tex_sources(target_paper: TargetPaper, extract
 
 
 def find_bibliography_match(extracted_dir: Path, target_doi: str, target_title: str) -> Optional[tuple[str, str, Path]]:
-    """Find bibliography entries that match target-paper hints for citation sentiment analysis."""
+    """Find a BibTeX or bibitem entry matching the target DOI or title."""
     for path in iter_source_files(extracted_dir, suffixes={".bib", ".bbl", ".tex"}):
         text = path.read_text(encoding="utf-8", errors="ignore")
         if path.suffix.lower() == ".bib":
@@ -375,7 +375,7 @@ def find_bibliography_match(extracted_dir: Path, target_doi: str, target_title: 
 
 
 def find_bib_entry_match(text: str, target_doi: str, target_title: str) -> Optional[tuple[str, str]]:
-    """Find BibTeX entries that match target-paper hints for citation sentiment analysis."""
+    """Return the BibTeX key and entry that match target-paper hints."""
     entry_pattern = re.compile(r"@(?P<kind>\w+)\{(?P<key>[^,]+),(?P<body>.*?)(?=@\w+\{|$)", re.DOTALL)
     for match in entry_pattern.finditer(text):
         key = match.group("key").strip()
@@ -389,7 +389,7 @@ def find_bib_entry_match(text: str, target_doi: str, target_title: str) -> Optio
 
 
 def find_bibitem_match(text: str, target_doi: str, target_title: str) -> Optional[tuple[str, str]]:
-    """Find bibitem entries that match target-paper hints for citation sentiment analysis."""
+    """Return the bibitem key and entry that match target-paper hints."""
     entry_pattern = re.compile(r"\\bibitem(?:\[[^\]]+\])?\{(?P<key>[^}]+)\}(?P<body>.*?)(?=\\bibitem|$)", re.DOTALL)
     for match in entry_pattern.finditer(text):
         key = match.group("key").strip()
@@ -403,7 +403,7 @@ def find_bibitem_match(text: str, target_doi: str, target_title: str) -> Optiona
 
 
 def find_body_context_for_citation_key(extracted_dir: Path, citation_key: str) -> Optional[tuple[str, Path]]:
-    """Find body text around a matched citation key for citation sentiment analysis."""
+    """Find source text around a body citation command for a matched key."""
     escaped_key = re.escape(citation_key)
     cite_pattern = re.compile(rf"\\cite[t|p]?\{{[^}}]*\b{escaped_key}\b[^}}]*\}}")
     for path in iter_source_files(extracted_dir, suffixes={".tex"}):
@@ -424,7 +424,7 @@ def find_body_context_for_citation_key(extracted_dir: Path, citation_key: str) -
 
 
 def extract_tex_context(text: str, start: int, end: int, window: int = 280) -> str:
-    """Extract tex context for citation sentiment analysis."""
+    """Extract a bounded TeX paragraph or sentence around a citation command."""
     paragraph_start = find_left_boundary(text, start, patterns=[r"\n\s*\n"])
     paragraph_end = find_right_boundary(text, end, patterns=[r"\n\s*\n"])
 
@@ -449,7 +449,7 @@ def extract_tex_context(text: str, start: int, end: int, window: int = 280) -> s
 
 
 def find_left_boundary(text: str, index: int, patterns: List[str]) -> int:
-    """Find the left context boundary around a citation marker for citation sentiment analysis."""
+    """Find the nearest left boundary for a TeX citation context window."""
     boundary = 0
     prefix = text[:index]
     for pattern in patterns:
@@ -460,7 +460,7 @@ def find_left_boundary(text: str, index: int, patterns: List[str]) -> int:
 
 
 def find_right_boundary(text: str, index: int, patterns: List[str]) -> int:
-    """Find the right context boundary around a citation marker for citation sentiment analysis."""
+    """Find the nearest right boundary for a TeX citation context window."""
     boundary = len(text)
     suffix = text[index:]
     for pattern in patterns:
@@ -471,7 +471,7 @@ def find_right_boundary(text: str, index: int, patterns: List[str]) -> int:
 
 
 def iter_source_files(root: Path, suffixes: set[str]) -> List[Path]:
-    """Iterate over source files for citation sentiment analysis."""
+    """Return sorted extracted source files whose suffixes are useful for TeX matching."""
     paths: List[Path] = []
     for path in root.rglob("*"):
         if path.is_file() and path.suffix.lower() in suffixes:
@@ -481,7 +481,7 @@ def iter_source_files(root: Path, suffixes: set[str]) -> List[Path]:
 
 
 def evenly_spaced_indexes(total: int, max_windows: int) -> List[int]:
-    """Choose evenly spaced candidate indexes for prompt windows for citation sentiment analysis."""
+    """Sample candidate-window indexes across long documents for prompt coverage."""
     if total <= max_windows:
         return list(range(total))
     if max_windows <= 1:
@@ -495,7 +495,7 @@ def evenly_spaced_indexes(total: int, max_windows: int) -> List[int]:
 
 
 def mark_target_cite_in_context(context: str, citation_key: str) -> str:
-    """Mark the target citation inside extracted context text for citation sentiment analysis."""
+    """Wrap the target TeX citation command so downstream prompts can anchor on it."""
     escaped_key = re.escape(citation_key)
     cite_pattern = re.compile(rf"(\\cite[t|p]?\{{[^}}]*\b{escaped_key}\b[^}}]*\}})")
     return cite_pattern.sub(r"**\1**", context)

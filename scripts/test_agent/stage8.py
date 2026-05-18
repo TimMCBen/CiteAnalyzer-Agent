@@ -1,4 +1,4 @@
-"""Command-line validation helpers for stage8."""
+"""Reserve Stage 8 validation for future expanded E2E checks."""
 from __future__ import annotations
 
 import sys
@@ -12,7 +12,7 @@ from scripts.test_agent.stage_logging import StageLogger
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Emit the current Stage 8 placeholder status."""
     logger = StageLogger("stage8")
     logger.start()
     logger.skip("end_to_end_validation", "TODO: stage8 placeholder; e2e_mvp.py is the current MVP E2E entry")

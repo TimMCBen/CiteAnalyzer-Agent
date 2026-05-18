@@ -1,4 +1,4 @@
-"""Command-line validation helpers for stage5."""
+"""Validate Stage 5 full-text selection, fetching, and arXiv cache use."""
 from __future__ import annotations
 
 import json
@@ -24,7 +24,7 @@ DEFAULT_SAMPLE_PATH = REPO_ROOT / "docs" / "generated" / "stage2-live-10.1145.33
 
 
 def load_stage2_sample(sample_path: Path) -> tuple[TargetPaper, list[CitingPaper]]:
-    """Load stage2 sample for stage validation."""
+    """Load saved Stage 2 target and citing-paper fixtures."""
     payload = json.loads(sample_path.read_text(encoding="utf-8"))
     fetch_result = payload["fetch_result"]
     target_paper = TargetPaper(
@@ -55,7 +55,7 @@ def load_stage2_sample(sample_path: Path) -> tuple[TargetPaper, list[CitingPaper
 
 
 def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) -> Path:
-    """Build local source links for stage validation."""
+    """Create local PDF, HTML, and TeX fixtures for full-text tests."""
     temp_dir = Path(tempfile.mkdtemp(prefix="stage5-fixtures-", dir=REPO_ROOT))
     html_path = temp_dir / "citing-2.html"
     tex_path = temp_dir / "citing-3.tex"
@@ -100,7 +100,7 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
 
 
 def build_simple_pdf_bytes(text: str) -> bytes:
-    """Build simple PDF bytes for stage validation."""
+    """Build a minimal PDF fixture containing the provided text."""
     safe_text = text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
     content_lines = ["BT", "/F1 12 Tf", "72 720 Td"]
     for raw_line in wrap_text(text=safe_text, width=85):
@@ -132,7 +132,7 @@ def build_simple_pdf_bytes(text: str) -> bytes:
 
 
 def wrap_text(text: str, width: int) -> list[str]:
-    """Wrap text for fixture PDF generation for stage validation."""
+    """Wrap fixture PDF text into simple content-stream lines."""
     words = text.split()
     lines: list[str] = []
     current: list[str] = []
@@ -211,7 +211,7 @@ def assert_stage5_unavailable_paper_guidance(sample_path: Path = DEFAULT_SAMPLE_
 
 
 class FakeArxivMetadataClient:
-    """Client wrapper for fake arXiv metadata operations used by stage validation."""
+    """Fake arXiv metadata client that tracks cache behavior."""
     def __init__(self) -> None:
         self.calls = 0
         self.cache_hits = 0
@@ -219,7 +219,7 @@ class FakeArxivMetadataClient:
         self._cache: dict[str, list[CandidateWork]] = {}
 
     def search_by_title(self, title: str, *, max_results: int = 3) -> list[CandidateWork]:
-        """Search by title for fake arXiv metadata client."""
+        """Return cached or generated arXiv candidates for a title."""
         normalized = title.lower().strip()
         if normalized in self._cache:
             self.cache_hits += 1
@@ -255,7 +255,7 @@ def assert_stage5_arxiv_search_uses_shared_cache() -> dict[str, int]:
 
 
 def maybe_run_live_fetch_smoke(logger: StageLogger) -> None:
-    """Conditionally run run live fetch smoke for stage validation."""
+    """Run the optional live full-text fetch smoke test when enabled."""
     live_mode = str(os.getenv("STAGE5_FETCH_LIVE", "")).strip().lower()
     if live_mode not in {"1", "true", "yes"}:
         logger.detail("live_fetch_enabled=False env=STAGE5_FETCH_LIVE")
@@ -280,7 +280,7 @@ def maybe_run_live_fetch_smoke(logger: StageLogger) -> None:
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run Stage 5 full-text and cache contract assertions."""
     logger = StageLogger("stage5")
     logger.start()
     fulltext_detail = assert_stage5_local_fulltext_validation()

@@ -1,4 +1,4 @@
-"""Command-line validation helpers for paper identity."""
+"""Validate paper identity rules, clients, sidecar flow, and scoring helpers."""
 from __future__ import annotations
 
 import sys
@@ -40,7 +40,7 @@ def work(
     authors: list[str] | None = None,
     source: str = "openalex",
 ) -> CandidateWork:
-    """Build a candidate work fixture for stage validation."""
+    """Build a candidate work fixture for identity tests."""
     return CandidateWork(
         source=source,
         work_id=work_id,
@@ -288,7 +288,7 @@ class FakeUrlopenResponse:
         return None
 
     def read(self) -> bytes:
-        """Read read for fake urlopen response."""
+        """Return an empty OpenAlex search response body."""
         return b'{"results":[]}'
 
 
@@ -320,35 +320,35 @@ def assert_openalex_http_attempt_count_tracks_retries() -> dict[str, object]:
 
 
 class FakeOpenAlexClient:
-    """Client wrapper for fake open alex operations used by stage validation."""
+    """Fake OpenAlex work client that records DOI and title lookup calls."""
     def __init__(self) -> None:
         self.doi_calls = 0
         self.title_calls = 0
 
     def lookup_work_by_doi(self, doi: str | None) -> CandidateWork | None:
-        """Look up work by doi for fake open alex client."""
+        """Record DOI lookup attempts without returning a match."""
         self.doi_calls += 1
         return None
 
     def search_work_by_title(self, title: str, *, per_page: int = 3) -> list[CandidateWork]:
-        """Search work by title for fake open alex client."""
+        """Return a title-matched fake OpenAlex work."""
         self.title_calls += 1
         return [work(title, doi=None, authors=["Lei Bai", "Example Coauthor"])]
 
 
 class FakeArxivClient:
-    """Client wrapper for fake arXiv operations used by stage validation."""
+    """Fake arXiv client that records ID and title lookup calls."""
     def __init__(self) -> None:
         self.id_calls = 0
         self.title_calls = 0
 
     def lookup_ids(self, arxiv_ids: list[str]) -> list[CandidateWork]:
-        """Look up ids for fake arXiv client."""
+        """Return an arXiv candidate for ID-hint lookups."""
         self.id_calls += 1
         return [work("SPC: Evolving Self-Play Critic via Adversarial Games for LLM Reasoning", source="arxiv")]
 
     def search_by_title(self, title: str, *, max_results: int = 3) -> list[CandidateWork]:
-        """Search by title for fake arXiv client."""
+        """Return an arXiv candidate for title-search lookups."""
         self.title_calls += 1
         return [work(title, source="arxiv")]
 
@@ -420,7 +420,7 @@ def assert_eval_scoring_normalizes_arxiv_and_counts_api() -> dict[str, object]:
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run paper identity contract assertions."""
     logger = StageLogger("paper_identity")
     logger.start()
     rule_summary = assert_rule_decisions()

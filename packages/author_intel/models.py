@@ -1,4 +1,4 @@
-"""Models helpers for author intelligence."""
+"""Result containers for author profile enrichment and scholar labeling."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -9,7 +9,7 @@ from packages.shared.models import AuthorProfile, AuthorSummary, ScholarLabel
 
 @dataclass
 class AuthorIntelResult:
-    """Store author intel result information used by author intelligence."""
+    """Bundle enriched author profiles, derived labels, summary counts, and errors."""
     author_profiles: List[AuthorProfile] = field(default_factory=list)
     scholar_labels: List[ScholarLabel] = field(default_factory=list)
     author_summary: AuthorSummary = field(default_factory=AuthorSummary)

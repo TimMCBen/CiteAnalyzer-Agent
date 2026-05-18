@@ -37,3 +37,39 @@
 - `packages/**/*.py`
 - `scripts/eval/**/*.py`
 - `scripts/test_agent/**/*.py`
+
+---
+
+## [2026-05-18 06:20] | Task: Review and tighten Python purpose comments
+
+### 🤖 Execution Context
+
+- **Agent ID**: `Codex`
+- **Base Model**: `gpt-5`
+- **Runtime**: `Codex CLI`
+
+### 📥 User Query
+
+> 按照注释要求对目前项目进行注释，不要修改代码；按已确认计划执行。
+
+### 🛠 Changes Overview
+
+**Scope:** `apps/`, `packages/`, `scripts/`, `docs/`
+
+**Key Actions:**
+
+- **Purpose rewrite**: 将通过机器覆盖但语义偏模板化的 Python docstring 改为职责明确的用途说明。
+- **Contract tightening**: 扩展 `comment_contract.py` 的低质量 marker，拦截 `for the analyzer pipeline`、`for report generation`、`for citation sentiment analysis` 等模板句回流。
+- **History update**: 复用同一注释任务 history，记录本轮质量复核和验证结果。
+
+### 🧠 Design Intent (Why)
+
+上一轮已经做到覆盖率通过，但仍有部分 docstring 只是复述模块名或阶段名。此轮只改用途说明并收紧合同，目标是让注释对后续维护和 Agent 阅读真正有信息量，同时避免运行逻辑变化。
+
+### 📁 Files Modified
+
+- `apps/**/*.py`
+- `packages/**/*.py`
+- `scripts/eval/**/*.py`
+- `scripts/test_agent/**/*.py`
+- `docs/histories/2026-05/20260518-0509-python-purpose-comments.md`

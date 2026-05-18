@@ -1,4 +1,4 @@
-"""Command-line validation helpers for LLM prompt contract."""
+"""Validate that LLM prompts require Chinese evidence text."""
 from __future__ import annotations
 
 from types import SimpleNamespace
@@ -112,7 +112,7 @@ def assert_locator_prompts_require_chinese_evidence() -> None:
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run prompt-language contract assertions."""
     logger = StageLogger("llm_prompt_contract")
     logger.start()
     assert_classifier_prompt_requires_chinese_evidence()

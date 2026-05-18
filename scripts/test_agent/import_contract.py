@@ -1,4 +1,4 @@
-"""Command-line validation helpers for import contract."""
+"""Validate that core imports do not require optional full-text dependencies."""
 from __future__ import annotations
 
 import builtins
@@ -34,7 +34,7 @@ def assert_stage1_import_path_does_not_require_bs4() -> None:
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run import-boundary contract assertions."""
     logger = StageLogger("import_contract")
     logger.start()
     logger.detail("guarded_optional_dependency=bs4 import_target=apps.analyzer.nodes symbols=parse_user_query,resolve_target_paper_node")

@@ -14,7 +14,7 @@ from packages.shared.runtime_logging import get_runtime_logger
 
 
 class OpenAlexWorkClient:
-    """Client wrapper for open alex work operations used by paper identity matching."""
+    """Query OpenAlex works and authors for paper identity disambiguation."""
     BASE_URL = "https://api.openalex.org"
 
     def __init__(
@@ -46,7 +46,7 @@ class OpenAlexWorkClient:
         self.http_attempt_count = 0
 
     def lookup_work_by_doi(self, doi: str | None) -> CandidateWork | None:
-        """Look up work by doi for open alex work client."""
+        """Return the OpenAlex work candidate addressed by a DOI."""
         clean_doi = _normalize_doi(doi)
         if not clean_doi:
             return None
@@ -59,7 +59,7 @@ class OpenAlexWorkClient:
         return works[0] if works else None
 
     def search_work_by_title(self, title: str, *, per_page: int = 3) -> list[CandidateWork]:
-        """Search work by title for open alex work client."""
+        """Return title-search work candidates for later identity scoring."""
         query = str(title or "").strip()
         if not query:
             return []
@@ -71,7 +71,7 @@ class OpenAlexWorkClient:
         return list(self._work_cache[cache_key])
 
     def lookup_author_by_id(self, author_id: str | None) -> dict[str, Any] | None:
-        """Look up author by id for open alex work client."""
+        """Return an OpenAlex author profile for a work-authorship identifier."""
         clean_id = _normalize_openalex_id(author_id, prefix="A")
         if not clean_id:
             return None
@@ -86,7 +86,7 @@ class OpenAlexWorkClient:
         return self._author_cache[clean_id]
 
     def _build_url(self, path: str, params: dict[str, str]) -> str:
-        """Build url for open alex work client."""
+        """Compose OpenAlex request URLs with optional auth and mailto hints."""
         query_params = dict(params)
         if self._api_key:
             query_params["api_key"] = self._api_key
@@ -96,7 +96,7 @@ class OpenAlexWorkClient:
         return f"{self.BASE_URL}{path}" + (f"?{query}" if query else "")
 
     def _get_json(self, url: str) -> dict[str, Any]:
-        """Return JSON for open alex work client."""
+        """Fetch an OpenAlex JSON document while logging redacted request details."""
         get_runtime_logger().detail(
             "openalex.work",
             "正在请求 OpenAlex 论文身份候选",
@@ -114,7 +114,7 @@ class OpenAlexWorkClient:
         return retry_call(lambda: self._read_json(req), self._retry_policy)
 
     def _read_json(self, req: request.Request) -> dict[str, Any]:
-        """Read JSON for open alex work client."""
+        """Decode an OpenAlex response and update request-attempt counters."""
         self.request_count += 1
         self.http_attempt_count += 1
         with request.urlopen(req, timeout=self._timeout_seconds) as response:

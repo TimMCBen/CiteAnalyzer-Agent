@@ -1,4 +1,4 @@
-"""Command-line validation helpers for e2e real smoke."""
+"""Run the opt-in live analyzer smoke test against external services."""
 from __future__ import annotations
 
 import argparse
@@ -16,7 +16,7 @@ DEFAULT_TARGET = "https://arxiv.org/abs/2504.19162"
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run live analysis and assert all report artifacts are created."""
     parser = argparse.ArgumentParser(description="Opt-in live smoke for Chinese runtime logs.")
     parser.add_argument("--target", default=DEFAULT_TARGET)
     parser.add_argument("--max-citations", type=int, default=3)

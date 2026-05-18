@@ -15,7 +15,7 @@ def run_stage1_analysis(
     runtime_log_mode: RuntimeLogMode | None = None,
     max_citations: int | None = None,
 ) -> AnalysisState:
-    """Run stage1 analysis for the analyzer pipeline."""
+    """Parse a user query into the initial analyzer state."""
     return _invoke_graph(
         raw_text,
         build_stage1_graph,
@@ -30,7 +30,7 @@ def run_stage2_analysis(
     runtime_log_mode: RuntimeLogMode | None = None,
     max_citations: int | None = None,
 ) -> AnalysisState:
-    """Run stage2 analysis for the analyzer pipeline."""
+    """Resolve the target paper and collect normalized citation candidates."""
     return _invoke_graph(
         raw_text,
         build_stage2_graph,
@@ -45,7 +45,7 @@ def run_stage6_analysis(
     runtime_log_mode: RuntimeLogMode | None = None,
     max_citations: int | None = None,
 ) -> AnalysisState:
-    """Run stage6 analysis for the analyzer pipeline."""
+    """Run the citation-context and sentiment stages for a target paper."""
     return _invoke_graph(
         raw_text,
         build_stage6_graph,
@@ -60,7 +60,7 @@ def run_stage7_analysis(
     runtime_log_mode: RuntimeLogMode | None = None,
     max_citations: int | None = None,
 ) -> AnalysisState:
-    """Run stage7 analysis for the analyzer pipeline."""
+    """Run the full MVP pipeline through report artifact generation."""
     return _invoke_graph(
         raw_text,
         build_stage7_graph,
@@ -75,7 +75,7 @@ def run_analysis(
     runtime_log_mode: RuntimeLogMode | None = None,
     max_citations: int | None = None,
 ) -> AnalysisState:
-    """Run analysis for the analyzer pipeline."""
+    """Run the default end-to-end citation analysis workflow."""
     return run_stage7_analysis(
         raw_text,
         runtime_log_mode=runtime_log_mode,
@@ -90,7 +90,7 @@ def _invoke_graph(
     runtime_log_mode: RuntimeLogMode | None,
     max_citations: int | None,
 ) -> AnalysisState:
-    """Invoke graph for the analyzer pipeline."""
+    """Invoke a stage graph with runtime logging and citation limits."""
     query = UserQuery(raw_text=raw_text)
     state = initialize_state(query)
     app = graph_builder()
@@ -108,7 +108,7 @@ def _invoke_graph(
 
 
 def _build_summary_fields(state: AnalysisState) -> dict[str, object]:
-    """Build summary fields for the analyzer pipeline."""
+    """Build user-facing runtime summary fields from final analyzer state."""
     target = state.get("target_paper")
     target_label = "unknown"
     if target is not None:

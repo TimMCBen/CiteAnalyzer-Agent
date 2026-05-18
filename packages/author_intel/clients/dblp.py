@@ -9,7 +9,7 @@ from packages.shared.network_retry import RetryPolicy, retry_call
 
 
 class DBLPClient:
-    """Client wrapper for d b l p operations used by author intelligence."""
+    """Query DBLP author search as a fallback identity signal for authors."""
     BASE_URL = "https://dblp.org/search/author/api"
 
     def __init__(
@@ -33,7 +33,7 @@ class DBLPClient:
         )
 
     def lookup_author(self, name: str) -> dict[str, Any] | None:
-        """Look up author for d b l p client."""
+        """Return the best DBLP author candidate for a display name."""
         query = str(name or "").strip()
         if not query:
             return None
@@ -85,6 +85,6 @@ class DBLPClient:
         }
 
     def _read_json(self, req: request.Request) -> dict[str, Any]:
-        """Read JSON for d b l p client."""
+        """Decode a DBLP HTTP response body into a JSON mapping."""
         with request.urlopen(req, timeout=self._timeout_seconds) as response:
             return json.loads(response.read().decode("utf-8"))

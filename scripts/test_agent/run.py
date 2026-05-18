@@ -1,4 +1,4 @@
-"""Command-line validation helpers for run."""
+"""Aggregate default stage and contract validation scripts."""
 from __future__ import annotations
 
 import argparse
@@ -51,14 +51,14 @@ AGGREGATED_STAGE_SCRIPTS = [
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    """Parse args for stage validation."""
+    """Parse CLI options for aggregate stage validation."""
     parser = argparse.ArgumentParser(description="Run CiteAnalyzer stage validations.")
     parser.add_argument("--log", choices=("brief", "detail"), default=None, help="Stage log verbosity.")
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Run each default validation script with a shared log mode."""
     args = parse_args(argv)
     log_mode = args.log or get_log_mode()
     logger = StageLogger("aggregate", mode=log_mode)

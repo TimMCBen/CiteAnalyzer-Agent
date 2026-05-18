@@ -1,4 +1,4 @@
-"""Command-line validation helpers for paper identity run pipeline."""
+"""Run the rule-first paper identity pipeline over evaluation rows."""
 from __future__ import annotations
 
 import argparse
@@ -18,12 +18,12 @@ from packages.paper_identity.service import resolve_paper_identity
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
-    """Read JSONl for paper identity evaluation."""
+    """Read JSONL rows from an evaluation dataset."""
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
 def to_citing_paper(row: dict[str, Any]) -> CitingPaper:
-    """Convert citing paper for paper identity evaluation."""
+    """Convert one evaluation row into a citing-paper model."""
     sample_id = str(row.get("canonical_id") or row.get("s2_paper_id") or row.get("title") or "").strip()
     return CitingPaper(
         canonical_id=sample_id,
@@ -40,7 +40,7 @@ def to_citing_paper(row: dict[str, Any]) -> CitingPaper:
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse args for paper identity evaluation."""
+    """Parse CLI options for the pipeline evaluation runner."""
     parser = argparse.ArgumentParser(description="Run rule-first paper identity pipeline on an evaluation JSONL file.")
     parser.add_argument("--dataset", required=True, type=Path)
     parser.add_argument("--out", type=Path, default=Path("reports/eval/pipeline_predictions.jsonl"))
@@ -49,7 +49,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    """Run this module as a command-line validation or utility entry point."""
+    """Write rule-first paper identity predictions for a dataset."""
     args = parse_args()
     rows = read_jsonl(args.dataset)
     papers = [to_citing_paper(row) for row in rows]
@@ -77,7 +77,7 @@ def main() -> None:
 
 
 def _identity_label(row: dict[str, Any]) -> str:
-    """Map identity decisions to evaluation labels for paper identity evaluation."""
+    """Map identity decisions to comparable evaluation labels."""
     confidence = row.get("paper_match_confidence")
     if confidence in {"high", "medium"}:
         return "same_paper"

@@ -1,4 +1,4 @@
-"""Normalize helpers for author intelligence."""
+"""Author-name normalization and candidate aggregation for scholar profiling."""
 from __future__ import annotations
 
 import re
@@ -23,14 +23,14 @@ class AuthorCandidate:
 
 
 def normalize_author_name(name: str) -> str:
-    """Normalize author name for author intelligence."""
+    """Convert display names into stable keys for merging repeated authors."""
     collapsed = NAME_SEP_PATTERN.sub(" ", str(name or "").strip().casefold())
     cleaned = NON_WORD_PATTERN.sub("", collapsed)
     return NAME_SEP_PATTERN.sub(" ", cleaned).strip()
 
 
 def build_author_candidates(citing_papers: Iterable[CitingPaper]) -> list[AuthorCandidate]:
-    """Build author candidates for author intelligence."""
+    """Aggregate authors from citing papers into frequency-ranked lookup candidates."""
     merged: dict[str, AuthorCandidate] = {}
 
     for paper in citing_papers:

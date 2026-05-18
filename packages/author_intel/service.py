@@ -1,4 +1,4 @@
-"""Service helpers for author intelligence."""
+"""Author-intelligence service for profiling citing-paper authors."""
 from __future__ import annotations
 
 from typing import Protocol
@@ -14,13 +14,13 @@ AUTHOR_INTEL_NETWORK_FAILURE_BUDGET = 3
 
 
 class OpenAlexClientProtocol(Protocol):
-    """Define the protocol expected by author intelligence services."""
+    """External author lookup client expected from OpenAlex adapters."""
     def lookup_author(self, name: str) -> dict[str, object] | None:
         ...
 
 
 class DBLPClientProtocol(Protocol):
-    """Define the protocol expected by author intelligence services."""
+    """External author lookup client expected from DBLP adapters."""
     def lookup_author(self, name: str) -> dict[str, object] | None:
         ...
 
@@ -30,7 +30,7 @@ def analyze_author_intel(
     openalex_client: OpenAlexClientProtocol,
     dblp_client: DBLPClientProtocol,
 ) -> AuthorIntelResult:
-    """Analyze author intel for author intelligence."""
+    """Build normalized author profiles and scholar labels for citing papers."""
     candidates = build_author_candidates(citing_papers)
     result = AuthorIntelResult()
     network_failures = 0
@@ -96,7 +96,7 @@ def analyze_author_intel(
 
 
 def analyze_author_intel_with_live_clients(citing_papers: list[CitingPaper]) -> AuthorIntelResult:
-    """Analyze author intel with live clients for author intelligence."""
+    """Run author profiling with the default live OpenAlex and DBLP clients."""
     from packages.author_intel.clients import DBLPClient, OpenAlexClient
 
     return analyze_author_intel(
@@ -107,7 +107,7 @@ def analyze_author_intel_with_live_clients(citing_papers: list[CitingPaper]) -> 
 
 
 def attach_author_intel_result_to_state(state: AnalysisState, result: AuthorIntelResult) -> AnalysisState:
-    """Attach author intel result to state for author intelligence."""
+    """Attach author profiles, labels, summary, and errors to analyzer state."""
     state["author_profiles"] = result.author_profiles  # type: ignore[assignment]
     state["scholar_labels"] = result.scholar_labels  # type: ignore[assignment]
     state["author_summary"] = result.author_summary  # type: ignore[assignment]
@@ -119,7 +119,7 @@ def attach_author_intel_result_to_state(state: AnalysisState, result: AuthorInte
 
 
 def _needs_dblp_fallback(openalex_record: dict[str, object] | None) -> bool:
-    """Decide whether an author profile needs DBLP fallback for author intelligence."""
+    """Decide when an OpenAlex author hit lacks enough evidence for labeling."""
     if openalex_record is None:
         return True
     return openalex_record.get("h_index") is None
@@ -131,7 +131,7 @@ def _build_profile(
     openalex_record: dict[str, object] | None,
     dblp_record: dict[str, object] | None,
 ) -> AuthorProfile:
-    """Build profile for author intelligence."""
+    """Merge OpenAlex and DBLP evidence into one author profile."""
     source_ids: dict[str, str] = {}
     evidence_sources: list[str] = []
     affiliations: list[str] = []
@@ -186,7 +186,7 @@ def _build_profile(
 
 
 def _build_summary(author_profiles: list[AuthorProfile], scholar_labels: list) -> AuthorSummary:
-    """Build summary for author intelligence."""
+    """Summarize author profile coverage and high-impact labels."""
     summary = AuthorSummary(total_authors=len(author_profiles))
     summary.matched_profiles = sum(1 for profile in author_profiles if profile.evidence_sources)
     summary.high_impact_candidates = sum(1 for label in scholar_labels if label.label == "high_impact_candidate")
@@ -196,7 +196,7 @@ def _build_summary(author_profiles: list[AuthorProfile], scholar_labels: list) -
 
 
 def _coerce_optional_int(value: object) -> int | None:
-    """Coerce optional numeric author metrics for author intelligence."""
+    """Coerce optional numeric author metrics into integers."""
     if isinstance(value, int):
         return value
     if isinstance(value, str) and value.strip():
