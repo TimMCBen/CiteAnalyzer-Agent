@@ -171,9 +171,9 @@ def _is_transient_network_error(exc: BaseException) -> bool:
     if requests is not None and isinstance(
         exc,
         (
-            requests.Timeout,
-            requests.ConnectionError,
-            requests.SSLError,
+            requests.exceptions.Timeout,
+            requests.exceptions.ConnectionError,
+            requests.exceptions.SSLError,
         ),
     ):
         return True
