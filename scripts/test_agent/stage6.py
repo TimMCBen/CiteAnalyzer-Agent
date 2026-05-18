@@ -56,40 +56,22 @@ def load_stage2_sample(sample_path: Path) -> tuple[TargetPaper, list[CitingPaper
 def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) -> Path:
     """Create local full-text fixtures with positive, neutral, and critical contexts."""
     temp_dir = Path(tempfile.mkdtemp(prefix="stage6-fixtures-", dir=REPO_ROOT))
-    html_path = temp_dir / "citing-2.html"
     pdf_path = temp_dir / "citing-1.pdf"
+    pdf2_path = temp_dir / "citing-2.pdf"
     pdf3_path = temp_dir / "citing-3.pdf"
-    indirect_html_path = temp_dir / "citing-5.html"
-
-    html_path.write_text(
-        (
-            "<html><body><article>"
-            "<h1>Introduction</h1>"
-            "<p>Smart-contract studies often summarize previous security models [12].</p>"
-            "<p>In this paper we use [12] only as background to frame transparency-related concerns.</p>"
-            "<h2>References</h2>"
-            f"<p>[12] Target Work. {target_doi}. Towards Automated Verification of Smart Contract Fairness.</p>"
-            "</article></body></html>"
-        ),
-        encoding="utf-8",
-    )
-    indirect_html_path.write_text(
-        (
-            "<html><body><article>"
-            "<h1>Discussion</h1>"
-            "<p>Earlier work [3] gave the first systematic treatment of smart contract fairness issues.</p>"
-            "<p>We rely on [3] as background framing when discussing attacker-visible information leakage.</p>"
-            "<h2>References</h2>"
-            f"<p>[3] Target Work. {target_doi}. Towards Automated Verification of Smart Contract Fairness.</p>"
-            "</article></body></html>"
-        ),
-        encoding="utf-8",
-    )
+    pdf5_path = temp_dir / "citing-5.pdf"
     pdf_path.write_bytes(
         build_simple_pdf_bytes(
             "Introduction. Our detector explicitly builds on the vulnerability model introduced in [5]. "
             "Following [5], we extend the analysis pipeline to identify open-secret attack paths. "
             f"References. [5] Target Work. {target_doi}. Towards Automated Verification of Smart Contract Fairness."
+        )
+    )
+    pdf2_path.write_bytes(
+        build_simple_pdf_bytes(
+            "Introduction. Smart-contract studies often summarize previous security models [12]. "
+            "In this paper we use [12] only as background to frame transparency-related concerns. "
+            f"References. [12] Target Work. {target_doi}. Towards Automated Verification of Smart Contract Fairness."
         )
     )
     pdf3_path.write_bytes(
@@ -99,13 +81,20 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
             f"References. [7] Target Work. {target_doi}. Towards Automated Verification of Smart Contract Fairness."
         )
     )
+    pdf5_path.write_bytes(
+        build_simple_pdf_bytes(
+            "Discussion. Earlier work [3] gave the first systematic treatment of smart contract fairness issues. "
+            "We rely on [3] as background framing when discussing attacker-visible information leakage. "
+            f"References. [3] Target Work. {target_doi}. Towards Automated Verification of Smart Contract Fairness."
+        )
+    )
 
     for paper in citing_papers:
         if paper.canonical_id == "citing-1":
             paper.source_links = {"local_pdf": str(pdf_path)}
             paper.abstract = None
         elif paper.canonical_id == "citing-2":
-            paper.source_links = {"local_html": str(html_path)}
+            paper.source_links = {"local_pdf": str(pdf2_path)}
             paper.abstract = None
         elif paper.canonical_id == "citing-3":
             paper.source_links = {"local_pdf": str(pdf3_path)}
@@ -114,7 +103,7 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
             paper.source_links = {}
             paper.abstract = None
         elif paper.canonical_id == "citing-5":
-            paper.source_links = {"local_html": str(indirect_html_path)}
+            paper.source_links = {"local_pdf": str(pdf5_path)}
             paper.abstract = None
     return temp_dir
 
@@ -244,7 +233,7 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
     assert evidence_notes["citing-3"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-3"]
     assert evidence_notes["citing-4"].startswith("no_text_available"), evidence_notes["citing-4"]
     assert "recovery=" in evidence_notes["citing-4"], evidence_notes["citing-4"]
-    assert "attach_local_pdf_or_html_via_source_links" in evidence_notes["citing-4"], evidence_notes["citing-4"]
+    assert "attach_local_pdf_via_source_links" in evidence_notes["citing-4"], evidence_notes["citing-4"]
     assert evidence_notes["citing-5"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-5"]
     assert evidence_notes["citing-6"].startswith("fallback_to_abstract_only"), evidence_notes["citing-6"]
     assert "recovery=" in evidence_notes["citing-6"], evidence_notes["citing-6"]
@@ -253,10 +242,10 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
     assert "llm_sentiment:" in evidence_notes["citing-3"], evidence_notes["citing-3"]
     assert "llm_sentiment:" in evidence_notes["citing-5"], evidence_notes["citing-5"]
     assert source_types["citing-1"] == "pdf", source_types
-    assert source_types["citing-2"] == "html", source_types
+    assert source_types["citing-2"] == "pdf", source_types
     assert source_types["citing-3"] == "pdf", source_types
     assert source_types["citing-4"] == "unknown", source_types
-    assert source_types["citing-5"] == "html", source_types
+    assert source_types["citing-5"] == "pdf", source_types
     assert source_types["citing-6"] == "abstract", source_types
 
     summary = result.summary

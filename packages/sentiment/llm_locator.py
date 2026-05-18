@@ -1,9 +1,7 @@
 """LLM-assisted target-reference and context locator for citing papers."""
 from __future__ import annotations
 
-import os
 import re
-from pathlib import Path
 from typing import List, Optional
 
 try:
@@ -23,8 +21,6 @@ from apps.analyzer.config import build_llm, invoke_llm_with_retry
 from packages.sentiment.models import ReferenceMatch
 from packages.sentiment.reference_locator import sentence_spans, split_sentences
 from packages.shared.models import TargetPaper
-
-LATEX_CITE_PATTERN = re.compile(r"\\cite[t|p]?\{([^}]+)\}")
 
 
 class ReferenceSelectionModel(BaseModel):
@@ -55,14 +51,6 @@ def locate_reference_context_with_llm(
     if not (target_paper.title or target_paper.doi or target_paper.paper_query):
         raise RuntimeError("stage5 llm locator requires target paper hints")
 
-    if source_type == "latex" and extracted_dir:
-        tex_match = locate_reference_context_from_tex_sources(
-            target_paper=target_paper,
-            extracted_dir=Path(extracted_dir),
-        )
-        if tex_match.context_text:
-            return tex_match
-
     body_text, reference_text, extraction_logs = split_document_sections(text)
     reference_entries = extract_reference_entries(reference_text, max_entries=max_reference_entries)
     if not reference_entries:
@@ -78,7 +66,6 @@ def locate_reference_context_with_llm(
         "请根据标题、DOI、别名和语义描述判断哪一条参考文献是目标论文。"
         "字段名和结构化取值不要翻译；matched、reference_index、citation_marker、matched_reference 必须按 schema 输出。"
         "如果没有任何条目匹配目标论文，返回 matched=false。"
-        "当来源是 TeX/LaTeX 时，可靠路径是先找到 bibliography 条目，再恢复 citation key 或正文引用标记，然后用该 key/标记寻找正文引用。"
         "evidence_note 必须使用中文，简明说明选择或拒绝该参考文献的理由；论文标题、DOI、arXiv ID 和引用标记可保留原文。"
     )
     reference_block = "\n\n".join(f"[{index}] {entry}" for index, entry in enumerate(reference_entries))
@@ -91,7 +78,6 @@ def locate_reference_context_with_llm(
                 "content": (
                     f"Target paper hints:\n{target_hints}\n\n"
                     f"Source type: {source_type or 'unknown'}\n"
-                    f"Extracted dir: {extracted_dir or 'none'}\n\n"
                     f"Extraction logs:\n{extraction_logs}\n\n"
                     f"Reference entries:\n{reference_block}"
                 ),
@@ -128,7 +114,6 @@ def locate_reference_context_with_llm(
         "你正在从候选正文窗口中选择真正引用目标参考文献的上下文。"
         "请优先使用已选参考文献和 citation marker；如果 marker 可用，它比宽泛语义相似更可靠。"
         "应选择实际讨论目标工作的窗口，不要选择只是相邻引用或主题相近但未引用目标论文的窗口。"
-        "当来源是 TeX/LaTeX 时，优先选择包含已恢复 citation key/marker 的窗口。"
         "字段名和结构化取值不要翻译；matched 和 window_index 必须按 schema 输出。"
         "evidence_note 必须使用中文，简明说明为什么选择或拒绝该正文窗口；论文标题、引用标记和专业术语可保留原文。"
     )
@@ -142,7 +127,6 @@ def locate_reference_context_with_llm(
                 "content": (
                     f"Target paper hints:\n{target_hints}\n\n"
                     f"Source type: {source_type or 'unknown'}\n"
-                    f"Extracted dir: {extracted_dir or 'none'}\n\n"
                     f"Selected reference entry:\n{selected_entry}\n\n"
                     f"Citation marker hint:\n{reference_result.citation_marker or 'none'}\n\n"
                     f"Candidate body windows:\n{window_block}"
@@ -318,168 +302,6 @@ def score_bibliography_region(text: str) -> int:
     return score
 
 
-def locate_reference_context_from_tex_sources(target_paper: TargetPaper, extracted_dir: Path) -> ReferenceMatch:
-    """Recover target citation context directly from extracted TeX source files."""
-    if not extracted_dir.exists() or not extracted_dir.is_dir():
-        return ReferenceMatch(
-            matched_target_reference=None,
-            context_text=None,
-            mention_span=None,
-            evidence_note="tex_extracted_dir_missing",
-        )
-
-    target_doi = (target_paper.doi or "").lower()
-    target_title = (target_paper.title or target_paper.paper_query or "").lower()
-
-    bibliography_hit = find_bibliography_match(extracted_dir, target_doi=target_doi, target_title=target_title)
-    if bibliography_hit is None:
-        return ReferenceMatch(
-            matched_target_reference=None,
-            context_text=None,
-            mention_span=None,
-            evidence_note="tex_bibliography_match_not_found",
-        )
-
-    citation_key, bibliography_entry, bibliography_path = bibliography_hit
-    context_hit = find_body_context_for_citation_key(extracted_dir, citation_key)
-    if context_hit is None:
-        return ReferenceMatch(
-            matched_target_reference=bibliography_entry,
-            context_text=None,
-            mention_span=None,
-            evidence_note=f"tex_citation_key_found_but_body_context_missing:{citation_key}",
-        )
-
-    context_text, source_path = context_hit
-    return ReferenceMatch(
-        matched_target_reference=f"{citation_key} @ {bibliography_path.name}",
-        context_text=context_text,
-        mention_span=None,
-        evidence_note=f"matched_by_tex_bibliography_and_cite_key:{citation_key} @ {source_path.name}",
-    )
-
-
-def find_bibliography_match(extracted_dir: Path, target_doi: str, target_title: str) -> Optional[tuple[str, str, Path]]:
-    """Find a BibTeX or bibitem entry matching the target DOI or title."""
-    for path in iter_source_files(extracted_dir, suffixes={".bib", ".bbl", ".tex"}):
-        text = path.read_text(encoding="utf-8", errors="ignore")
-        if path.suffix.lower() == ".bib":
-            bib_match = find_bib_entry_match(text, target_doi=target_doi, target_title=target_title)
-            if bib_match:
-                return bib_match[0], bib_match[1], path
-        else:
-            bibitem_match = find_bibitem_match(text, target_doi=target_doi, target_title=target_title)
-            if bibitem_match:
-                return bibitem_match[0], bibitem_match[1], path
-    return None
-
-
-def find_bib_entry_match(text: str, target_doi: str, target_title: str) -> Optional[tuple[str, str]]:
-    """Return the BibTeX key and entry that match target-paper hints."""
-    entry_pattern = re.compile(r"@(?P<kind>\w+)\{(?P<key>[^,]+),(?P<body>.*?)(?=@\w+\{|$)", re.DOTALL)
-    for match in entry_pattern.finditer(text):
-        key = match.group("key").strip()
-        body = match.group("body")
-        lowered = body.lower()
-        if target_doi and target_doi in lowered:
-            return key, normalize_window_text(match.group(0))
-        if target_title and target_title in lowered:
-            return key, normalize_window_text(match.group(0))
-    return None
-
-
-def find_bibitem_match(text: str, target_doi: str, target_title: str) -> Optional[tuple[str, str]]:
-    """Return the bibitem key and entry that match target-paper hints."""
-    entry_pattern = re.compile(r"\\bibitem(?:\[[^\]]+\])?\{(?P<key>[^}]+)\}(?P<body>.*?)(?=\\bibitem|$)", re.DOTALL)
-    for match in entry_pattern.finditer(text):
-        key = match.group("key").strip()
-        body = match.group("body")
-        lowered = body.lower()
-        if target_doi and target_doi in lowered:
-            return key, normalize_window_text(match.group(0))
-        if target_title and target_title in lowered:
-            return key, normalize_window_text(match.group(0))
-    return None
-
-
-def find_body_context_for_citation_key(extracted_dir: Path, citation_key: str) -> Optional[tuple[str, Path]]:
-    """Find source text around a body citation command for a matched key."""
-    escaped_key = re.escape(citation_key)
-    cite_pattern = re.compile(rf"\\cite[t|p]?\{{[^}}]*\b{escaped_key}\b[^}}]*\}}")
-    for path in iter_source_files(extracted_dir, suffixes={".tex"}):
-        text = path.read_text(encoding="utf-8", errors="ignore")
-        if "\\bibitem" in text:
-            # Prefer body files over bibliography-style TeX fragments when possible.
-            continue
-        for match in cite_pattern.finditer(text):
-            context = extract_tex_context(text, match.start(), match.end())
-            return normalize_window_text(mark_target_cite_in_context(context, citation_key=citation_key)), path
-    # Fall back to any TeX file, including those that may mix body and bibliography.
-    for path in iter_source_files(extracted_dir, suffixes={".tex"}):
-        text = path.read_text(encoding="utf-8", errors="ignore")
-        for match in cite_pattern.finditer(text):
-            context = extract_tex_context(text, match.start(), match.end())
-            return normalize_window_text(mark_target_cite_in_context(context, citation_key=citation_key)), path
-    return None
-
-
-def extract_tex_context(text: str, start: int, end: int, window: int = 280) -> str:
-    """Extract a bounded TeX paragraph or sentence around a citation command."""
-    paragraph_start = find_left_boundary(text, start, patterns=[r"\n\s*\n"])
-    paragraph_end = find_right_boundary(text, end, patterns=[r"\n\s*\n"])
-
-    sentence_start = find_left_boundary(text, start, patterns=[r"(?<=[\.;])\s", r"\n"])
-    sentence_end = find_right_boundary(text, end, patterns=[r"(?<=[\.;])\s", r"\n"])
-
-    left = max(0, min(sentence_start, start - window, paragraph_start))
-    right = min(len(text), max(sentence_end, end + window, paragraph_end))
-    snippet = text[left:right].strip()
-
-    # Prefer the containing paragraph if it is reasonably bounded.
-    paragraph = text[paragraph_start:paragraph_end].strip()
-    if paragraph and len(paragraph) <= 900:
-        return paragraph
-
-    # Otherwise prefer the sentence/statement bounded by period or semicolon.
-    sentence = text[sentence_start:sentence_end].strip()
-    if sentence and len(sentence) <= 700:
-        return sentence
-
-    return snippet
-
-
-def find_left_boundary(text: str, index: int, patterns: List[str]) -> int:
-    """Find the nearest left boundary for a TeX citation context window."""
-    boundary = 0
-    prefix = text[:index]
-    for pattern in patterns:
-        matches = list(re.finditer(pattern, prefix, re.MULTILINE))
-        if matches:
-            boundary = max(boundary, matches[-1].end())
-    return boundary
-
-
-def find_right_boundary(text: str, index: int, patterns: List[str]) -> int:
-    """Find the nearest right boundary for a TeX citation context window."""
-    boundary = len(text)
-    suffix = text[index:]
-    for pattern in patterns:
-        match = re.search(pattern, suffix, re.MULTILINE)
-        if match:
-            boundary = min(boundary, index + match.start())
-    return boundary
-
-
-def iter_source_files(root: Path, suffixes: set[str]) -> List[Path]:
-    """Return sorted extracted source files whose suffixes are useful for TeX matching."""
-    paths: List[Path] = []
-    for path in root.rglob("*"):
-        if path.is_file() and path.suffix.lower() in suffixes:
-            paths.append(path)
-    paths.sort(key=lambda item: str(item))
-    return paths
-
-
 def evenly_spaced_indexes(total: int, max_windows: int) -> List[int]:
     """Sample candidate-window indexes across long documents for prompt coverage."""
     if total <= max_windows:
@@ -492,10 +314,3 @@ def evenly_spaced_indexes(total: int, max_windows: int) -> List[int]:
     for slot in range(max_windows):
         indexes.add(int(round(slot * step)))
     return sorted(indexes)[:max_windows]
-
-
-def mark_target_cite_in_context(context: str, citation_key: str) -> str:
-    """Wrap the target TeX citation command so downstream prompts can anchor on it."""
-    escaped_key = re.escape(citation_key)
-    cite_pattern = re.compile(rf"(\\cite[t|p]?\{{[^}}]*\b{escaped_key}\b[^}}]*\}})")
-    return cite_pattern.sub(r"**\1**", context)

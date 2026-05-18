@@ -10,7 +10,6 @@ from typing import Iterable, Mapping, Optional
 from urllib.parse import urlparse
 
 import requests
-from bs4 import BeautifulSoup
 from pypdf import PdfReader
 from packages.citation_sources.models import CitingPaper
 from packages.paper_identity.clients.arxiv import ArxivMetadataClient, arxiv_candidate_urls
@@ -240,15 +239,11 @@ def iter_fulltext_candidates(citing_paper: CitingPaper, search_arxiv_fallback: b
 
 
 def expand_candidate_variants(candidate: str) -> list[str]:
-    """Expand arXiv source archive links into easier PDF, HTML, and abstract URLs."""
+    """Expand arXiv source archive links into the PDF URL used by the main path."""
     lowered = candidate.lower()
     arxiv_id = extract_arxiv_id(candidate)
-    if arxiv_id and ("arxiv.org/e-print/" in lowered or "arxiv.org/src/" in lowered):
-        return [
-            f"https://arxiv.org/pdf/{arxiv_id}.pdf",
-            f"https://arxiv.org/html/{arxiv_id}",
-            f"https://arxiv.org/abs/{arxiv_id}",
-        ]
+    if arxiv_id and "arxiv.org/pdf/" not in lowered:
+        return [f"https://arxiv.org/pdf/{arxiv_id}.pdf"]
     return [candidate]
 
 
@@ -258,18 +253,12 @@ def score_candidate(candidate: str) -> int:
     if lowered.startswith("file://") or re.match(r"^[a-zA-Z]:[\\/]", candidate):
         if lowered.endswith(".pdf"):
             return 0
-        if lowered.endswith((".html", ".htm")):
-            return 1
-        if lowered.endswith((".tex", ".latex", ".md", ".markdown")):
+        if lowered.endswith((".md", ".markdown")):
             return 5
         return 10
     if lowered.endswith(".pdf"):
         return 1
-    if "arxiv.org/html/" in lowered:
-        return 2
-    if "arxiv.org/abs/" in lowered:
-        return 3
-    if lowered.endswith(".tex") or lowered.endswith(".md") or lowered.endswith(".html"):
+    if lowered.endswith(".md") or lowered.endswith(".markdown"):
         return 10
     if "semanticscholar.org" in lowered:
         return 50
@@ -294,26 +283,8 @@ def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str)
                 ),
                 source_file_path=path,
             )
-        if suffix in {".html", ".htm"}:
-            return LoadedDocumentPayload(
-                document=FullTextDocument(
-                    citing_paper_id=citing_paper_id,
-                    text=extract_html_text(path.read_text(encoding="utf-8")),
-                    source_type="html",
-                    source_label=str(path),
-                ),
-                source_file_path=path,
-            )
-        if suffix in {".tex", ".latex"}:
-            return LoadedDocumentPayload(
-                document=FullTextDocument(
-                    citing_paper_id=citing_paper_id,
-                    text=extract_latex_text(path.read_text(encoding="utf-8")),
-                    source_type="latex",
-                    source_label=str(path),
-                ),
-                source_file_path=path,
-            )
+        if suffix in {".html", ".htm", ".tex", ".latex"}:
+            raise ValueError(f"unsupported_fulltext_source_type:{suffix.lstrip('.')}")
         if suffix in {".md", ".markdown"}:
             return LoadedDocumentPayload(
                 document=FullTextDocument(
@@ -357,17 +328,6 @@ def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str)
             raw_bytes=response.content,
             raw_suffix=".pdf",
         )
-    if lowered.endswith(".tex"):
-        return LoadedDocumentPayload(
-            document=FullTextDocument(
-                citing_paper_id=citing_paper_id,
-                text=extract_latex_text(response.text),
-                source_type="latex",
-                source_label=candidate,
-            ),
-            raw_bytes=response.content,
-            raw_suffix=".tex",
-        )
     if lowered.endswith(".md") or lowered.endswith(".markdown") or "text/markdown" in content_type:
         return LoadedDocumentPayload(
             document=FullTextDocument(
@@ -379,17 +339,13 @@ def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str)
             raw_bytes=response.content,
             raw_suffix=".md",
         )
-    if "text/html" in content_type or lowered.endswith(".html") or lowered.endswith(".htm") or "arxiv.org/abs/" in lowered or "arxiv.org/html/" in lowered:
-        return LoadedDocumentPayload(
-            document=FullTextDocument(
-                citing_paper_id=citing_paper_id,
-                text=extract_html_text(response.text),
-                source_type="html",
-                source_label=candidate,
-            ),
-            raw_bytes=response.content,
-            raw_suffix=".html",
-        )
+    if (
+        "text/html" in content_type
+        or lowered.endswith((".html", ".htm", ".tex", ".latex"))
+        or "arxiv.org/abs/" in lowered
+        or "arxiv.org/html/" in lowered
+    ):
+        raise ValueError("unsupported_fulltext_source_type:html_or_tex")
     return LoadedDocumentPayload(
         document=FullTextDocument(
             citing_paper_id=citing_paper_id,
@@ -416,23 +372,6 @@ def extract_pdf_text(content: bytes) -> str:
     reader = PdfReader(io.BytesIO(content))
     chunks = [page.extract_text() or "" for page in reader.pages]
     return normalize_whitespace("\n".join(chunks))
-
-
-def extract_html_text(content: str) -> str:
-    """Extract visible normalized text from HTML while ignoring script content."""
-    soup = BeautifulSoup(content, "html.parser")
-    for tag in soup(["script", "style", "noscript"]):
-        tag.decompose()
-    return normalize_whitespace(soup.get_text(separator=" "))
-
-
-def extract_latex_text(content: str) -> str:
-    """Strip common LaTeX markup into a normalized text approximation."""
-    text = re.sub(r"(?<!\\)%.*", " ", content)
-    text = re.sub(r"\\begin\{.*?\}|\\end\{.*?\}", " ", text)
-    text = re.sub(r"\\[a-zA-Z]+\*?(?:\[[^\]]*\])?(?:\{([^{}]*)\})?", r" \1 ", text)
-    text = re.sub(r"[{}]", " ", text)
-    return normalize_whitespace(text)
 
 
 def search_arxiv_candidates_by_title(title: str) -> list[str]:
@@ -520,7 +459,12 @@ def normalize_for_title(text: str) -> str:
 
 def normalize_whitespace(text: str) -> str:
     """Collapse whitespace in text extracted from heterogeneous source formats."""
-    return " ".join(text.split())
+    return sanitize_text_for_utf8(" ".join(text.split()))
+
+
+def sanitize_text_for_utf8(text: str) -> str:
+    """Replace invalid Unicode surrogate code points before writing artifacts."""
+    return text.encode("utf-8", errors="replace").decode("utf-8")
 
 
 def build_recovery_evidence_note(
@@ -554,7 +498,7 @@ def build_recovery_hint(citing_paper: CitingPaper) -> str:
         hints.append("check_doi_landing_page")
     if citing_paper.title:
         hints.append("search_title_for_author_pdf_or_preprint")
-    hints.append("attach_local_pdf_or_html_via_source_links")
+    hints.append("attach_local_pdf_via_source_links")
     hints.append("fallback_to_abstract_when_fulltext_unavailable")
     return ",".join(hints)
 
@@ -573,6 +517,7 @@ def persist_fulltext_document(
     paper_dir.mkdir(parents=True, exist_ok=True)
 
     parsed_path = paper_dir / f"parsed__{document.source_type}.txt"
+    document.text = sanitize_text_for_utf8(document.text)
     parsed_path.write_text(document.text, encoding="utf-8")
     document.local_path = str(parsed_path)
 
@@ -592,7 +537,7 @@ def persist_fulltext_document(
             safe_name = Path(relative_name)
             out_path = extracted_dir / safe_name
             out_path.parent.mkdir(parents=True, exist_ok=True)
-            out_path.write_text(content, encoding="utf-8")
+            out_path.write_text(sanitize_text_for_utf8(content), encoding="utf-8")
         document.extracted_dir = str(extracted_dir)
 
 

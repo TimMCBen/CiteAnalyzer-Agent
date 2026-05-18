@@ -60,7 +60,7 @@ def fake_fetch_fulltext_document(
     return FullTextDocument(
         citing_paper_id=citing_paper.canonical_id,
         text=f"Full text for {citing_paper.title}",
-        source_type="html",
+        source_type="pdf",
         source_label="fixture",
     )
 
@@ -86,7 +86,7 @@ def fake_analyze_sentiments(
                 context_text=fulltext_documents[paper.canonical_id].text,
                 matched_target_reference="fixture-reference",
                 evidence_note="fixture",
-                text_source_type="html",
+                text_source_type="pdf",
                 text_source_label="fixture",
             )
             for paper in citing_papers

@@ -13,7 +13,7 @@ class FullTextDocument:
     """Represent acquired full-text content and the artifact it came from."""
     citing_paper_id: str
     text: str
-    source_type: Literal["fulltext", "markdown", "latex", "html", "pdf", "abstract", "unknown"] = "unknown"
+    source_type: Literal["fulltext", "markdown", "pdf", "abstract", "unknown"] = "unknown"
     source_label: Optional[str] = None
     local_path: Optional[str] = None
     raw_path: Optional[str] = None
@@ -26,7 +26,7 @@ class TextSourceSelection:
     """Represent the text source chosen for one citing-paper sentiment attempt."""
     citing_paper_id: str
     text: Optional[str]
-    source_type: Literal["fulltext", "markdown", "latex", "html", "pdf", "abstract", "unknown"] = "unknown"
+    source_type: Literal["fulltext", "markdown", "pdf", "abstract", "unknown"] = "unknown"
     source_label: Optional[str] = None
     local_path: Optional[str] = None
     raw_path: Optional[str] = None
@@ -52,7 +52,7 @@ class CitationContext:
     mention_span: Optional[Tuple[int, int]] = None
     matched_target_reference: Optional[str] = None
     evidence_note: str = "unable_to_determine"
-    text_source_type: Literal["fulltext", "markdown", "latex", "html", "pdf", "abstract", "unknown"] = "unknown"
+    text_source_type: Literal["fulltext", "markdown", "pdf", "abstract", "unknown"] = "unknown"
     text_source_label: Optional[str] = None
 
 

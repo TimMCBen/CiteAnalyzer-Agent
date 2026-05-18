@@ -55,11 +55,11 @@ def load_stage2_sample(sample_path: Path) -> tuple[TargetPaper, list[CitingPaper
 
 
 def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) -> Path:
-    """Create local PDF, HTML, and TeX fixtures for full-text tests."""
+    """Create local PDF fixtures for full-text tests."""
     temp_dir = Path(tempfile.mkdtemp(prefix="stage5-fixtures-", dir=REPO_ROOT))
     html_path = temp_dir / "citing-2.html"
-    tex_path = temp_dir / "citing-3.tex"
     pdf_path = temp_dir / "citing-1.pdf"
+    pdf2_path = temp_dir / "citing-2.pdf"
     pdf3_path = temp_dir / "citing-3.pdf"
 
     html_path.write_text(
@@ -71,27 +71,19 @@ def build_local_source_links(citing_papers: list[CitingPaper], target_doi: str) 
         ),
         encoding="utf-8",
     )
-    tex_path.write_text(
-        (
-            "\\section{Intro}\n"
-            f"Prior work {target_doi} is mentioned here for latex extraction.\n"
-            "\\section{References}\n"
-            f"[7] Target Work. {target_doi}. Towards Automated Verification of Smart Contract Fairness.\n"
-        ),
-        encoding="utf-8",
-    )
     pdf_path.write_bytes(build_simple_pdf_bytes(f"Introduction. This PDF mentions {target_doi} to validate local PDF extraction."))
-    pdf3_path.write_bytes(build_simple_pdf_bytes(f"Method. This second PDF mentions {target_doi} and should be preferred over the paired tex source."))
+    pdf2_path.write_bytes(build_simple_pdf_bytes(f"Background. This PDF mentions {target_doi} to validate the second local PDF extraction."))
+    pdf3_path.write_bytes(build_simple_pdf_bytes(f"Method. This second PDF mentions {target_doi} and should be preferred over the unsupported paired HTML source."))
 
     for paper in citing_papers:
         if paper.canonical_id == "citing-1":
             paper.source_links = {"local_pdf": str(pdf_path)}
             paper.abstract = None
         elif paper.canonical_id == "citing-2":
-            paper.source_links = {"local_html": str(html_path)}
+            paper.source_links = {"local_pdf": str(pdf2_path)}
             paper.abstract = None
         elif paper.canonical_id == "citing-3":
-            paper.source_links = {"local_tex": str(tex_path), "local_pdf": str(pdf3_path)}
+            paper.source_links = {"local_html": str(html_path), "local_pdf": str(pdf3_path)}
             paper.abstract = None
         elif paper.canonical_id == "citing-4":
             paper.source_links = {}
@@ -165,7 +157,7 @@ def assert_stage5_local_fulltext_validation(sample_path: Path = DEFAULT_SAMPLE_P
             )
 
         assert docs["citing-1"] is not None and docs["citing-1"].source_type == "pdf"
-        assert docs["citing-2"] is not None and docs["citing-2"].source_type == "html"
+        assert docs["citing-2"] is not None and docs["citing-2"].source_type == "pdf"
         assert docs["citing-3"] is not None and docs["citing-3"].source_type == "pdf"
         assert docs["citing-4"] is None
         assert target_paper.doi in docs["citing-1"].text
@@ -205,7 +197,7 @@ def assert_stage5_unavailable_paper_guidance(sample_path: Path = DEFAULT_SAMPLE_
     assert selection.text == unavailable.abstract, selection
     assert "fallback_to_abstract_only" in selection.evidence_note, selection.evidence_note
     assert "recovery=" in selection.evidence_note, selection.evidence_note
-    assert "attach_local_pdf_or_html_via_source_links" in selection.evidence_note, selection.evidence_note
+    assert "attach_local_pdf_via_source_links" in selection.evidence_note, selection.evidence_note
     assert "check_doi_landing_page" in selection.evidence_note, selection.evidence_note
     return selection.evidence_note
 
@@ -246,7 +238,7 @@ def assert_stage5_arxiv_search_uses_shared_cache() -> dict[str, int]:
         second = search_arxiv_candidates_by_title(title)
 
         assert first == second, (first, second)
-        assert len(first) == 3, first
+        assert len(first) == 1, first
         assert fake_client.calls == 1, fake_client.calls
         assert fake_client.cache_hits == 1, fake_client.cache_hits
         return {"calls": fake_client.calls, "cache_hits": fake_client.cache_hits, "urls": len(first)}
@@ -269,7 +261,7 @@ def maybe_run_live_fetch_smoke(logger: StageLogger) -> None:
     )
     document = fetch_fulltext_document(paper, search_arxiv_fallback=True)
     assert document is not None, "live arxiv fetch returned no document"
-    assert document.source_type in {"pdf", "html"}, document
+    assert document.source_type == "pdf", document
     assert len(document.text) > 1000, f"live arxiv fetch returned too little text: {len(document.text)}"
     assert document.local_path and Path(document.local_path).exists(), "live arxiv fetch did not persist local text file"
     assert document.raw_path and Path(document.raw_path).exists(), "live arxiv fetch did not preserve raw source"

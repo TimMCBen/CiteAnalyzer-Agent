@@ -8,11 +8,7 @@ from langgraph.graph import END, START, StateGraph
 from packages.citation_sources.models import CitingPaper
 from packages.sentiment.classifier import classify_sentiment
 from packages.sentiment.grobid_context import locate_reference_context_from_grobid_pdf
-from packages.sentiment.llm_locator import (
-    find_bibliography_match,
-    find_body_context_for_citation_key,
-    locate_reference_context_with_llm,
-)
+from packages.sentiment.llm_locator import locate_reference_context_with_llm
 from packages.sentiment.models import CitationContext, ReferenceMatch, TextSourceSelection
 from packages.sentiment.reference_locator import locate_reference_context
 from packages.shared.models import TargetPaper
@@ -26,11 +22,7 @@ class Stage6PaperState(TypedDict, total=False):
     target_paper: TargetPaper
     citing_paper: CitingPaper
     text_source: TextSourceSelection
-    is_tex_source: bool
     is_pdf_source: bool
-    bibliography_reference: Optional[str]
-    bibliography_key: Optional[str]
-    bibliography_path: Optional[str]
     reference_match: ReferenceMatch
     grobid_note: str
     sentiment_label: str
@@ -51,7 +43,6 @@ def run_stage6_workflow(
         return state
 
     def detect_source_kind(state: Stage6PaperState) -> Stage6PaperState:
-        state["is_tex_source"] = state["text_source"].source_type == "latex" and bool(state["text_source"].extracted_dir)
         state["is_pdf_source"] = state["text_source"].source_type == "pdf" and bool(state["text_source"].raw_path)
         return state
 
@@ -94,48 +85,11 @@ def run_stage6_workflow(
             )
         return state
 
-    def tex_bibliography_matcher(state: Stage6PaperState) -> Stage6PaperState:
-        if state.get("reference_match") and state["reference_match"].context_text:
-            return state
-        if not state.get("is_tex_source"):
-            return state
-        extracted_dir = state["text_source"].extracted_dir
-        if not extracted_dir:
-            return state
-        target = state["target_paper"]
-        hit = find_bibliography_match(
-            extracted_dir=__import__("pathlib").Path(extracted_dir),
-            target_doi=(target.doi or "").lower(),
-            target_title=(target.title or target.paper_query or "").lower(),
-        )
-        if hit is None:
-            return state
-        citation_key, bibliography_entry, bibliography_path = hit
-        state["bibliography_key"] = citation_key
-        state["bibliography_reference"] = bibliography_entry
-        state["bibliography_path"] = str(bibliography_path)
-        return state
-
     def body_citation_finder(state: Stage6PaperState) -> Stage6PaperState:
         if state.get("reference_match") and state["reference_match"].context_text:
             return state
         text_source_local = state["text_source"]
         target = state["target_paper"]
-
-        if state.get("bibliography_key") and text_source_local.extracted_dir:
-            context_hit = find_body_context_for_citation_key(
-                extracted_dir=__import__("pathlib").Path(text_source_local.extracted_dir),
-                citation_key=state["bibliography_key"] or "",
-            )
-            if context_hit is not None:
-                context_text, source_path = context_hit
-                state["reference_match"] = ReferenceMatch(
-                    matched_target_reference=f"{state['bibliography_key']} @ {__import__('pathlib').Path(state['bibliography_path']).name}",
-                    context_text=context_text,
-                    mention_span=None,
-                    evidence_note=f"matched_by_tex_bibliography_and_cite_key:{state['bibliography_key']} @ {source_path.name}",
-                )
-                return state
 
         llm_match = matcher(
             text_source_local.text or "",
@@ -197,7 +151,6 @@ def run_stage6_workflow(
     graph.add_node("load_fulltext_artifact", load_fulltext_artifact)
     graph.add_node("detect_source_kind", detect_source_kind)
     graph.add_node("grobid_pdf_context_matcher", grobid_pdf_context_matcher)
-    graph.add_node("tex_bibliography_matcher", tex_bibliography_matcher)
     graph.add_node("body_citation_finder", body_citation_finder)
     graph.add_node("sentiment_classifier", sentiment_classifier)
     graph.add_node("aggregate_output", aggregate_output)
@@ -205,8 +158,7 @@ def run_stage6_workflow(
     graph.add_edge(START, "load_fulltext_artifact")
     graph.add_edge("load_fulltext_artifact", "detect_source_kind")
     graph.add_edge("detect_source_kind", "grobid_pdf_context_matcher")
-    graph.add_edge("grobid_pdf_context_matcher", "tex_bibliography_matcher")
-    graph.add_edge("tex_bibliography_matcher", "body_citation_finder")
+    graph.add_edge("grobid_pdf_context_matcher", "body_citation_finder")
     graph.add_edge("body_citation_finder", "sentiment_classifier")
     graph.add_edge("sentiment_classifier", "aggregate_output")
     graph.add_edge("aggregate_output", END)

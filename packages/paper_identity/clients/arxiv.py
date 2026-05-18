@@ -155,13 +155,11 @@ def extract_arxiv_ids_from_links(values: list[str]) -> list[str]:
 
 
 def arxiv_candidate_urls(work: CandidateWork) -> list[str]:
-    """Build arXiv full-text candidate URLs for paper identity matching."""
+    """Build arXiv PDF candidate URLs for paper identity matching."""
     if not work.arxiv_id:
         return []
     return [
         f"https://arxiv.org/pdf/{quote(work.arxiv_id)}.pdf",
-        f"https://arxiv.org/html/{quote(work.arxiv_id)}",
-        f"https://arxiv.org/abs/{quote(work.arxiv_id)}",
     ]
 
 
