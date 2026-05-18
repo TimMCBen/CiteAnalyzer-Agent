@@ -2,13 +2,16 @@
 from __future__ import annotations
 
 import json
+import re
 from collections import Counter
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 from packages.citation_sources.models import CitingPaper, FetchSummary, SourceTrace
 from packages.reporting.country_resolution import CountryResolution, CountryResolverProtocol, HybridCountryResolver
+from packages.reporting.map_data import build_country_map_payload, load_world_geojson
 from packages.reporting.pdf_renderer import render_pdf_report
+from packages.reporting.title_translation import translate_title_to_chinese
 from packages.sentiment.models import CitationContext, SentimentSummary
 from packages.shared.models import AnalysisState, AuthorProfile, AuthorSummary, ReportArtifact, ScholarLabel, TargetPaper
 from packages.shared.runtime_logging import get_runtime_logger
@@ -50,6 +53,7 @@ def build_report_artifact(
     state_errors: list[str] | None = None,
     output_dir: Path | None = None,
     country_resolver: CountryResolverProtocol | None = None,
+    title_translator: Callable[[str], str | None] | None = translate_title_to_chinese,
 ) -> ReportArtifact:
     """Build report files from citation, author, sentiment, and provenance data."""
     report_id = target_paper.canonical_id or target_paper.doi or target_paper.title or "unknown-target"
@@ -63,6 +67,9 @@ def build_report_artifact(
     provenance["country_resolution_trace"] = country_trace
     provenance["report_warnings"] = []
     provenance["pdf_export_status"] = "pending"
+    target_title_zh = _translate_target_title(target_paper.title, title_translator, provenance)
+    target_arxiv_id = _target_arxiv_id(target_paper)
+    target_arxiv_url = f"https://arxiv.org/abs/{target_arxiv_id}" if target_arxiv_id else None
     chart_payloads = {
         "year_trend": _build_year_trend(citing_papers),
         "institution_distribution": institution_distribution,
@@ -73,7 +80,10 @@ def build_report_artifact(
     }
     summary = {
         "target_title": target_paper.title,
+        "target_title_zh": target_title_zh,
         "target_doi": target_paper.doi,
+        "target_arxiv_id": target_arxiv_id,
+        "target_arxiv_url": target_arxiv_url,
         "citation_count": len(citing_papers),
         "heavyweight_candidates": author_summary.heavyweight_candidates,
         "high_impact_candidates": author_summary.high_impact_candidates,
@@ -194,6 +204,42 @@ def _build_country_distribution(
         counts[result.country] += 1
         trace.append(result.to_dict())
     return dict(sorted(counts.items())), trace
+
+
+def _translate_target_title(
+    title: str | None,
+    title_translator: Callable[[str], str | None] | None,
+    provenance: dict[str, object],
+) -> str | None:
+    """Translate the target title without letting LLM failures break reports."""
+    if not title or not title_translator:
+        return None
+    try:
+        return title_translator(title)
+    except Exception as exc:
+        reason = f"title_translation_unavailable:{exc.__class__.__name__}:{exc}"
+        report_warnings = provenance.setdefault("report_warnings", [])
+        if isinstance(report_warnings, list):
+            report_warnings.append(reason)
+        get_runtime_logger().warn("report.title_translation", "中文标题翻译不可用，报告继续生成", reason=reason)
+        return None
+
+
+def _target_arxiv_id(target_paper: TargetPaper) -> str | None:
+    """Return the normalized arXiv identifier when the target paper has one."""
+    candidates = [
+        target_paper.source_ids.get("arxiv") if target_paper.source_ids else None,
+        target_paper.source_ids.get("arxiv_id") if target_paper.source_ids else None,
+        target_paper.paper_query if target_paper.paper_query_type == "arxiv" else None,
+        target_paper.canonical_id,
+    ]
+    for candidate in candidates:
+        if not candidate:
+            continue
+        match = re.search(r"(?P<id>\d{4}\.\d{4,5}(?:v\d+)?)", str(candidate), re.IGNORECASE)
+        if match:
+            return match.group("id")
+    return None
 
 
 def _build_scholar_distribution(labels: Iterable[ScholarLabel]) -> dict[str, int]:
@@ -424,6 +470,10 @@ def _render_html(
 
     chart_data = _build_html_chart_data(charts, summary, provenance)
     chart_data_json = _json_for_script(chart_data)
+    world_geojson_json = _json_for_script(load_world_geojson())
+    title_zh = str(summary.get("target_title_zh") or "未生成")
+    arxiv_url = summary.get("target_arxiv_url")
+    arxiv_html = f"<p class='meta-line'><strong>arXiv:</strong> <a href=\"{arxiv_url}\">{arxiv_url}</a></p>" if arxiv_url else ""
 
     contexts_html = "".join(
         (
@@ -503,6 +553,9 @@ def _render_html(
     h1, h2, h3, p {{ margin-top: 0; }}
     .hero {{ border: 1px solid var(--line); border-radius: 20px; padding: 2rem; background: radial-gradient(circle at top left, #fff7eb 0%, var(--panel) 60%); box-shadow: 0 12px 30px rgba(95, 63, 38, 0.08); }}
     .hero p {{ color: var(--muted); margin-bottom: 0; }}
+    .subtitle-zh {{ color: var(--accent); font-size: 1.15rem; margin-top: -0.4rem; margin-bottom: 0.75rem; }}
+    .meta-line {{ margin-top: 0.25rem; overflow-wrap: anywhere; }}
+    .meta-line a {{ color: var(--accent); }}
     .page-nav {{ display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0 1.5rem; }}
     .page-nav a {{ color: var(--accent); text-decoration: none; padding: 0.55rem 0.9rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(255, 255, 255, 0.72); }}
     .metric-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }}
@@ -552,7 +605,9 @@ def _render_html(
 <body>
   <section class="hero" id="overview">
     <h1>{target_paper.title or 'Unknown Target Paper'}</h1>
+    <p class="subtitle-zh"><strong>中文标题:</strong> {title_zh}</p>
     <p><strong>DOI:</strong> {target_paper.doi or 'N/A'}</p>
+    {arxiv_html}
   </section>
   <nav class="page-nav">
     <a href="#overview">Overview</a>
@@ -602,7 +657,7 @@ def _render_html(
       <ul class="data-list chart-fallback">{sentiment_fallback}</ul>
     </article>
     <article class="card chart-card" data-chart-state="{chart_data['countryDistribution']['state']}">
-      <h2>施引来源国家/地区分布</h2>
+      <h2>施引来源国家/地区地图</h2>
       <p class="chart-note">{chart_data['countryDistribution']['note']}</p>
       <div class="chart-panel" id="countryDistributionChart" role="img" aria-label="施引来源国家地区分布图"></div>
       <ul class="data-list chart-fallback">{country_fallback}</ul>
@@ -636,11 +691,17 @@ def _render_html(
     <div class="context-list">{contexts_html or '<p>No contexts available.</p>'}</div>
   </section>
   <script type="application/json" id="chart-data">{chart_data_json}</script>
+  <script type="application/json" id="world-geojson">{world_geojson_json}</script>
   <script>
     (() => {{
       const source = document.getElementById("chart-data");
       if (!source || !window.echarts) return;
       const payload = JSON.parse(source.textContent);
+      const worldGeoJsonSource = document.getElementById("world-geojson");
+      const worldGeoJson = worldGeoJsonSource ? JSON.parse(worldGeoJsonSource.textContent) : null;
+      if (worldGeoJson) {{
+        echarts.registerMap("world", worldGeoJson);
+      }}
       const initChart = (id, state, option) => {{
         if (state !== "chart") return;
         const element = document.getElementById(id);
@@ -684,12 +745,27 @@ def _render_html(
       }});
 
       initChart("countryDistributionChart", payload.countryDistribution.state, {{
-        color: ["#6f8f5b"],
-        tooltip: {{ trigger: "axis", axisPointer: {{ type: "shadow" }} }},
-        grid: {{ left: 118, right: 22, top: 22, bottom: 26 }},
-        xAxis: {{ type: "value", minInterval: 1, axisLabel, splitLine }},
-        yAxis: {{ type: "category", data: payload.countryDistribution.labels, axisLabel: {{ ...axisLabel, width: 110, overflow: "truncate" }} }},
-        series: [{{ type: "bar", data: payload.countryDistribution.values, barMaxWidth: 22, itemStyle: {{ borderRadius: [0, 8, 8, 0] }} }}]
+        tooltip: {{
+          trigger: "item",
+          formatter: params => `${{params.name}}: ${{params.value || 0}}`
+        }},
+        visualMap: {{
+          min: 0,
+          max: payload.countryDistribution.maxValue || 1,
+          left: 12,
+          bottom: 16,
+          text: ["高", "低"],
+          calculable: true,
+          inRange: {{ color: ["#f7e8d1", "#c98a4a", "#7f3418"] }}
+        }},
+        series: [{{
+          name: "施引来源",
+          type: "map",
+          map: "world",
+          roam: true,
+          emphasis: {{ label: {{ show: true }} }},
+          data: payload.countryDistribution.mapItems
+        }}]
       }});
 
       initChart("institutionDistributionChart", payload.institutionDistribution.state, {{
@@ -741,7 +817,8 @@ def _build_html_chart_data(
     sentiment_state = "chart" if len(sentiment_items) >= 1 else "fallback"
 
     country_items = _top_n_with_others(country_distribution, limit=INSTITUTION_TOP_N)
-    country_state = "chart" if len(country_items) >= 1 else "fallback"
+    country_map_payload = build_country_map_payload(country_distribution)
+    country_state = "chart" if country_map_payload["items"] else "fallback"
     institution_items = _top_n_with_others(institution_distribution, limit=INSTITUTION_TOP_N)
     institution_state = "chart" if len(institution_items) >= 1 else "fallback"
 
@@ -778,9 +855,13 @@ def _build_html_chart_data(
         },
         "countryDistribution": {
             "state": country_state,
-            "note": "基于机构文本和可选 LLM 辅助推断；Unknown 表示证据不足或需要复核。",
+            "note": _country_map_note(country_map_payload),
             "labels": [label for label, _ in country_items],
             "values": [count for _, count in country_items],
+            "mapItems": country_map_payload["items"],
+            "unknownCount": country_map_payload["unknownCount"],
+            "unmappedItems": country_map_payload["unmappedItems"],
+            "maxValue": country_map_payload["maxValue"],
             "fallback": dict(country_items) or {"暂无国家/地区信息": 0},
             "raw_count": len(country_distribution),
         },
@@ -850,6 +931,21 @@ def _year_trend_note(year_trend: dict[str, int], summary: dict[str, object]) -> 
         year, count = next(iter(year_trend.items()))
         return f"当前样本集中在 {year} 年，共 {count} 篇施引文献；不伪装成趋势图。"
     return f"当前 {summary.get('citation_count', 0)} 篇施引文献缺少年份信息。"
+
+
+def _country_map_note(country_map_payload: dict[str, object]) -> str:
+    """Explain map coverage, including Unknown and unmapped country buckets."""
+    unknown_count = _as_int(country_map_payload.get("unknownCount"))
+    unmapped_items = country_map_payload.get("unmappedItems")
+    unmapped_count = 0
+    if isinstance(unmapped_items, list):
+        unmapped_count = sum(_as_int(item.get("value")) for item in unmapped_items if isinstance(item, dict))
+    notes = ["基于机构文本和可选 LLM 辅助推断；地图只展示能匹配 GeoJSON 的国家/地区。"]
+    if unknown_count:
+        notes.append(f"Unknown={unknown_count} 不参与地图着色。")
+    if unmapped_count:
+        notes.append(f"未映射地区共 {unmapped_count} 条，保留在 fallback 列表中。")
+    return " ".join(notes)
 
 
 def _coerce_int_map(value: object) -> dict[str, int]:

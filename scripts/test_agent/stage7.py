@@ -26,12 +26,12 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
     try:
         artifact = build_report_artifact(
             target_paper=TargetPaper(
-                canonical_id="target-1",
-                paper_query="10.1000/target",
-                paper_query_type="doi",
+                canonical_id="2504.19162",
+                paper_query="2504.19162",
+                paper_query_type="arxiv",
                 title="Target Paper",
-                doi="10.1000/target",
-                source_ids={"doi": "10.1000/target"},
+                doi=None,
+                source_ids={"arxiv": "2504.19162"},
                 resolve_status="resolved",
             ),
             citing_papers=[
@@ -162,6 +162,7 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
             ],
             state_errors=["stage5:citing-1:no_fulltext"],
             output_dir=output_dir,
+            title_translator=lambda title: "目标论文",
         )
 
         html_path = Path(artifact.export_paths["html"])
@@ -174,6 +175,10 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
 
         payload = json.loads(json_path.read_text(encoding="utf-8"))
         assert payload["summary"]["target_title"] == "Target Paper", payload
+        assert payload["summary"]["target_title_zh"] == "目标论文", payload
+        assert payload["summary"]["target_doi"] is None, payload
+        assert payload["summary"]["target_arxiv_id"] == "2504.19162", payload
+        assert payload["summary"]["target_arxiv_url"] == "https://arxiv.org/abs/2504.19162", payload
         assert payload["contexts"][0]["sentiment_label"] == "unknown", payload["contexts"]
         assert payload["summary"]["key_findings"], payload["summary"]
         assert payload["summary"]["partial_failure"] is True, payload["summary"]
@@ -206,7 +211,11 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
         assert "分析摘要" in html
         assert "重要学者" in html
         assert "代表性引用语境" in html
-        assert "施引来源国家/地区分布" in html
+        assert "中文标题" in html
+        assert "目标论文" in html
+        assert "DOI:</strong> N/A" in html
+        assert "https://arxiv.org/abs/2504.19162" in html
+        assert "施引来源国家/地区地图" in html
         assert "Key Findings" in html
         assert "Manual Attention Items" in html
         assert "Citation Contexts" in html
@@ -218,6 +227,11 @@ def assert_stage7_reporting_contract() -> dict[str, object]:
         assert 'id="sentimentDistributionChart"' in html
         assert 'id="countryDistributionChart"' in html
         assert 'id="institutionDistributionChart"' in html
+        assert 'id="world-geojson"' in html
+        assert "echarts.registerMap" in html
+        assert 'type: "map"' in html
+        assert "visualMap" in html
+        assert "United States of America" in html
         assert 'type: "pie"' in html
         assert "施引作者机构分布" in html
         assert "Source Map" not in html

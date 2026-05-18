@@ -50,7 +50,11 @@ def render_pdf_report(payload: dict[str, Any], output_path: Path) -> None:
     story.append(Paragraph("论文被引分析报告", styles["CNTitle"]))
     story.append(Spacer(1, 0.3 * cm))
     story.append(Paragraph(str(summary.get("target_title") or "Unknown Target Paper"), styles["CNHeading"]))
+    if summary.get("target_title_zh"):
+        story.append(Paragraph(f"中文标题: {summary.get('target_title_zh')}", styles["CNMuted"]))
     story.append(Paragraph(f"DOI: {summary.get('target_doi') or 'N/A'}", styles["CNMuted"]))
+    if summary.get("target_arxiv_url"):
+        story.append(Paragraph(f"arXiv: {summary.get('target_arxiv_url')}", styles["CNMuted"]))
     story.append(Spacer(1, 0.3 * cm))
     story.append(_metrics_table(summary, styles, Table, TableStyle, colors))
 
