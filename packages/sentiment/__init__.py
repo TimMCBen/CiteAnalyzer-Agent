@@ -1,4 +1,4 @@
-"""Stage5 fulltext acquisition plus stage6 citation sentiment analysis."""
+"""Stage5 PDF acquisition plus stage6 citation sentiment analysis."""
 
 from packages.sentiment.models import (
     CitationContext,

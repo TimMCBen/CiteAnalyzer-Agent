@@ -1,4 +1,4 @@
-"""Data contracts for full-text selection, reference matches, and sentiment results."""
+"""Data contracts for PDF selection, reference matches, and sentiment results."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -10,7 +10,7 @@ SentimentLabel = Literal["positive", "neutral", "critical", "unknown"]
 
 @dataclass
 class FullTextDocument:
-    """Represent acquired full-text content and the artifact it came from."""
+    """Represent an acquired PDF marker and the artifact it came from."""
     citing_paper_id: str
     text: str
     source_type: Literal["fulltext", "markdown", "pdf", "abstract", "unknown"] = "unknown"
@@ -23,7 +23,7 @@ class FullTextDocument:
 
 @dataclass
 class TextSourceSelection:
-    """Represent the text source chosen for one citing-paper sentiment attempt."""
+    """Represent the PDF source chosen for one citing-paper sentiment attempt."""
     citing_paper_id: str
     text: Optional[str]
     source_type: Literal["fulltext", "markdown", "pdf", "abstract", "unknown"] = "unknown"
@@ -58,7 +58,7 @@ class CitationContext:
 
 @dataclass
 class SentimentSummary:
-    """Track full-text, context, classification, and label-count coverage."""
+    """Track PDF, context, classification, and label-count coverage."""
     total_candidates: int = 0
     fulltext_available: int = 0
     context_found: int = 0

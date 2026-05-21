@@ -1,7 +1,6 @@
-"""Acquire and normalize citing-paper text for citation-context analysis."""
+"""Acquire and normalize citing-paper PDF artifacts for citation-context analysis."""
 from __future__ import annotations
 
-import io
 import shutil
 import re
 from dataclasses import dataclass, field
@@ -10,7 +9,6 @@ from typing import Iterable, Mapping, Optional
 from urllib.parse import urlparse
 
 import requests
-from pypdf import PdfReader
 from packages.citation_sources.models import CitingPaper
 from packages.paper_identity.clients.arxiv import ArxivMetadataClient, arxiv_candidate_urls
 from packages.sentiment.models import FullTextDocument, TextSourceSelection
@@ -19,6 +17,7 @@ from packages.shared.runtime_logging import get_runtime_logger
 
 REQUEST_TIMEOUT_SECONDS = 20
 TEXT_MIN_LENGTH = 80
+PDF_ARTIFACT_TEXT = "PDF artifact available via raw_path for GROBID processing."
 DEFAULT_STAGE5_DOWNLOAD_DIR = Path("downloaded-papers") / "stage5"
 FULLTEXT_DOWNLOAD_RETRY = RetryPolicy(
     service="全文获取",
@@ -35,7 +34,7 @@ _ARXIV_METADATA_CLIENT = ArxivMetadataClient()
 
 @dataclass
 class LoadedDocumentPayload:
-    """Carry parsed text plus raw artifacts collected from a full-text candidate."""
+    """Carry a PDF marker plus raw artifacts collected from a candidate."""
     document: Optional[FullTextDocument]
     raw_bytes: Optional[bytes] = None
     raw_suffix: Optional[str] = None
@@ -45,7 +44,7 @@ class LoadedDocumentPayload:
 
 @dataclass
 class FullTextAttemptFailure:
-    """Record why one full-text candidate could not supply usable text."""
+    """Record why one candidate could not supply a usable PDF."""
     source_label: str
     candidate: str
     reason: str
@@ -58,13 +57,13 @@ def select_text_source(
     search_arxiv_fallback: bool = True,
     save_dir: Optional[Path] = None,
 ) -> TextSourceSelection:
-    """Choose the best available text for one citing paper with fallback evidence."""
+    """Choose the best available PDF artifact for one citing paper."""
     attempt_failures: list[FullTextAttemptFailure] = []
     document = (provided_documents or {}).get(citing_paper.canonical_id)
-    if document and (document.text.strip() or document.raw_path):
+    if document and document.source_type == "pdf" and document.raw_path:
         get_runtime_logger().detail(
             "fulltext.select",
-            "使用已提供的全文文档",
+            "使用已提供的 PDF 文档",
             citing_paper_id=citing_paper.canonical_id,
             source_type=document.source_type,
         )
@@ -86,10 +85,10 @@ def select_text_source(
             save_dir=save_dir,
             attempt_failures=attempt_failures,
         )
-        if fetched_document and fetched_document.text.strip():
+        if fetched_document and fetched_document.source_type == "pdf" and fetched_document.raw_path:
             get_runtime_logger().detail(
                 "fulltext.select",
-                "通过网络获取到全文",
+                "通过网络获取到 PDF",
                 citing_paper_id=citing_paper.canonical_id,
                 source_type=fetched_document.source_type,
             )
@@ -104,31 +103,9 @@ def select_text_source(
                 evidence_note=fetched_document.evidence_note or "text_fetched",
             )
 
-    if citing_paper.abstract and citing_paper.abstract.strip():
-        get_runtime_logger().warn(
-            "fulltext.select",
-            "未找到可用全文，已降级为摘要文本，情感将标记为 unknown",
-            citing_paper_id=citing_paper.canonical_id,
-            impact="single_paper",
-        )
-        return TextSourceSelection(
-            citing_paper_id=citing_paper.canonical_id,
-            text=citing_paper.abstract,
-            source_type="abstract",
-            source_label="citing_paper.abstract",
-            local_path=None,
-            raw_path=None,
-            extracted_dir=None,
-            evidence_note=build_recovery_evidence_note(
-                base_note="fallback_to_abstract_only",
-                citing_paper=citing_paper,
-                attempt_failures=attempt_failures,
-            ),
-        )
-
     get_runtime_logger().warn(
         "fulltext.select",
-        "未找到全文或摘要，无法判断该施引论文的引用情感",
+        "未找到 PDF，无法判断该施引论文的引用情感",
         citing_paper_id=citing_paper.canonical_id,
         impact="single_paper",
     )
@@ -154,14 +131,14 @@ def fetch_fulltext_document(
     save_dir: Optional[Path] = None,
     attempt_failures: Optional[list[FullTextAttemptFailure]] = None,
 ) -> Optional[FullTextDocument]:
-    """Try candidate full-text sources until one yields enough extracted text."""
+    """Try candidate sources until one yields a usable PDF artifact."""
     for source_label, candidate in iter_fulltext_candidates(citing_paper, search_arxiv_fallback=search_arxiv_fallback):
         try:
             payload = load_candidate_text(citing_paper.canonical_id, source_label, candidate)
         except Exception as exc:
             get_runtime_logger().detail(
                 "fulltext.fetch",
-                "全文候选抓取失败，继续尝试下一个来源",
+                "PDF 候选抓取失败，继续尝试下一个来源",
                 citing_paper_id=citing_paper.canonical_id,
                 source=source_label,
                 error_type=type(exc).__name__,
@@ -176,16 +153,16 @@ def fetch_fulltext_document(
                 )
             continue
         document = payload.document
-        if document and len(document.text.strip()) >= TEXT_MIN_LENGTH:
+        if document and document.source_type == "pdf":
             get_runtime_logger().detail(
                 "fulltext.fetch",
-                "全文候选可用",
+                "PDF 候选可用",
                 citing_paper_id=citing_paper.canonical_id,
                 source=source_label,
                 source_type=document.source_type,
             )
             document.evidence_note = build_recovery_evidence_note(
-                base_note="text_fetched",
+                base_note="pdf_fetched",
                 citing_paper=citing_paper,
                 attempt_failures=attempt_failures or [],
             )
@@ -199,7 +176,7 @@ def fetch_fulltext_document(
         if attempt_failures is not None:
             get_runtime_logger().detail(
                 "fulltext.fetch",
-                "全文候选文本过短，继续尝试下一个来源",
+                "候选不是 PDF，继续尝试下一个来源",
                 citing_paper_id=citing_paper.canonical_id,
                 source=source_label,
             )
@@ -207,7 +184,7 @@ def fetch_fulltext_document(
                 FullTextAttemptFailure(
                     source_label=source_label,
                     candidate=candidate,
-                    reason="text_too_short",
+                    reason="not_pdf",
                 )
             )
     return None
@@ -253,20 +230,16 @@ def score_candidate(candidate: str) -> int:
     if lowered.startswith("file://") or re.match(r"^[a-zA-Z]:[\\/]", candidate):
         if lowered.endswith(".pdf"):
             return 0
-        if lowered.endswith((".md", ".markdown")):
-            return 5
         return 10
     if lowered.endswith(".pdf"):
         return 1
-    if lowered.endswith(".md") or lowered.endswith(".markdown"):
-        return 10
     if "semanticscholar.org" in lowered:
         return 50
     return 20
 
 
 def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str) -> LoadedDocumentPayload:
-    """Load local or remote candidate content and normalize it into text."""
+    """Load local or remote candidate content when it is a PDF artifact."""
     parsed = urlparse(candidate)
     if looks_like_local_path(candidate, parsed):
         path = Path(parsed.path if parsed.scheme == "file" else candidate)
@@ -277,33 +250,13 @@ def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str)
             return LoadedDocumentPayload(
                 document=FullTextDocument(
                     citing_paper_id=citing_paper_id,
-                    text=extract_pdf_text(path.read_bytes()),
+                    text=PDF_ARTIFACT_TEXT,
                     source_type="pdf",
                     source_label=str(path),
                 ),
                 source_file_path=path,
             )
-        if suffix in {".html", ".htm", ".tex", ".latex"}:
-            raise ValueError(f"unsupported_fulltext_source_type:{suffix.lstrip('.')}")
-        if suffix in {".md", ".markdown"}:
-            return LoadedDocumentPayload(
-                document=FullTextDocument(
-                    citing_paper_id=citing_paper_id,
-                    text=normalize_whitespace(path.read_text(encoding="utf-8")),
-                    source_type="markdown",
-                    source_label=str(path),
-                ),
-                source_file_path=path,
-            )
-        return LoadedDocumentPayload(
-            document=FullTextDocument(
-                citing_paper_id=citing_paper_id,
-                text=normalize_whitespace(path.read_text(encoding="utf-8")),
-                source_type="fulltext",
-                source_label=str(path),
-            ),
-            source_file_path=path,
-        )
+        raise ValueError(f"unsupported_pdf_source_type:{suffix.lstrip('.') or 'unknown'}")
 
     response = _get_with_retry(candidate, FULLTEXT_DOWNLOAD_RETRY)
 
@@ -321,41 +274,14 @@ def load_candidate_text(citing_paper_id: str, source_label: str, candidate: str)
         return LoadedDocumentPayload(
             document=FullTextDocument(
                 citing_paper_id=citing_paper_id,
-                text=extract_pdf_text(response.content),
+                text=PDF_ARTIFACT_TEXT,
                 source_type="pdf",
                 source_label=candidate,
             ),
             raw_bytes=response.content,
             raw_suffix=".pdf",
         )
-    if lowered.endswith(".md") or lowered.endswith(".markdown") or "text/markdown" in content_type:
-        return LoadedDocumentPayload(
-            document=FullTextDocument(
-                citing_paper_id=citing_paper_id,
-                text=normalize_whitespace(response.text),
-                source_type="markdown",
-                source_label=candidate,
-            ),
-            raw_bytes=response.content,
-            raw_suffix=".md",
-        )
-    if (
-        "text/html" in content_type
-        or lowered.endswith((".html", ".htm", ".tex", ".latex"))
-        or "arxiv.org/abs/" in lowered
-        or "arxiv.org/html/" in lowered
-    ):
-        raise ValueError("unsupported_fulltext_source_type:html_or_tex")
-    return LoadedDocumentPayload(
-        document=FullTextDocument(
-            citing_paper_id=citing_paper_id,
-            text=normalize_whitespace(response.text),
-            source_type="fulltext",
-            source_label=candidate,
-        ),
-        raw_bytes=response.content,
-        raw_suffix=".txt",
-    )
+    raise ValueError("unsupported_pdf_source_type:non_pdf")
 
 
 def looks_like_local_path(candidate: str, parsed) -> bool:
@@ -365,13 +291,6 @@ def looks_like_local_path(candidate: str, parsed) -> bool:
     if parsed.scheme == "":
         return True
     return bool(re.match(r"^[a-zA-Z]:[\\/]", candidate))
-
-
-def extract_pdf_text(content: bytes) -> str:
-    """Extract normalized text from PDF bytes for downstream citation matching."""
-    reader = PdfReader(io.BytesIO(content))
-    chunks = [page.extract_text() or "" for page in reader.pages]
-    return normalize_whitespace("\n".join(chunks))
 
 
 def search_arxiv_candidates_by_title(title: str) -> list[str]:
@@ -492,14 +411,13 @@ def short_reason(reason: str) -> str:
 
 
 def build_recovery_hint(citing_paper: CitingPaper) -> str:
-    """Suggest practical ways to recover missing full text for a citing paper."""
+    """Suggest practical ways to recover missing PDF for a citing paper."""
     hints: list[str] = []
     if citing_paper.doi:
         hints.append("check_doi_landing_page")
     if citing_paper.title:
         hints.append("search_title_for_author_pdf_or_preprint")
     hints.append("attach_local_pdf_via_source_links")
-    hints.append("fallback_to_abstract_when_fulltext_unavailable")
     return ",".join(hints)
 
 
@@ -509,7 +427,7 @@ def persist_fulltext_document(
     payload: LoadedDocumentPayload,
     save_dir: Optional[Path] = None,
 ) -> None:
-    """Persist parsed text and any raw source artifact for inspection and reuse."""
+    """Persist the PDF artifact and a lightweight marker file for inspection."""
     base_dir = (save_dir or DEFAULT_STAGE5_DOWNLOAD_DIR).resolve()
     base_dir.mkdir(parents=True, exist_ok=True)
     slug = slugify(citing_paper.title)

@@ -42,7 +42,13 @@ def classify_sentiment(context_text: str, target_paper: TargetPaper) -> tuple[Se
         "当上下文指出目标工作的限制、失败、弱点，或明确与目标工作形成负面对比时，使用 label=critical。"
         "当上下文主要是背景介绍、事实列举或中性提及时，使用 label=neutral。"
         "只有当上下文证据不足以支持任何判断时，才使用 label=unknown。"
-        "evidence_note 必须使用中文，简明说明判断依据；论文标题、作者名、arXiv ID 和专业术语可以保留英文原文。"
+        "evidence_note 必须使用中文，输出 1-2 句自然通顺、可直接放进报告“原因：”后面的解释；"
+        "不要包含字段名、JSON、label 名、llm_sentiment、原因：前缀或其它工程标记。"
+        "positive 的原因要说明上下文如何采用、扩展、依赖或肯定目标论文。"
+        "critical 的原因要说明上下文如何指出目标论文的限制、失败、弱点或负面对比。"
+        "neutral 的原因要说明上下文只是把目标论文作为背景、相关工作、事实列举或分类归纳。"
+        "unknown 的原因要说明上下文仅含书目信息、引用列表、参考文献条目或证据不足。"
+        "论文标题、作者名、arXiv ID 和专业术语可以保留英文原文。"
     )
     result = invoke_llm_with_retry(
         structured_llm,

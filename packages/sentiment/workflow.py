@@ -61,7 +61,7 @@ def run_stage6_workflow(
             state["grobid_note"] = f"grobid_unavailable:{exc.__class__.__name__}"
             get_runtime_logger().warn(
                 "grobid.match",
-                "GROBID 不可用或处理失败，已降级到文本/LLM 定位",
+                "GROBID 不可用或处理失败，PDF-only 模式下不再降级到文本/LLM 定位",
                 citing_paper_id=state["citing_paper"].canonical_id,
                 error_type=exc.__class__.__name__,
                 impact="single_paper",
@@ -78,7 +78,7 @@ def run_stage6_workflow(
         else:
             get_runtime_logger().warn(
                 "grobid.match",
-                "GROBID 未命中目标论文参考文献结构，已降级到文本/LLM 定位",
+                "GROBID 未命中目标论文参考文献结构，PDF-only 模式下不再降级到文本/LLM 定位",
                 citing_paper_id=state["citing_paper"].canonical_id,
                 evidence=grobid_match.evidence_note,
                 impact="single_paper",
@@ -90,6 +90,15 @@ def run_stage6_workflow(
             return state
         text_source_local = state["text_source"]
         target = state["target_paper"]
+
+        if text_source_local.source_type == "pdf":
+            state["reference_match"] = ReferenceMatch(
+                matched_target_reference=None,
+                context_text=None,
+                mention_span=None,
+                evidence_note="pdf_only_grobid_context_not_found",
+            )
+            return state
 
         llm_match = matcher(
             text_source_local.text or "",

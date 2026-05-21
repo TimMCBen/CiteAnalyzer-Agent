@@ -1,4 +1,4 @@
-"""Validate Stage 5 full-text selection, fetching, and arXiv cache use."""
+"""Validate Stage 5 PDF selection, fetching, and arXiv cache use."""
 from __future__ import annotations
 
 import json
@@ -14,7 +14,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from packages.citation_sources.models import CitingPaper
 from packages.paper_identity.models import CandidateWork
-from packages.sentiment.fulltext import fetch_fulltext_document, select_text_source
+from packages.sentiment.fulltext import PDF_ARTIFACT_TEXT, fetch_fulltext_document, select_text_source
 from packages.sentiment.fulltext import reset_arxiv_metadata_client_for_testing, search_arxiv_candidates_by_title
 from packages.sentiment.fulltext import set_arxiv_metadata_client_for_testing
 from packages.shared.models import TargetPaper
@@ -160,12 +160,15 @@ def assert_stage5_local_fulltext_validation(sample_path: Path = DEFAULT_SAMPLE_P
         assert docs["citing-2"] is not None and docs["citing-2"].source_type == "pdf"
         assert docs["citing-3"] is not None and docs["citing-3"].source_type == "pdf"
         assert docs["citing-4"] is None
-        assert target_paper.doi in docs["citing-1"].text
-        assert target_paper.doi in docs["citing-2"].text
-        assert target_paper.doi in docs["citing-3"].text
+        assert docs["citing-1"].text == PDF_ARTIFACT_TEXT
+        assert docs["citing-2"].text == PDF_ARTIFACT_TEXT
+        assert docs["citing-3"].text == PDF_ARTIFACT_TEXT
         assert docs["citing-1"].local_path and Path(docs["citing-1"].local_path).exists()
         assert docs["citing-2"].local_path and Path(docs["citing-2"].local_path).exists()
         assert docs["citing-3"].local_path and Path(docs["citing-3"].local_path).exists()
+        assert docs["citing-1"].raw_path and Path(docs["citing-1"].raw_path).exists()
+        assert docs["citing-2"].raw_path and Path(docs["citing-2"].raw_path).exists()
+        assert docs["citing-3"].raw_path and Path(docs["citing-3"].raw_path).exists()
         return {
             "sample_path": str(sample_path),
             "temp_dir": str(temp_dir),
@@ -193,9 +196,9 @@ def assert_stage5_unavailable_paper_guidance(sample_path: Path = DEFAULT_SAMPLE_
         search_arxiv_fallback=False,
     )
 
-    assert selection.source_type == "abstract", selection
-    assert selection.text == unavailable.abstract, selection
-    assert "fallback_to_abstract_only" in selection.evidence_note, selection.evidence_note
+    assert selection.source_type == "unknown", selection
+    assert selection.text is None, selection
+    assert "no_text_available" in selection.evidence_note, selection.evidence_note
     assert "recovery=" in selection.evidence_note, selection.evidence_note
     assert "attach_local_pdf_via_source_links" in selection.evidence_note, selection.evidence_note
     assert "check_doi_landing_page" in selection.evidence_note, selection.evidence_note
@@ -262,8 +265,8 @@ def maybe_run_live_fetch_smoke(logger: StageLogger) -> None:
     document = fetch_fulltext_document(paper, search_arxiv_fallback=True)
     assert document is not None, "live arxiv fetch returned no document"
     assert document.source_type == "pdf", document
-    assert len(document.text) > 1000, f"live arxiv fetch returned too little text: {len(document.text)}"
-    assert document.local_path and Path(document.local_path).exists(), "live arxiv fetch did not persist local text file"
+    assert document.text == PDF_ARTIFACT_TEXT, document.text
+    assert document.local_path and Path(document.local_path).exists(), "live arxiv fetch did not persist local PDF marker"
     assert document.raw_path and Path(document.raw_path).exists(), "live arxiv fetch did not preserve raw source"
     logger.pass_case(
         "live_fetch_smoke",
@@ -272,7 +275,7 @@ def maybe_run_live_fetch_smoke(logger: StageLogger) -> None:
 
 
 def main() -> None:
-    """Run Stage 5 full-text and cache contract assertions."""
+    """Run Stage 5 PDF and cache contract assertions."""
     logger = StageLogger("stage5")
     logger.start()
     fulltext_detail = assert_stage5_local_fulltext_validation()

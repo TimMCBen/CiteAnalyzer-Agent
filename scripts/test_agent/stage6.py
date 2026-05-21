@@ -186,6 +186,46 @@ def fake_classify_sentiment(context_text: str, target_paper: TargetPaper) -> tup
     return "neutral", "llm_sentiment:fixture detected background or framing usage."
 
 
+def fake_grobid_matcher(pdf_path: Path, target_paper: TargetPaper) -> ReferenceMatch:
+    """Return deterministic GROBID-like matches for local PDF fixtures."""
+    _ = target_paper
+    normalized_path = str(pdf_path).lower()
+    if "citing-1__" in normalized_path:
+        return ReferenceMatch(
+            matched_target_reference="fixture_target_reference",
+            context_text="Following the target work, we build on and extend the analysis pipeline.",
+            mention_span=None,
+            evidence_note="matched_by_grobid_fixture:citing-1",
+        )
+    if "citing-2__" in normalized_path:
+        return ReferenceMatch(
+            matched_target_reference="fixture_target_reference",
+            context_text="We use the target work only as background to frame transparency-related concerns.",
+            mention_span=None,
+            evidence_note="matched_by_grobid_fixture:citing-2",
+        )
+    if "citing-3__" in normalized_path:
+        return ReferenceMatch(
+            matched_target_reference="fixture_target_reference",
+            context_text="The target work has a clear weakness and cannot explain fund-stealing scenarios.",
+            mention_span=None,
+            evidence_note="matched_by_grobid_fixture:citing-3",
+        )
+    if "citing-5__" in normalized_path:
+        return ReferenceMatch(
+            matched_target_reference="fixture_target_reference",
+            context_text="Earlier work gave the first systematic treatment and is used as background framing.",
+            mention_span=None,
+            evidence_note="matched_by_grobid_fixture:citing-5",
+        )
+    return ReferenceMatch(
+        matched_target_reference=None,
+        context_text=None,
+        mention_span=None,
+        evidence_note="grobid_fixture_miss",
+    )
+
+
 def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_PATH):
     target_paper, citing_papers = load_stage2_sample(sample_path)
     citing_papers.append(
@@ -201,7 +241,9 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
     import packages.sentiment.workflow as workflow
 
     original_classifier = workflow.classify_sentiment
+    original_grobid_matcher = workflow.locate_reference_context_from_grobid_pdf
     workflow.classify_sentiment = fake_classify_sentiment
+    workflow.locate_reference_context_from_grobid_pdf = fake_grobid_matcher
     try:
         result = analyze_citation_sentiments(
             target_paper=target_paper,
@@ -214,6 +256,7 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
         )
     finally:
         workflow.classify_sentiment = original_classifier
+        workflow.locate_reference_context_from_grobid_pdf = original_grobid_matcher
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     labels = {context.citing_paper_id: context.sentiment_label for context in result.contexts}
@@ -228,14 +271,14 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
     assert labels["citing-5"] in {"neutral", "positive"}, labels
     assert labels["citing-6"] == "unknown", labels
 
-    assert evidence_notes["citing-1"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-1"]
-    assert evidence_notes["citing-2"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-2"]
-    assert evidence_notes["citing-3"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-3"]
+    assert evidence_notes["citing-1"].startswith("matched_by_grobid_fixture:"), evidence_notes["citing-1"]
+    assert evidence_notes["citing-2"].startswith("matched_by_grobid_fixture:"), evidence_notes["citing-2"]
+    assert evidence_notes["citing-3"].startswith("matched_by_grobid_fixture:"), evidence_notes["citing-3"]
     assert evidence_notes["citing-4"].startswith("no_text_available"), evidence_notes["citing-4"]
     assert "recovery=" in evidence_notes["citing-4"], evidence_notes["citing-4"]
     assert "attach_local_pdf_via_source_links" in evidence_notes["citing-4"], evidence_notes["citing-4"]
-    assert evidence_notes["citing-5"].startswith("matched_by_llm_reference_and_context:"), evidence_notes["citing-5"]
-    assert evidence_notes["citing-6"].startswith("fallback_to_abstract_only"), evidence_notes["citing-6"]
+    assert evidence_notes["citing-5"].startswith("matched_by_grobid_fixture:"), evidence_notes["citing-5"]
+    assert evidence_notes["citing-6"].startswith("no_text_available"), evidence_notes["citing-6"]
     assert "recovery=" in evidence_notes["citing-6"], evidence_notes["citing-6"]
     assert "llm_sentiment:" in evidence_notes["citing-1"], evidence_notes["citing-1"]
     assert "llm_sentiment:" in evidence_notes["citing-2"], evidence_notes["citing-2"]
@@ -246,7 +289,7 @@ def assert_stage6_local_sentiment_validation(sample_path: Path = DEFAULT_SAMPLE_
     assert source_types["citing-3"] == "pdf", source_types
     assert source_types["citing-4"] == "unknown", source_types
     assert source_types["citing-5"] == "pdf", source_types
-    assert source_types["citing-6"] == "abstract", source_types
+    assert source_types["citing-6"] == "unknown", source_types
 
     summary = result.summary
     assert summary.total_candidates == 6, summary

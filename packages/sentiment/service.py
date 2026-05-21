@@ -1,4 +1,4 @@
-"""Service layer that turns citing-paper texts into sentiment analysis results."""
+"""Service layer that turns citing-paper PDF artifacts into sentiment analysis results."""
 from __future__ import annotations
 
 from typing import Callable, Mapping, Optional, Sequence
@@ -39,7 +39,7 @@ def analyze_citation_sentiments(
         if not text_source.text:
             get_runtime_logger().warn(
                 "sentiment.unknown",
-                "没有可用文本，无法判断引用情感",
+                "没有可用 PDF，无法判断引用情感",
                 citing_paper_id=citing_paper.canonical_id,
                 reason=text_source.evidence_note,
             )
@@ -61,7 +61,7 @@ def analyze_citation_sentiments(
         if text_source.source_type == "abstract":
             get_runtime_logger().warn(
                 "sentiment.unknown",
-                "仅有摘要文本，无法可靠定位目标论文引用上下文",
+                "仅有摘要文本，PDF-only 模式下不作为引用上下文来源",
                 citing_paper_id=citing_paper.canonical_id,
                 reason=text_source.evidence_note,
             )
