@@ -214,8 +214,8 @@ def analyze_author_intel_node(state: AnalysisState) -> AnalysisState:
 
 
 def fetch_fulltext_documents_node(state: AnalysisState) -> AnalysisState:
-    """Fetch available full-text artifacts for each citing paper."""
-    get_runtime_logger().stage_start("stage5", "获取施引论文全文")
+    """Fetch available PDF artifacts for each citing paper."""
+    get_runtime_logger().stage_start("stage5", "获取施引论文 PDF")
     citing_papers = state.get("citing_papers")
     if not isinstance(citing_papers, list):
         raise RuntimeError("citing_papers are required before stage5 fulltext fetch")
@@ -240,7 +240,7 @@ def fetch_fulltext_documents_node(state: AnalysisState) -> AnalysisState:
             errors.append(f"stage5:{citing_paper.canonical_id}:{exc}")
             get_runtime_logger().warn(
                 "fulltext.fetch",
-                "单篇全文获取失败，后续会降级处理",
+                "单篇 PDF 获取失败，后续会降级处理",
                 citing_paper_id=citing_paper.canonical_id,
                 error_type=exc.__class__.__name__,
                 impact="single_paper",
@@ -250,7 +250,7 @@ def fetch_fulltext_documents_node(state: AnalysisState) -> AnalysisState:
             fulltext_documents[citing_paper.canonical_id] = document
             get_runtime_logger().detail(
                 "fulltext.fetch",
-                "全文获取成功",
+                "PDF 获取成功",
                 citing_paper_id=citing_paper.canonical_id,
                 source_type=document.source_type,
                 path=document.local_path or document.raw_path,
@@ -263,7 +263,7 @@ def fetch_fulltext_documents_node(state: AnalysisState) -> AnalysisState:
     state["status"] = "fulltext_documents_fetched"
     get_runtime_logger().stage_done(
         "stage5",
-        "全文获取完成",
+        "PDF 获取完成",
         available=len(fulltext_documents),
         missing=len(citing_papers) - len(fulltext_documents),
     )
@@ -337,6 +337,11 @@ def generate_report_node(state: AnalysisState) -> AnalysisState:
         fetch_summary=state.get("fetch_summary"),
         source_trace=state.get("source_trace") if isinstance(state.get("source_trace"), list) else None,
         state_errors=state.get("errors") if isinstance(state.get("errors"), list) else None,
+        author_identity_skipped_papers=(
+            state.get("author_intel_skipped_papers")
+            if isinstance(state.get("author_intel_skipped_papers"), list)
+            else None
+        ),
     )
     get_runtime_logger().stage_done(
         "stage7",
