@@ -42,6 +42,11 @@ venv/
 # Imported/disabled nested repositories
 **/.git_disabled/
 
+# Local configuration and generated outputs from imported thesis crawler
+Thesis_Crawling_and_Filtering_System/config.json
+Thesis_Crawling_and_Filtering_System/results/
+Thesis_Crawling_and_Filtering_System/screenshot/
+
 # Terraform and infra
 .terraform/
 *.tfstate

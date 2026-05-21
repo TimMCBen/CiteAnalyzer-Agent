@@ -1,0 +1,59 @@
+{
+  "crawler": {
+    "source": "arxiv",
+    "query_mode": "advanced",
+    "advanced_query": "modality",
+    "keywords": {
+      "must": [
+        "MLLM",
+        "MLLMs",
+        "Multimodal Large Language Model",
+        "Video-Language Model",
+        "VLM"
+      ],
+      "optional": [
+        "modality interference",
+        "cross-modal interference",
+        "negative transfer in multimodal learning",
+        "modality conflict",
+        "modality imbalance",
+        "cross-modal adaptation",
+        "cross-modal",
+        "LoRA",
+        "task interference",
+        "Low-rank Adaptation",
+        "Low Rank Adaptation"
+      ]
+    },
+    "proxy": {
+      "http": "http://user_ip:port",
+      "https": "http://user_ip:port"
+    },
+    "paths": {
+      "base_dir": "arxiv_papers",
+      "log_file": "arxiv_crawler.log"
+    },
+    "crawl_mode": "date_range",
+    "date_range": {
+      "start_date": "2025-11-01",
+      "end_date": "2025-11-17"
+    },
+    "arxiv_params": {
+      "max_results_per_request": 25,
+      "base_delay": 5,
+      "max_retries": 1,
+      "incremental_check_hour": 0
+    }
+  },
+  "filtering": {
+    "ai_screener": {
+      "api_key": "YOUR_OPENAI_API_KEY",
+      "base_url": "https://api.openai.com/v1",
+      "model": "gpt-4-turbo",
+      "rounds": 3,
+      "max_concurrent": 5,
+      "coarse_prompt": "请判断以下论文标题是否与“多模态大语言模型”主题相关。请只回答“True”或“False”。",
+      "fine_prompt": "请基于以下论文的标题和摘要，判断其内容是否与“多模态大语言模型”主题高度相关。请只回答“True”或“False”。"
+    }
+  }
+}
