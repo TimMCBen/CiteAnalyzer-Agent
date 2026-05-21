@@ -8,9 +8,22 @@ from xml.etree import ElementTree
 
 import requests
 
+try:
+    from pydantic import BaseModel, Field
+except ImportError:
+    class BaseModel:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+    def Field(default=None, **kwargs):  # type: ignore
+        return default
+
+from packages.citation_sources.clients.semantic_scholar import SemanticScholarClient
 from packages.shared.models import TargetPaper
 from packages.shared.network_retry import RetryExhaustedError, RetryPolicy, retry_call
 from packages.shared.runtime_logging import get_runtime_logger
+from packages.shared.web_search import GenericWebSearchClient, WebSearchResult, WebSearchUnavailable
 
 REQUEST_TIMEOUT_SECONDS = 20
 USER_AGENT = "CiteAnalyzer-Agent/0.1"
@@ -46,6 +59,14 @@ ARXIV_TITLE_RETRY = RetryPolicy(
     max_delay_seconds=1.5,
     jitter_seconds=0.1,
 )
+
+
+class WebTitleResolutionModel(BaseModel):
+    """Validate LLM selection of a target-paper title from web-search results."""
+    title: str = Field(description="Exact English paper title, or UNKNOWN.")
+    confidence: str = Field(description="high, medium, low, or unknown")
+    source_url: str = Field(description="URL of the search result that supports the title, or empty string.")
+    evidence_zh: str = Field(description="中文说明为什么这个标题可信，或为什么无法判断。")
 
 
 def resolve_target_paper_metadata(target_paper: TargetPaper) -> TargetPaper:
@@ -114,41 +135,41 @@ def resolve_by_arxiv(target_paper: TargetPaper) -> TargetPaper:
         if exc.status == 429:
             get_runtime_logger().warn(
                 "resolver.arxiv",
-                "arXiv 元数据接口限流，使用 arXiv ID 继续进入 Semantic Scholar 主链路",
+                "arXiv 元数据接口限流，尝试用外部来源补全标题",
                 arxiv_id=arxiv_id,
             )
-            return _resolved_arxiv_stub(target_paper, arxiv_id)
+            return _resolve_arxiv_metadata_fallback(target_paper, arxiv_id, reason="arxiv_429")
         get_runtime_logger().warn(
             "resolver.arxiv",
-            "arXiv 元数据接口多次连接失败，使用 arXiv ID 继续进入 Semantic Scholar 主链路",
+            "arXiv 元数据接口多次连接失败，尝试用外部来源补全标题",
             arxiv_id=arxiv_id,
             error_type=exc.reason,
         )
-        return _resolved_arxiv_stub(target_paper, arxiv_id)
+        return _resolve_arxiv_metadata_fallback(target_paper, arxiv_id, reason=f"arxiv_retry_exhausted:{exc.reason}")
     except requests.HTTPError as exc:
         if exc.response is not None and exc.response.status_code == 429:
             get_runtime_logger().warn(
                 "resolver.arxiv",
-                "arXiv 元数据接口限流，使用 arXiv ID 继续进入 Semantic Scholar 主链路",
+                "arXiv 元数据接口限流，尝试用外部来源补全标题",
                 arxiv_id=arxiv_id,
             )
-            return _resolved_arxiv_stub(target_paper, arxiv_id)
+            return _resolve_arxiv_metadata_fallback(target_paper, arxiv_id, reason="arxiv_http_429")
         raise
     except requests.RequestException as exc:
         get_runtime_logger().warn(
             "resolver.arxiv",
-            "arXiv 元数据接口连接失败，使用 arXiv ID 继续进入 Semantic Scholar 主链路",
+            "arXiv 元数据接口连接失败，尝试用外部来源补全标题",
             arxiv_id=arxiv_id,
             error_type=exc.__class__.__name__,
         )
-        return _resolved_arxiv_stub(target_paper, arxiv_id)
+        return _resolve_arxiv_metadata_fallback(target_paper, arxiv_id, reason=f"arxiv_request:{exc.__class__.__name__}")
     root = ElementTree.fromstring(response.text)
     namespace = {"atom": "http://www.w3.org/2005/Atom"}
     arxiv_namespace = {"arxiv": "http://arxiv.org/schemas/atom"}
     entry = root.find("atom:entry", namespace)
     if entry is None:
         get_runtime_logger().warn("resolver.arxiv", "arXiv 未返回匹配论文", arxiv_id=arxiv_id)
-        return mark_unresolved(target_paper, reason="arxiv returned no matching entry")
+        return _resolve_arxiv_metadata_fallback(target_paper, arxiv_id, reason="arxiv_no_entry")
 
     title = normalize_ws(entry.findtext("atom:title", default="", namespaces=namespace))
     entry_id = normalize_ws(entry.findtext("atom:id", default="", namespaces=namespace))
@@ -310,6 +331,184 @@ def _resolved_arxiv_stub(target_paper: TargetPaper, arxiv_id: str) -> TargetPape
         source_ids={"arxiv": arxiv_id, **({"doi": target_paper.doi.lower()} if target_paper.doi else {})},
         resolve_status="resolved",
     )
+
+
+def _resolve_arxiv_metadata_fallback(target_paper: TargetPaper, arxiv_id: str, *, reason: str) -> TargetPaper:
+    """Resolve arXiv metadata through structured APIs and optional web-search fallback."""
+    semantic = _resolve_arxiv_from_semantic_scholar(target_paper, arxiv_id)
+    if semantic is not None:
+        return semantic
+    web = _resolve_arxiv_from_web_search(target_paper, arxiv_id, reason=reason)
+    if web is not None:
+        return web
+    return _resolved_arxiv_stub(target_paper, arxiv_id)
+
+
+def _resolve_arxiv_from_semantic_scholar(target_paper: TargetPaper, arxiv_id: str) -> TargetPaper | None:
+    """Use Semantic Scholar paper lookup as a stable title fallback for arXiv IDs."""
+    try:
+        paper_ref = SemanticScholarClient(max_retries=1, backoff_seconds=1.0).resolve_target_paper(
+            TargetPaper(
+                canonical_id=arxiv_id,
+                paper_query=arxiv_id,
+                paper_query_type="arxiv",
+                source_ids={"arxiv": arxiv_id},
+            )
+        )
+    except Exception as exc:
+        get_runtime_logger().warn(
+            "resolver.semantic_scholar",
+            "Semantic Scholar 目标论文标题兜底失败",
+            arxiv_id=arxiv_id,
+            error_type=exc.__class__.__name__,
+        )
+        return None
+    title = normalize_ws(str(paper_ref.get("title") or ""))
+    if not _looks_like_real_title(title, arxiv_id):
+        return None
+    doi = normalize_ws(str(paper_ref.get("doi") or "")) or target_paper.doi
+    source_ids = {
+        "arxiv": arxiv_id,
+        "semantic_scholar": str(paper_ref.get("paper_id") or paper_ref.get("source_record_id") or "").strip(),
+    }
+    if doi:
+        source_ids["doi"] = doi.lower()
+    get_runtime_logger().detail(
+        "resolver.semantic_scholar",
+        "Semantic Scholar 成功补全目标论文标题",
+        arxiv_id=arxiv_id,
+        title=title,
+    )
+    return TargetPaper(
+        canonical_id=arxiv_id,
+        paper_query=target_paper.paper_query,
+        paper_query_type=target_paper.paper_query_type,
+        title=title,
+        doi=doi.lower() if doi else None,
+        source_ids={key: value for key, value in source_ids.items() if value},
+        resolve_status="resolved",
+    )
+
+
+def _resolve_arxiv_from_web_search(target_paper: TargetPaper, arxiv_id: str, *, reason: str) -> TargetPaper | None:
+    """Use configured web-search API plus LLM verification to recover an arXiv title."""
+    try:
+        from apps.analyzer.config import build_llm, invoke_llm_with_retry, load_local_env
+
+        load_local_env(override=True)
+        search_client = GenericWebSearchClient.from_env()
+        results = search_client.search(f"arXiv {arxiv_id} paper title", max_results=5)
+    except WebSearchUnavailable as exc:
+        get_runtime_logger().warn(
+            "resolver.web_search",
+            "通用搜索 API 未配置，跳过 Stage1 联网搜索兜底",
+            arxiv_id=arxiv_id,
+            reason=str(exc),
+        )
+        return None
+    except Exception as exc:
+        get_runtime_logger().warn(
+            "resolver.web_search",
+            "通用搜索 API 查询失败",
+            arxiv_id=arxiv_id,
+            error_type=exc.__class__.__name__,
+        )
+        return None
+
+    if not results:
+        get_runtime_logger().warn("resolver.web_search", "通用搜索 API 未返回结果", arxiv_id=arxiv_id)
+        return None
+
+    try:
+        llm = build_llm()
+        structured_llm = llm.with_structured_output(WebTitleResolutionModel, method="function_calling")
+        decision = invoke_llm_with_retry(
+            structured_llm,
+            [
+                {
+                    "role": "system",
+                    "content": (
+                        "你正在从联网搜索结果中核验 arXiv 论文标题。"
+                        "只允许根据给定搜索结果判断，不要凭记忆补全。"
+                        "如果结果不能可靠对应指定 arXiv ID，title 必须返回 UNKNOWN。"
+                        "confidence 必须是 high、medium、low 或 unknown。"
+                        "evidence_zh 用中文简要说明依据。"
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": _format_web_title_prompt(arxiv_id, results),
+                },
+            ],
+            "阶段1联网搜索标题核验",
+        )
+    except Exception as exc:
+        get_runtime_logger().warn(
+            "resolver.web_search_llm",
+            "LLM 无法核验联网搜索标题",
+            arxiv_id=arxiv_id,
+            error_type=exc.__class__.__name__,
+        )
+        return None
+
+    title = normalize_ws(str(getattr(decision, "title", "") or ""))
+    confidence = str(getattr(decision, "confidence", "") or "").strip().casefold()
+    source_url = normalize_ws(str(getattr(decision, "source_url", "") or ""))
+    if not _looks_like_real_title(title, arxiv_id) or confidence not in {"high", "medium"}:
+        get_runtime_logger().warn(
+            "resolver.web_search_llm",
+            "LLM 未能从联网搜索结果确认目标论文标题",
+            arxiv_id=arxiv_id,
+            confidence=confidence or "unknown",
+        )
+        return None
+
+    get_runtime_logger().detail(
+        "resolver.web_search_llm",
+        "联网搜索 + LLM 成功补全目标论文标题",
+        arxiv_id=arxiv_id,
+        title=title,
+        confidence=confidence,
+    )
+    source_ids = {"arxiv": arxiv_id, "web_search": source_url, "web_search_reason": reason}
+    return TargetPaper(
+        canonical_id=arxiv_id,
+        paper_query=target_paper.paper_query,
+        paper_query_type=target_paper.paper_query_type,
+        title=title,
+        doi=target_paper.doi,
+        source_ids={key: value for key, value in source_ids.items() if value},
+        resolve_status="resolved",
+    )
+
+
+def _format_web_title_prompt(arxiv_id: str, results: list[WebSearchResult]) -> str:
+    """Format search rows so the LLM can choose only evidence-backed titles."""
+    lines = [f"Target arXiv ID: {arxiv_id}", "Search results:"]
+    for index, result in enumerate(results, start=1):
+        lines.append(
+            "\n".join(
+                [
+                    f"{index}. title: {result.title}",
+                    f"   url: {result.url}",
+                    f"   snippet: {result.snippet}",
+                    f"   source: {result.source}",
+                ]
+            )
+        )
+    return "\n".join(lines)
+
+
+def _looks_like_real_title(title: str, arxiv_id: str) -> bool:
+    """Reject placeholder IDs and empty values before accepting a resolved title."""
+    normalized = normalize_ws(title)
+    if not normalized:
+        return False
+    if normalized.strip().upper() == "UNKNOWN":
+        return False
+    if normalize_title(normalized) in {normalize_title(f"arXiv:{arxiv_id}"), normalize_title(arxiv_id)}:
+        return False
+    return bool(re.search(r"[A-Za-z]", normalized)) and len(normalized) >= 8
 
 
 def first_title(value: object) -> Optional[str]:
