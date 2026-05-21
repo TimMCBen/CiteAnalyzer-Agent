@@ -1,0 +1,73 @@
+{
+  "papers": [
+    {
+      "title": "SEFE: Superficial and Essential Forgetting Eliminator for Multimodal Continual Instruction Tuning",
+      "authors": [
+        "Zhanpeng Huang",
+        "Yubin Hu",
+        "Hanyang Liu",
+        "Hanxu Zhou",
+        "Xinwei Chen",
+        "Qinglong Zhang",
+        "Jianhua Han",
+        "Ting Sun"
+      ],
+      "abstract": "Multimodal Continual Instruction Tuning (MCIT) aims to enable Multimodal Large Language Models (MLLMs) to incrementally learn new tasks without catastrophic forgetting, thus adapting to evolving requirements. In this paper, we explore the forgetting caused by such incremental training, categorizing it into superficial forgetting and essential forgetting. Superficial forgetting refers to cases where the model’s knowledge may not be genuinely lost, but its responses to previous tasks deviate from expected formats due to the influence of subsequent tasks’ answer styles, making the results unusable. On the other hand, essential forgetting refers to situations where the model provides correctly f",
+      "url": "https://openreview.net/pdf?id=i8EKu3cFsr",
+      "venue": "ICML-2025-poster"
+    },
+    {
+      "title": "Learn from Downstream and Be Yourself in Multimodal Large Language Models Fine-Tuning",
+      "authors": [
+        "Yufan Peng",
+        "Jiabao Ji",
+        "Chang Ma",
+        "Xingjian Zhang",
+        "Fangrui Lv",
+        "Xiaoqiang Lei",
+        "Qingsong Wen",
+        "Wenjun Jiang",
+        "Yun-Yun Tseng",
+        "Yuxuan Liang"
+      ],
+      "abstract": "Multimodal Large Language Model (MLLM) has demonstrated strong generalization capabilities across diverse distributions and tasks, largely due to extensive pre-training datasets. Fine-tuning MLLM has become a common practice to improve performance on specific downstream tasks. However, during fine-tuning, MLLM often faces the risk of forgetting knowledge acquired during pre-training, which can result in a decline in generalization abilities. To balance the trade-off between generalization and specialization, we propose measuring the parameter importance for both pre-trained and fine-tuning distributions, based on frozen pre-trained weight magnitude and accumulated fine-tuning gradient values. We further apply an importance-aware weight allocation strategy, selectively updating relatively important parameters for downstream tasks. We conduct empirical evaluations on both image captioning and visual question-answering tasks using various MLLM architectures. The comprehensive experimental analysis demonstrates the effectiveness of the proposed solution, highlighting the efficiency of the crucial modules in enhancing downstream specialization performance while mitigating generalization",
+      "url": "https://openreview.net/pdf?id=0IuGg1pTiX",
+      "venue": "ICML-2025-poster"
+    },
+    {
+      "title": "Dynamic Mixture of Curriculum LoRA Experts for Continual Multimodal Instruction Tuning",
+      "authors": [
+        "Yinxu Pan",
+        "Yan Ge",
+        "Liangyu Huo",
+        "Dongsheng Li",
+        "Shuai Yuan"
+      ],
+      "abstract": "Continual multimodal instruction tuning is crucial for adapting Multimodal Large Language Models (MLLMs) to evolving tasks. However, most existing methods adopt a fixed architecture, struggling with adapting to new tasks due to static model capacity. We propose to evolve the architecture under parameter budgets for dynamic task adaptation, which remains unexplored and imposes two challenges: 1) task architecture conflict, where different tasks require varying layer-wise adaptations, and 2) modality imbalance, where different tasks rely unevenly on modalities, leading to unbalanced updates. To address these challenges, we propose a novel Dynamic Mixture of Curriculum LoRA Experts (D-MoLE) meta-architecture. D-MoLE consists of heterogeneous LoRA experts that can be dynamically instantiated during training, along with modality-specific expert ensembler modules. To enhance stability and plasticity, we introduce a Curriculum Continual Training strategy that leverages LoRA hints and High-to-Low activation routing. Our extensive experiments across multiple benchmarks and diverse tasks demonstrate that D-MoLE outperforms existing methods in terms of both performance and parameter efficiency.",
+      "url": "https://openreview.net/pdf?id=MbOBW6nfN2",
+      "venue": "ICML-2025-poster"
+    },
+    {
+      "title": "HealthGPT: A Medical Large Vision-Language Model for Unifying ...hension and Generation via Heterogeneous Knowledge Adaptation",
+      "authors": [
+        "Zexuan Qin",
+        "Xinfeng Phang",
+        "Yuqi Lin",
+        "Guangyuan Fu",
+        "Yuhui Huang",
+        "Runyi Li",
+        "Enlong Zhu",
+        "Yixiao Shen",
+        "Fangcheng Liu",
+        "Hong Yao",
+        "Jingsong Li",
+        "Fei Wu",
+        "Huaizheng Zhang",
+        "Haoyu Wang"
+      ],
+      "abstract": "We present **HealthGPT**, a powerful Medical Large Vision-Language Model (Med-LVLM) that integrates medical visual comprehension and generation capabilities within a unified autoregressive paradigm. Our bootstrapping philosophy is to progressively adapt heterogeneous comprehension and generation knowledge to pre-trained Large Language Models (LLMs). This is achieved through a novel heterogeneous low-rank adaptation **(H-LoRA)** technique, which is complemented by a tailored hierarchical visual perception **(HVP)** approach and a three-stage learning strategy **(TLS)**. To effectively learn the HealthGPT, we devise a comprehensive medical domain-specific comprehension and generation dataset called **VL-Health**. Experimental results demonstrate exceptional performance and scalability  of HealthGPT in medical visual unified tasks. Our project can be accessed at https://github.com/DCDmllm/HealthGPT.",
+      "url": "https://openreview.net/pdf?id=Z9P7W9vptO",
+      "venue": "ICML-2025-poster"
+    }
+  ]
+}

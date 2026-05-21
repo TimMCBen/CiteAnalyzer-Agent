@@ -1,0 +1,523 @@
+{
+  "metadata": {
+    "last_updated": "2025-11-19T10:23:42.186906+00:00",
+    "total_papers": 20,
+    "matched_keywords_stats": {
+      "multimodal": 13,
+      "lora": 20,
+      "vlm": 7,
+      "qlora": 2,
+      "vision-language": 6,
+      "moe lora": 2,
+      "cross-modal": 4
+    }
+  },
+  "papers": [
+    {
+      "title": "ManipShield: A Unified Framework for Image Manipulation Detection, Localization and Explanation",
+      "abstract": "With the rapid advancement of generative models, powerful image editing methods now enable diverse and highly realistic image manipulations that far surpass traditional deepfake techniques, posing new challenges for manipulation detection. Existing image manipulation detection and localization (IMDL) benchmarks suffer from limited content diversity, narrow generative-model coverage, and insufficient interpretability, which hinders the generalization and explanation capabilities of current manipulation detection methods. To address these limitations, we introduce \\textbf{ManipBench}, a large-scale benchmark for image manipulation detection and localization focusing on AI-edited images. ManipBench contains over 450K manipulated images produced by 25 state-of-the-art image editing models across 12 manipulation categories, among which 100K images are further annotated with bounding boxes, judgment cues, and textual explanations to support interpretable detection. Building upon ManipBench, we propose \\textbf{ManipShield}, an all-in-one model based on a Multimodal Large Language Model (MLLM) that leverages contrastive LoRA fine-tuning and task-specific decoders to achieve unified image manipulation detection, localization, and explanation. Extensive experiments on ManipBench and several public datasets demonstrate that ManipShield achieves state-of-the-art performance and exhibits strong generality to unseen manipulation models. Both ManipBench and ManipShield will be released upon publication.",
+      "authors": [
+        "Zitong Xu",
+        "Huiyu Duan",
+        "Xiaoyu Wang",
+        "Zhaolin Cai",
+        "Kaiwei Zhang",
+        "Qiang Hu",
+        "Jing Liu",
+        "Xiongkuo Min",
+        "Guangtao Zhai"
+      ],
+      "published": "2025-11-18T16:50:17+08:00",
+      "updated": "2025-11-18T16:50:17+08:00",
+      "arxiv_id": "2511.14259v1",
+      "url": "https://arxiv.org/pdf/2511.14259v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Stealth Fine-Tuning: Efficiently Breaking Alignment in RVLMs Using Self-Generated CoT",
+      "abstract": "Reasoning-augmented Vision-Language Models (RVLMs) rely on safety alignment to prevent harmful behavior, yet their exposed chain-of-thought (CoT) traces introduce new attack surfaces. In this work, we find that the safety alignment of RVLMs can be easily break through a novel attack method termed \\textbf{Stealth Fine-Tuning}. Our method elicits harmful reasoning traces through \\textbf{segment-level interference} and reuses the self-generated outputs as supervised fine-tuning data. Through a \\textbf{turn-based weighted} loss design, yielding a lightweight, distribution-consistent finetuning method. In our experiment, with only 499 samples and under 3 hours on a single A100 (QLoRA), Stealth Fine-Tuning outperforms IDEATOR by 38.52\\% ASR while preserving general reasoning ability, as the tuned model retains the original representation distribution. Experiments on AdvBench and several general benchmarks demonstrate that Stealth Fine-Tuning is a low-cost and highly effective way to bypass alignment defenses. \\textcolor{red}{\\textbf{Disclaimer: This paper contains content that may be disturbing or offensive.}}",
+      "authors": [
+        "Le Yu",
+        "Zhengyue Zhao",
+        "Yawen Zheng",
+        "Yunhao Liu"
+      ],
+      "published": "2025-11-18T11:45:09+08:00",
+      "updated": "2025-11-18T11:45:09+08:00",
+      "arxiv_id": "2511.14106v1",
+      "url": "https://arxiv.org/pdf/2511.14106v1",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "vlm",
+        "qlora",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "FAPE-IR: Frequency-Aware Planning and Execution Framework for All-in-One Image Restoration",
+      "abstract": "All-in-One Image Restoration (AIO-IR) aims to develop a unified model that can handle multiple degradations under complex conditions. However, existing methods often rely on task-specific designs or latent routing strategies, making it hard to adapt to real-world scenarios with various degradations. We propose FAPE-IR, a Frequency-Aware Planning and Execution framework for image restoration. It uses a frozen Multimodal Large Language Model (MLLM) as a planner to analyze degraded images and generate concise, frequency-aware restoration plans. These plans guide a LoRA-based Mixture-of-Experts (LoRA-MoE) module within a diffusion-based executor, which dynamically selects high- or low-frequency experts, complemented by frequency features of the input image. To further improve restoration quality and reduce artifacts, we introduce adversarial training and a frequency regularization loss. By coupling semantic planning with frequency-based restoration, FAPE-IR offers a unified and interpretable solution for all-in-one image restoration. Extensive experiments show that FAPE-IR achieves state-of-the-art performance across seven restoration tasks and exhibits strong zero-shot generalization under mixed degradations.",
+      "authors": [
+        "Jingren Liu",
+        "Shuning Xu",
+        "Qirui Yang",
+        "Yun Wang",
+        "Xiangyu Chen",
+        "Zhong Ji"
+      ],
+      "published": "2025-11-18T11:33:10+08:00",
+      "updated": "2025-11-18T11:33:10+08:00",
+      "arxiv_id": "2511.14099v1",
+      "url": "https://arxiv.org/pdf/2511.14099v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "moe lora",
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Dual-LoRA and Quality-Enhanced Pseudo Replay for Multimodal Continual Food Learning",
+      "abstract": "Food analysis has become increasingly critical for health-related tasks such as personalized nutrition and chronic disease prevention. However, existing large multimodal models (LMMs) in food analysis suffer from catastrophic forgetting when learning new tasks, requiring costly retraining from scratch. To address this, we propose a novel continual learning framework for multimodal food learning, integrating a Dual-LoRA architecture with Quality-Enhanced Pseudo Replay. We introduce two complementary low-rank adapters for each task: a specialized LoRA that learns task-specific knowledge with orthogonal constraints to previous tasks' subspaces, and a cooperative LoRA that consolidates shared knowledge across tasks via pseudo replay. To improve the reliability of replay data, our Quality-Enhanced Pseudo Replay strategy leverages self-consistency and semantic similarity to reduce hallucinations in generated samples. Experiments on the comprehensive Uni-Food dataset show superior performance in mitigating forgetting, representing the first effective continual learning approach for complex food tasks.",
+      "authors": [
+        "Xinlan Wu",
+        "Bin Zhu",
+        "Feng Han",
+        "Pengkun Jiao",
+        "Jingjing Chen"
+      ],
+      "published": "2025-11-17T21:16:48+08:00",
+      "updated": "2025-11-17T21:16:48+08:00",
+      "arxiv_id": "2511.13351v1",
+      "url": "https://arxiv.org/pdf/2511.13351v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Catastrophic Forgetting in Kolmogorov-Arnold Networks",
+      "abstract": "Catastrophic forgetting is a longstanding challenge in continual learning, where models lose knowledge from earlier tasks when learning new ones. While various mitigation strategies have been proposed for Multi-Layer Perceptrons (MLPs), recent architectural advances like Kolmogorov-Arnold Networks (KANs) have been suggested to offer intrinsic resistance to forgetting by leveraging localized spline-based activations. However, the practical behavior of KANs under continual learning remains unclear, and their limitations are not well understood. To address this, we present a comprehensive study of catastrophic forgetting in KANs and develop a theoretical framework that links forgetting to activation support overlap and intrinsic data dimension. We validate these analyses through systematic experiments on synthetic and vision tasks, measuring forgetting dynamics under varying model configurations and data complexity. Further, we introduce KAN-LoRA, a novel adapter design for parameter-efficient continual fine-tuning of language models, and evaluate its effectiveness in knowledge editing tasks. Our findings reveal that while KANs exhibit promising retention in low-dimensional algorithmic settings, they remain vulnerable to forgetting in high-dimensional domains such as image classification and language modeling. These results advance the understanding of KANs' strengths and limitations, offering practical insights for continual learning system design.",
+      "authors": [
+        "Mohammad Marufur Rahman",
+        "Guanchu Wang",
+        "Kaixiong Zhou",
+        "Minghan Chen",
+        "Fan Yang"
+      ],
+      "published": "2025-11-17T07:22:50+08:00",
+      "updated": "2025-11-17T07:22:50+08:00",
+      "arxiv_id": "2511.12828v1",
+      "url": "https://arxiv.org/pdf/2511.12828v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "lora"
+      ]
+    },
+    {
+      "title": "Selecting Fine-Tuning Examples by Quizzing VLMs",
+      "abstract": "A challenge in fine-tuning text-to-image diffusion models for specific topics is to select good examples. Fine-tuning from image sets of varying quality, such as Wikipedia Commons, will often produce poor output. However, training images that \\textit{do} exemplify the target concept (e.g., a \\textit{female Mountain Bluebird}) help ensure that the generated images are similarly representative (e.g., have the prototypical blue-wings and gray chest). In this work, we propose QZLoRA, a framework to select images for low-rank adaptation (LoRA). The approach leverages QuizRank, a method to automatically rank images by treating them as an `educational intervention' and `quizzing' a VLM. We demonstrate that QZLoRA can produce better aligned, photorealistic images with fewer samples. We also show that these fine-tuned models can produce stylized that are similarly representative (i.e., illustrations). Our results highlight the promise of combining automated visual reasoning with parameter-efficient fine-tuning for topic-adaptive generative modeling.",
+      "authors": [
+        "Tenghao Ji",
+        "Eytan Adar"
+      ],
+      "published": "2025-11-15T10:48:48+08:00",
+      "updated": "2025-11-15T10:48:48+08:00",
+      "arxiv_id": "2511.12002v1",
+      "url": "https://arxiv.org/pdf/2511.12002v1",
+      "categories": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "vlm",
+        "lora"
+      ]
+    },
+    {
+      "title": "Rethinking Efficient Mixture-of-Experts for Remote Sensing Modality-Missing Classification",
+      "abstract": "Multimodal classification in remote sensing often suffers from missing modalities caused by environmental interference, sensor failures, or atmospheric effects, which severely degrade classification performance. Existing two-stage adaptation methods are computationally expensive and assume complete multimodal data during training, limiting their generalization to real-world incompleteness. To overcome these issues, we propose a Missing-aware Mixture-of-Loras (MaMOL) framework that reformulates modality missing as a multi-task learning problem. MaMOL introduces a dual-routing mechanism: a task-oriented dynamic router that adaptively activates experts for different missing patterns, and a modality-specific-shared static router that maintains stable cross-modal knowledge sharing. Unlike prior methods that train separate networks for each missing configuration, MaMOL achieves parameter-efficient adaptation via lightweight expert updates and shared expert reuse. Experiments on multiple remote sensing benchmarks demonstrate superior robustness and generalization under varying missing rates, with minimal computational overhead. Moreover, transfer experiments on natural image datasets validate its scalability and cross-domain applicability, highlighting MaMOL as a general and efficient solution for incomplete multimodal learning.",
+      "authors": [
+        "Qinghao Gao",
+        "Jianhai Qu",
+        "Yunsong Li",
+        "Weiqiang Dong"
+      ],
+      "published": "2025-11-15T00:31:37+08:00",
+      "updated": "2025-11-15T00:31:37+08:00",
+      "arxiv_id": "2511.11460v1",
+      "url": "https://arxiv.org/pdf/2511.11460v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora",
+        "cross-modal"
+      ]
+    },
+    {
+      "title": "Audio-VLA: Adding Contact Audio Perception to Vision-Language-Action Model for Robotic Manipulation",
+      "abstract": "The Vision-Language-Action models (VLA) have achieved significant advances in robotic manipulation recently. However, vision-only VLA models create fundamental limitations, particularly in perceiving interactive and manipulation dynamic processes. This paper proposes Audio-VLA, a multimodal manipulation policy that leverages contact audio to perceive contact events and dynamic process feedback. Audio-VLA overcomes the vision-only constraints of VLA models. Additionally, this paper introduces the Task Completion Rate (TCR) metric to systematically evaluate dynamic operational processes. Audio-VLA employs pre-trained DINOv2 and SigLIP as visual encoders, AudioCLIP as the audio encoder, and Llama2 as the large language model backbone. We apply LoRA fine-tuning to these pre-trained modules to achieve robust cross-modal understanding of both visual and acoustic inputs. A multimodal projection layer aligns features from different modalities into the same feature space. Moreover RLBench and LIBERO simulation environments are enhanced by adding collision-based audio generation to provide realistic sound feedback during object interactions. Since current robotic manipulation evaluations focus on final outcomes rather than providing systematic assessment of dynamic operational processes, the proposed TCR metric measures how well robots perceive dynamic processes during manipulation, creating a more comprehensive evaluation metric. Extensive experiments on LIBERO, RLBench, and two real-world tasks demonstrate Audio-VLA's superior performance over vision-only comparative methods, while the TCR metric effectively quantifies dynamic process perception capabilities.",
+      "authors": [
+        "Xiangyi Wei",
+        "Haotian Zhang",
+        "Xinyi Cao",
+        "Siyu Xie",
+        "Weifeng Ge",
+        "Yang Li",
+        "Changbo Wang"
+      ],
+      "published": "2025-11-13T12:39:56+08:00",
+      "updated": "2025-11-13T12:39:56+08:00",
+      "arxiv_id": "2511.09958v1",
+      "url": "https://arxiv.org/pdf/2511.09958v1",
+      "categories": [
+        "cs.RO",
+        "cs.SD"
+      ],
+      "primary_category": "cs.RO",
+      "matched_keywords": [
+        "vision-language",
+        "multimodal",
+        "lora",
+        "cross-modal"
+      ]
+    },
+    {
+      "title": "CARScenes: Semantic VLM Dataset for Safe Autonomous Driving",
+      "abstract": "CAR-Scenes is a frame-level dataset for autonomous driving that enables training and evaluation of vision-language models (VLMs) for interpretable, scene-level understanding. We annotate 5,192 images drawn from Argoverse 1, Cityscapes, KITTI, and nuScenes using a 28-key category/sub-category knowledge base covering environment, road geometry, background-vehicle behavior, ego-vehicle behavior, vulnerable road users, sensor states, and a discrete severity scale (1-10), totaling 350+ leaf attributes. Labels are produced by a GPT-4o-assisted vision-language pipeline with human-in-the-loop verification; we release the exact prompts, post-processing rules, and per-field baseline model performance. CAR-Scenes also provides attribute co-occurrence graphs and JSONL records that support semantic retrieval, dataset triage, and risk-aware scenario mining across sources. To calibrate task difficulty, we include reproducible, non-benchmark baselines, notably a LoRA-tuned Qwen2-VL-2B with deterministic decoding, evaluated via scalar accuracy, micro-averaged F1 for list attributes, and severity MAE/RMSE on a fixed validation split. We publicly release the annotation and analysis scripts, including graph construction and evaluation scripts, to enable explainable, data-centric workflows for future intelligent vehicles. Dataset: https://github.com/Croquembouche/CAR-Scenes",
+      "authors": [
+        "Yuankai He",
+        "Weisong Shi"
+      ],
+      "published": "2025-11-13T05:13:19+08:00",
+      "updated": "2025-11-18T23:20:04+08:00",
+      "arxiv_id": "2511.10701v2",
+      "url": "https://arxiv.org/pdf/2511.10701v2",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "Taming Identity Consistency and Prompt Diversity in Diffusion Models via Latent Concatenation and Masked Conditional Flow Matching",
+      "abstract": "Subject-driven image generation aims to synthesize novel depictions of a specific subject across diverse contexts while preserving its core identity features. Achieving both strong identity consistency and high prompt diversity presents a fundamental trade-off. We propose a LoRA fine-tuned diffusion model employing a latent concatenation strategy, which jointly processes reference and target images, combined with a masked Conditional Flow Matching (CFM) objective. This approach enables robust identity preservation without architectural modifications. To facilitate large-scale training, we introduce a two-stage Distilled Data Curation Framework: the first stage leverages data restoration and VLM-based filtering to create a compact, high-quality seed dataset from diverse sources; the second stage utilizes these curated examples for parameter-efficient fine-tuning, thus scaling the generation capability across various subjects and contexts. Finally, for filtering and quality assessment, we present CHARIS, a fine-grained evaluation framework that performs attribute-level comparisons along five key axes: identity consistency, prompt adherence, region-wise color fidelity, visual quality, and transformation diversity.",
+      "authors": [
+        "Aditi Singhania",
+        "Arushi Jain",
+        "Krutik Malani",
+        "Riddhi Dhawan",
+        "Souymodip Chakraborty",
+        "Vineet Batra",
+        "Ankit Phogat"
+      ],
+      "published": "2025-11-11T18:00:32+08:00",
+      "updated": "2025-11-11T18:00:32+08:00",
+      "arxiv_id": "2511.08061v1",
+      "url": "https://arxiv.org/pdf/2511.08061v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "lora"
+      ]
+    },
+    {
+      "title": "In-Orbit GRB Identification Using LLM-based model for the CXPD CubeSat",
+      "abstract": "To validate key technologies for wide field-of-view (FOV) X-ray polarization measurements, the Cosmic X-ray Polarization Detector (CXPD) CubeSat series has been developed as a prototype platform for the Low-Energy Xray Polarization Detector (LPD) onboard the POLAR-2 mission. The wide-FOV design significantly increases the complexity of the background environment, posing notable challenges for real-time gamma-ray burst (GRB) identification. In this work, we propose an in-orbit GRB identification method based on machine learning, using simulated spectral data as input. A training dataset was constructed using a Geant4-based simulator, incorporating in-orbit background and GRB events modeled within the 2-10 keV energy range. To meet the computational constraints of onboard processing, we employ a multimodal large language model (MLLM), which is fine-tuned using low-rank adaptation (LoRA) based on miniCPM-V2.6 and quantized to 4-bit precision. The model achieves perfect classification accuracy on validation data and demonstrates strong regression performance in estimating GRB spectral indices, with an RMSE of 0.118. Furthermore, we validate the feasibility of onboard deployment through a simulated satellite data processing pipeline, highlighting the potential of our approach to enable future real-time GRB detection and spectral analysis in orbit.",
+      "authors": [
+        "Cunshi Wang",
+        "Zuke Feng",
+        "Difan Yi",
+        "Yuyang Li",
+        "Lirong Xie",
+        "Huanbo Feng",
+        "Yi Liu",
+        "Qian Liu",
+        "Yang Huang",
+        "Hongbang Liu",
+        "Xinyu Qi",
+        "Yangheng Zheng",
+        "Ali Luo",
+        "Guirong Xue",
+        "Jifeng Liu"
+      ],
+      "published": "2025-11-11T16:12:26+08:00",
+      "updated": "2025-11-12T23:04:34+08:00",
+      "arxiv_id": "2511.07957v2",
+      "url": "https://arxiv.org/pdf/2511.07957v2",
+      "categories": [
+        "astro-ph.IM",
+        "astro-ph.HE"
+      ],
+      "primary_category": "astro-ph.IM",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Omni-AVSR: Towards Unified Multimodal Speech Recognition with Large Language Models",
+      "abstract": "Large language models (LLMs) have recently achieved impressive results in speech recognition across multiple modalities, including Auditory Speech Recognition (ASR), Visual Speech Recognition (VSR), and Audio-Visual Speech Recognition (AVSR). Despite this progress, current LLM-based approaches typically address each task independently, training separate models that raise computational and deployment resource use while missing potential cross-task synergies. They also rely on fixed-rate token compression, which restricts flexibility in balancing accuracy with efficiency. These limitations highlight the need for a unified framework that can support ASR, VSR, and AVSR while enabling elastic inference. To this end, we present Omni-AVSR, a unified audio-visual LLM that combines efficient multi-granularity training with parameter-efficient adaptation. Specifically, we adapt the matryoshka representation learning paradigm to efficiently train across multiple audio and visual granularities, reducing its inherent training resource use. Furthermore, we explore three LoRA-based strategies for adapting the backbone LLM, balancing shared and task-specific specialization. Experiments on LRS2 and LRS3 show that Omni-AVSR achieves comparable or superior accuracy to state-of-the-art baselines while training a single model at substantially lower training and deployment resource use. The model also remains robust under acoustic noise, and we analyze its scaling behavior as LLM size increases, providing insights into the trade-off between performance and efficiency.",
+      "authors": [
+        "Umberto Cappellazzo",
+        "Xubo Liu",
+        "Pingchuan Ma",
+        "Stavros Petridis",
+        "Maja Pantic"
+      ],
+      "published": "2025-11-11T00:03:44+08:00",
+      "updated": "2025-11-11T00:03:44+08:00",
+      "arxiv_id": "2511.07253v1",
+      "url": "https://arxiv.org/pdf/2511.07253v1",
+      "categories": [
+        "eess.AS",
+        "cs.CV",
+        "cs.SD"
+      ],
+      "primary_category": "eess.AS",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Federated Learning for Video Violence Detection: Complementary Roles of Lightweight CNNs and Vision-Language Models for Energy-Efficient Use",
+      "abstract": "Deep learning-based video surveillance increasingly demands privacy-preserving architectures with low computational and environmental overhead. Federated learning preserves privacy but deploying large vision-language models (VLMs) introduces major energy and sustainability challenges. We compare three strategies for federated violence detection under realistic non-IID splits on the RWF-2000 and RLVS datasets: zero-shot inference with pretrained VLMs, LoRA-based fine-tuning of LLaVA-NeXT-Video-7B, and personalized federated learning of a 65.8M-parameter 3D CNN. All methods exceed 90% accuracy in binary violence detection. The 3D CNN achieves superior calibration (ROC AUC 92.59%) at roughly half the energy cost (240 Wh vs. 570 Wh) of federated LoRA, while VLMs provide richer multimodal reasoning. Hierarchical category grouping (based on semantic similarity and class exclusion) boosts VLM multiclass accuracy from 65.31% to 81% on the UCF-Crime dataset. To our knowledge, this is the first comparative simulation study of LoRA-tuned VLMs and personalized CNNs for federated violence detection, with explicit energy and CO2e quantification. Our results inform hybrid deployment strategies that default to efficient CNNs for routine inference and selectively engage VLMs for complex contextual reasoning.",
+      "authors": [
+        "Sébastien Thuau",
+        "Siba Haidar",
+        "Rachid Chelouah"
+      ],
+      "published": "2025-11-10T23:01:51+08:00",
+      "updated": "2025-11-10T23:01:51+08:00",
+      "arxiv_id": "2511.07171v1",
+      "url": "https://arxiv.org/pdf/2511.07171v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "multimodal",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "A Picture is Worth a Thousand (Correct) Captions: A Vision-Guided Judge-Corrector System for Multimodal Machine Translation",
+      "abstract": "In this paper, we describe our system under the team name BLEU Monday for the English-to-Indic Multimodal Translation Task at WAT 2025. We participate in the text-only translation tasks for English-Hindi, English-Bengali, English-Malayalam, and English-Odia language pairs. We present a two-stage approach that addresses quality issues in the training data through automated error detection and correction, followed by parameter-efficient model fine-tuning.\n  Our methodology introduces a vision-augmented judge-corrector pipeline that leverages multimodal language models to systematically identify and correct translation errors in the training data. The judge component classifies translations into three categories: correct, visually ambiguous (requiring image context), or mistranslated (poor translation quality). Identified errors are routed to specialized correctors: GPT-4o-mini regenerates captions requiring visual disambiguation, while IndicTrans2 retranslates cases with pure translation quality issues. This automated pipeline processes 28,928 training examples across four languages, correcting an average of 17.1% of captions per language.\n  We then apply Low-Rank Adaptation (LoRA) to fine-tune the IndicTrans2 en-indic 200M distilled model on both original and corrected datasets. Training on corrected data yields consistent improvements, with BLEU score gains of +1.30 for English-Bengali on the evaluation set (42.00 -> 43.30) and +0.70 on the challenge set (44.90 -> 45.60), +0.60 for English-Odia on the evaluation set (41.00 -> 41.60), and +0.10 for English-Hindi on the challenge set (53.90 -> 54.00).",
+      "authors": [
+        "Siddharth Betala",
+        "Kushan Raj",
+        "Vipul Betala",
+        "Rohan Saswade"
+      ],
+      "published": "2025-11-10T20:02:48+08:00",
+      "updated": "2025-11-10T20:02:48+08:00",
+      "arxiv_id": "2511.07010v1",
+      "url": "https://arxiv.org/pdf/2511.07010v1",
+      "categories": [
+        "cs.CL",
+        "cs.CV",
+        "cs.HC"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Cross-Modal Fine-Tuning of 3D Convolutional Foundation Models for ADHD Classification with Low-Rank Adaptation",
+      "abstract": "Early diagnosis of attention-deficit/hyperactivity disorder (ADHD) in children plays a crucial role in improving outcomes in education and mental health. Diagnosing ADHD using neuroimaging data, however, remains challenging due to heterogeneous presentations and overlapping symptoms with other conditions. To address this, we propose a novel parameter-efficient transfer learning approach that adapts a large-scale 3D convolutional foundation model, pre-trained on CT images, to an MRI-based ADHD classification task. Our method introduces Low-Rank Adaptation (LoRA) in 3D by factorizing 3D convolutional kernels into 2D low-rank updates, dramatically reducing trainable parameters while achieving superior performance. In a five-fold cross-validated evaluation on a public diffusion MRI database, our 3D LoRA fine-tuning strategy achieved state-of-the-art results, with one model variant reaching 71.9% accuracy and another attaining an AUC of 0.716. Both variants use only 1.64 million trainable parameters (over 113x fewer than a fully fine-tuned foundation model). Our results represent one of the first successful cross-modal (CT-to-MRI) adaptations of a foundation model in neuroimaging, establishing a new benchmark for ADHD classification while greatly improving efficiency.",
+      "authors": [
+        "Jyun-Ping Kao",
+        "Shinyeong Rho",
+        "Shahar Lazarev",
+        "Hyun-Hae Cho",
+        "Fangxu Xing",
+        "Taehoon Shin",
+        "C. -C. Jay Kuo",
+        "Jonghye Woo"
+      ],
+      "published": "2025-11-09T07:29:28+08:00",
+      "updated": "2025-11-09T07:29:28+08:00",
+      "arxiv_id": "2511.06163v1",
+      "url": "https://arxiv.org/pdf/2511.06163v1",
+      "categories": [
+        "eess.IV",
+        "cs.CV",
+        "cs.LG",
+        "physics.med-ph"
+      ],
+      "primary_category": "eess.IV",
+      "matched_keywords": [
+        "lora",
+        "cross-modal"
+      ]
+    },
+    {
+      "title": "RF-Behavior: A Multimodal Radio-Frequency Dataset for Human Behavior and Emotion Analysis",
+      "abstract": "Recent research has demonstrated the complementary nature of camera-based and inertial data for modeling human gestures, activities, and sentiment. Yet, despite its growing importance for environmental sensing as well as the advance of joint communication and sensing for prospective WiFi and 6G standards, a dataset that integrates these modalities with radio frequency data (radar and RFID) remains rare. We introduce RF-Behavior, a multimodal radio frequency dataset for comprehensive human behavior and emotion analysis. We collected data from 44 participants performing 21 gestures, 10 activities, and 6 sentiment expressions. Data were captured using synchronized sensors, including 13 radars (8 ground-mounted and 5 ceiling-mounted), 6 to 8 RFID tags (attached to each arm) and LoRa. Inertial measurement units (IMUs) and 24 infrared cameras are used to provide precise motion ground truth. RF-Behavior provides a unified multimodal dataset spanning the full spectrum of human behavior -- from brief gestures to activities and emotional states -- enabling research on multi-task learning across motion and emotion recognition. Benchmark results demonstrate that the strategic sensor placement is complementary across modalities, with distinct performance characteristics across different behavioral categories.",
+      "authors": [
+        "Si Zuo",
+        "Yuqing Song",
+        "Sahar Golipoor",
+        "Ying Liu",
+        "Xujun Ma",
+        "Stephan Sigg"
+      ],
+      "published": "2025-11-08T22:21:17+08:00",
+      "updated": "2025-11-08T22:21:17+08:00",
+      "arxiv_id": "2511.06020v1",
+      "url": "https://arxiv.org/pdf/2511.06020v1",
+      "categories": [
+        "cs.DB"
+      ],
+      "primary_category": "cs.DB",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Fine-Tuning Vision-Language Models for Multimodal Polymer Property Prediction",
+      "abstract": "Vision-Language Models (VLMs) have shown strong performance in tasks like visual question answering and multimodal text generation, but their effectiveness in scientific domains such as materials science remains limited. While some machine learning methods have addressed specific challenges in this field, there is still a lack of foundation models designed for broad tasks like polymer property prediction using multimodal data. In this work, we present a multimodal polymer dataset to fine-tune VLMs through instruction-tuning pairs and assess the impact of multimodality on prediction performance. Our fine-tuned models, using LoRA, outperform unimodal and baseline approaches, demonstrating the benefits of multimodal learning. Additionally, this approach reduces the need to train separate models for different properties, lowering deployment and maintenance costs.",
+      "authors": [
+        "An Vuong",
+        "Minh-Hao Van",
+        "Prateek Verma",
+        "Chen Zhao",
+        "Xintao Wu"
+      ],
+      "published": "2025-11-05T06:32:53+08:00",
+      "updated": "2025-11-05T06:32:53+08:00",
+      "arxiv_id": "2511.05577v1",
+      "url": "https://arxiv.org/pdf/2511.05577v1",
+      "categories": [
+        "cs.LG",
+        "cond-mat.mtrl-sci",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "vlm",
+        "multimodal",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "Random Initialization of Gated Sparse Adapters",
+      "abstract": "When fine-tuning language models on new tasks, catastrophic forgetting -- performance degradation on previously-learned tasks -- is a ubiquitous problem. While Parameter-Efficient Fine-Tuning (PEFT) methods like LoRA address this through low-rank adapters, sparse adaptation offers an alternative that doesn't impose rank constraints. We introduce Random Initialization of Gated Sparse Adapters (RIGSA), which starts from randomly-initialized full-rank adapters, gates them with a ReZero analog, and sparsifies them with iterative magnitude pruning. We evaluate RIGSA on SmolLM2-1.7B-Instruct using a novel vision-in-text task (Textual MNIST) and measure forgetting on PIQA, HellaSwag, and GSM8k. SmolLM2-1.7B-Instruct initially performs around chance level on Textual MNIST, and is capable of learning the task through RIGSA, 4-bit QLoRA and random masking. In spite of having more trainable parameters than QLoRA, the RIGSA configurations that we studied displayed less forgetting than QLoRA, particularly on GSM8k, though it performs comparably to random masking.",
+      "authors": [
+        "Vi Retault",
+        "Yohaï-Eliel Berreby"
+      ],
+      "published": "2025-11-04T01:49:44+08:00",
+      "updated": "2025-11-04T01:49:44+08:00",
+      "arxiv_id": "2511.01794v1",
+      "url": "https://arxiv.org/pdf/2511.01794v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "qlora",
+        "lora"
+      ]
+    },
+    {
+      "title": "HMVLM: Human Motion-Vision-Lanuage Model via MoE LoRA",
+      "abstract": "The expansion of instruction-tuning data has enabled foundation language models to exhibit improved instruction adherence and superior performance across diverse downstream tasks. Semantically-rich 3D human motion is being progressively integrated with these foundation models to enhance multimodal understanding and cross-modal generation capabilities. However, the modality gap between human motion and text raises unresolved concerns about catastrophic forgetting during this integration. In addition, developing autoregressive-compatible pose representations that preserve generalizability across heterogeneous downstream tasks remains a critical technical barrier. To address these issues, we propose the Human Motion-Vision-Language Model (HMVLM), a unified framework based on the Mixture of Expert Low-Rank Adaption(MoE LoRA) strategy. The framework leverages the gating network to dynamically allocate LoRA expert weights based on the input prompt, enabling synchronized fine-tuning of multiple tasks. To mitigate catastrophic forgetting during instruction-tuning, we introduce a novel zero expert that preserves the pre-trained parameters for general linguistic tasks. For pose representation, we implement body-part-specific tokenization by partitioning the human body into different joint groups, enhancing the spatial resolution of the representation. Experiments show that our method effectively alleviates knowledge forgetting during instruction-tuning and achieves remarkable performance across diverse human motion downstream tasks.",
+      "authors": [
+        "Lei Hu",
+        "Yongjing Ye",
+        "Shihong Xia"
+      ],
+      "published": "2025-11-03T19:22:10+08:00",
+      "updated": "2025-11-03T19:22:10+08:00",
+      "arxiv_id": "2511.01463v1",
+      "url": "https://arxiv.org/pdf/2511.01463v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.GR"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora",
+        "vision-language",
+        "moe lora",
+        "cross-modal",
+        "vlm"
+      ]
+    },
+    {
+      "title": "Image Hashing via Cross-View Code Alignment in the Age of Foundation Models",
+      "abstract": "Efficient large-scale retrieval requires representations that are both compact and discriminative. Foundation models provide powerful visual and multimodal embeddings, but nearest neighbor search in these high-dimensional spaces is computationally expensive. Hashing offers an efficient alternative by enabling fast Hamming distance search with binary codes, yet existing approaches often rely on complex pipelines, multi-term objectives, designs specialized for a single learning paradigm, and long training times. We introduce CroVCA (Cross-View Code Alignment), a simple and unified principle for learning binary codes that remain consistent across semantically aligned views. A single binary cross-entropy loss enforces alignment, while coding-rate maximization serves as an anti-collapse regularizer to promote balanced and diverse codes. To implement this, we design HashCoder, a lightweight MLP hashing network with a final batch normalization layer to enforce balanced codes. HashCoder can be used as a probing head on frozen embeddings or to adapt encoders efficiently via LoRA fine-tuning. Across benchmarks, CroVCA achieves state-of-the-art results in just 5 training epochs. At 16 bits, it particularly well-for instance, unsupervised hashing on COCO completes in under 2 minutes and supervised hashing on ImageNet100 in about 3 minutes on a single GPU. These results highlight CroVCA's efficiency, adaptability, and broad applicability.",
+      "authors": [
+        "Ilyass Moummad",
+        "Kawtar Zaher",
+        "Hervé Goëau",
+        "Alexis Joly"
+      ],
+      "published": "2025-11-01T00:08:46+08:00",
+      "updated": "2025-11-03T18:21:43+08:00",
+      "arxiv_id": "2510.27584v2",
+      "url": "https://arxiv.org/pdf/2510.27584v2",
+      "categories": [
+        "cs.CV",
+        "cs.IR",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    }
+  ]
+}

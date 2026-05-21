@@ -1,0 +1,1305 @@
+{
+  "metadata": {
+    "last_updated": "2025-11-29T12:05:17.596438+00:00",
+    "total_papers": 58,
+    "matched_keywords_stats": {
+      "missing modality": 26,
+      "incomplete modality": 17
+    }
+  },
+  "papers": [
+    {
+      "title": "AV-Edit: Multimodal Generative Sound Effect Editing via Audio-Visual Semantic Joint Control",
+      "abstract": "Sound effect editing-modifying audio by adding, removing, or replacing elements-remains constrained by existing approaches that rely solely on low-level signal processing or coarse text prompts, often resulting in limited flexibility and suboptimal audio quality. To address this, we propose AV-Edit, a generative sound effect editing framework that enables fine-grained editing of existing audio tracks in videos by jointly leveraging visual, audio, and text semantics. Specifically, the proposed method employs a specially designed contrastive audio-visual masking autoencoder (CAV-MAE-Edit) for multimodal pre-training, learning aligned cross-modal representations. These representations are then used to train an editorial Multimodal Diffusion Transformer (MM-DiT) capable of removing visually irrelevant sounds and generating missing audio elements consistent with video content through a correlation-based feature gating training strategy. Furthermore, we construct a dedicated video-based sound editing dataset as an evaluation benchmark. Experiments demonstrate that the proposed AV-Edit generates high-quality audio with precise modifications based on visual content, achieving state-of-the-art performance in the field of sound effect editing and exhibiting strong competitiveness in the domain of audio generation.",
+      "authors": [
+        "Xinyue Guo",
+        "Xiaoran Yang",
+        "Lipan Zhang",
+        "Jianxuan Yang",
+        "Zhao Wang",
+        "Jian Luan"
+      ],
+      "published": "2025-11-26T15:59:53+08:00",
+      "updated": "2025-11-26T15:59:53+08:00",
+      "arxiv_id": "2511.21146v1",
+      "url": "https://arxiv.org/pdf/2511.21146v1",
+      "categories": [
+        "cs.MM",
+        "cs.CV",
+        "cs.SD"
+      ],
+      "primary_category": "cs.MM",
+      "matched_keywords": []
+    },
+    {
+      "title": "CtrlVDiff: Controllable Video Generation via Unified Multimodal Video Diffusion",
+      "abstract": "We tackle the dual challenges of video understanding and controllable video generation within a unified diffusion framework. Our key insights are two-fold: geometry-only cues (e.g., depth, edges) are insufficient: they specify layout but under-constrain appearance, materials, and illumination, limiting physically meaningful edits such as relighting or material swaps and often causing temporal drift. Enriching the model with additional graphics-based modalities (intrinsics and semantics) provides complementary constraints that both disambiguate understanding and enable precise, predictable control during generation.\n  However, building a single model that uses many heterogeneous cues introduces two core difficulties. Architecturally, the model must accept any subset of modalities, remain robust to missing inputs, and inject control signals without sacrificing temporal consistency. Data-wise, training demands large-scale, temporally aligned supervision that ties real videos to per-pixel multimodal annotations.\n  We then propose CtrlVDiff, a unified diffusion model trained with a Hybrid Modality Control Strategy (HMCS) that routes and fuses features from depth, normals, segmentation, edges, and graphics-based intrinsics (albedo, roughness, metallic), and re-renders videos from any chosen subset with strong temporal coherence. To enable this, we build MMVideo, a hybrid real-and-synthetic dataset aligned across modalities and captions. Across understanding and generation benchmarks, CtrlVDiff delivers superior controllability and fidelity, enabling layer-wise edits (relighting, material adjustment, object insertion) and surpassing state-of-the-art baselines while remaining robust when some modalities are unavailable.",
+      "authors": [
+        "Dianbing Xi",
+        "Jiepeng Wang",
+        "Yuanzhi Liang",
+        "Xi Qiu",
+        "Jialun Liu",
+        "Hao Pan",
+        "Yuchi Huo",
+        "Rui Wang",
+        "Haibin Huang",
+        "Chi Zhang",
+        "Xuelong Li"
+      ],
+      "published": "2025-11-26T15:27:11+08:00",
+      "updated": "2025-11-26T15:27:11+08:00",
+      "arxiv_id": "2511.21129v1",
+      "url": "https://arxiv.org/pdf/2511.21129v1",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Learning Cell-Aware Hierarchical Multi-Modal Representations for Robust Molecular Modeling",
+      "abstract": "Understanding how chemical perturbations propagate through biological systems is essential for robust molecular property prediction. While most existing methods focus on chemical structures alone, recent advances highlight the crucial role of cellular responses such as morphology and gene expression in shaping drug effects. However, current cell-aware approaches face two key limitations: (1) modality incompleteness in external biological data, and (2) insufficient modeling of hierarchical dependencies across molecular, cellular, and genomic levels. We propose CHMR (Cell-aware Hierarchical Multi-modal Representations), a robust framework that jointly models local-global dependencies between molecules and cellular responses and captures latent biological hierarchies via a novel tree-structured vector quantization module. Evaluated on nine public benchmarks spanning 728 tasks, CHMR outperforms state-of-the-art baselines, yielding average improvements of 3.6% on classification and 17.2% on regression tasks. These results demonstrate the advantage of hierarchy-aware, multimodal learning for reliable and biologically grounded molecular representations, offering a generalizable framework for integrative biomedical modeling. The code is in https://github.com/limengran98/CHMR.",
+      "authors": [
+        "Mengran Li",
+        "Zelin Zang",
+        "Wenbin Xing",
+        "Junzhou Chen",
+        "Ronghui Zhang",
+        "Jiebo Luo",
+        "Stan Z. Li"
+      ],
+      "published": "2025-11-26T15:15:00+08:00",
+      "updated": "2025-11-26T15:15:00+08:00",
+      "arxiv_id": "2511.21120v1",
+      "url": "https://arxiv.org/pdf/2511.21120v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "Knowledge Completes the Vision: A Multimodal Entity-aware Retrieval-Augmented Generation Framework for News Image Captioning",
+      "abstract": "News image captioning aims to produce journalistically informative descriptions by combining visual content with contextual cues from associated articles. Despite recent advances, existing methods struggle with three key challenges: (1) incomplete information coverage, (2) weak cross-modal alignment, and (3) suboptimal visual-entity grounding. To address these issues, we introduce MERGE, the first Multimodal Entity-aware Retrieval-augmented GEneration framework for news image captioning. MERGE constructs an entity-centric multimodal knowledge base (EMKB) that integrates textual, visual, and structured knowledge, enabling enriched background retrieval. It improves cross-modal alignment through a multistage hypothesis-caption strategy and enhances visual-entity matching via dynamic retrieval guided by image content. Extensive experiments on GoodNews and NYTimes800k show that MERGE significantly outperforms state-of-the-art baselines, with CIDEr gains of +6.84 and +1.16 in caption quality, and F1-score improvements of +4.14 and +2.64 in named entity recognition. Notably, MERGE also generalizes well to the unseen Visual News dataset, achieving +20.17 in CIDEr and +6.22 in F1-score, demonstrating strong robustness and domain adaptability.",
+      "authors": [
+        "Xiaoxing You",
+        "Qiang Huang",
+        "Lingyu Li",
+        "Chi Zhang",
+        "Xiaopeng Liu",
+        "Min Zhang",
+        "Jun Yu"
+      ],
+      "published": "2025-11-26T11:03:52+08:00",
+      "updated": "2025-11-26T11:03:52+08:00",
+      "arxiv_id": "2511.21002v1",
+      "url": "https://arxiv.org/pdf/2511.21002v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "MedROV: Towards Real-Time Open-Vocabulary Detection Across Diverse Medical Imaging Modalities",
+      "abstract": "Traditional object detection models in medical imaging operate within a closed-set paradigm, limiting their ability to detect objects of novel labels. Open-vocabulary object detection (OVOD) addresses this limitation but remains underexplored in medical imaging due to dataset scarcity and weak text-image alignment. To bridge this gap, we introduce MedROV, the first Real-time Open Vocabulary detection model for medical imaging. To enable open-vocabulary learning, we curate a large-scale dataset, Omnis, with 600K detection samples across nine imaging modalities and introduce a pseudo-labeling strategy to handle missing annotations from multi-source datasets. Additionally, we enhance generalization by incorporating knowledge from a large pre-trained foundation model. By leveraging contrastive learning and cross-modal representations, MedROV effectively detects both known and novel structures. Experimental results demonstrate that MedROV outperforms the previous state-of-the-art foundation model for medical image detection with an average absolute improvement of 40 mAP50, and surpasses closed-set detectors by more than 3 mAP50, while running at 70 FPS, setting a new benchmark in medical detection. Our source code, dataset, and trained model are available at https://github.com/toobatehreem/MedROV.",
+      "authors": [
+        "Tooba Tehreem Sheikh",
+        "Jean Lahoud",
+        "Rao Muhammad Anwer",
+        "Fahad Shahbaz Khan",
+        "Salman Khan",
+        "Hisham Cholakkal"
+      ],
+      "published": "2025-11-26T02:59:53+08:00",
+      "updated": "2025-11-26T02:59:53+08:00",
+      "arxiv_id": "2511.20650v1",
+      "url": "https://arxiv.org/pdf/2511.20650v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "Chopping More Finely: Finite Countermodels in Modal Logic via the Subdivision Construction",
+      "abstract": "We present a new method, the Subdivision Construction, for proving the finite model property (the fmp) for broad classes of modal logics and modal rule systems. The construction builds on the framework of stable canonical rules, and produces a finite modal algebra (finite modal space) that will be a finite countermodel of such rules, yielding the fmp. We apply the Subdivision Construction for proving the fmp for logics and rule systems axiomatized by stable canonical formulas and rules of finite modal algebras of finite height. We also observe that these logics and rule systems are union-splittings in corresponding lattices. As a consequence, we identify a class of union-splittings in $\\mathsf{NExt}(\\mathsf{K4})$ with the degree of Kripke incompleteness 1.",
+      "authors": [
+        "Tenyo Takahashi"
+      ],
+      "published": "2025-11-25T06:09:07+08:00",
+      "updated": "2025-11-25T06:09:07+08:00",
+      "arxiv_id": "2511.19747v1",
+      "url": "https://arxiv.org/pdf/2511.19747v1",
+      "categories": [
+        "cs.LO",
+        "math.LO"
+      ],
+      "primary_category": "cs.LO",
+      "matched_keywords": []
+    },
+    {
+      "title": "Robust Multimodal Sentiment Analysis with Distribution-Based Feature Recovery and Fusion",
+      "abstract": "As posts on social media increase rapidly, analyzing the sentiments embedded in image-text pairs has become a popular research topic in recent years. Although existing works achieve impressive accomplishments in simultaneously harnessing image and text information, they lack the considerations of possible low-quality and missing modalities. In real-world applications, these issues might frequently occur, leading to urgent needs for models capable of predicting sentiment robustly. Therefore, we propose a Distribution-based feature Recovery and Fusion (DRF) method for robust multimodal sentiment analysis of image-text pairs. Specifically, we maintain a feature queue for each modality to approximate their feature distributions, through which we can simultaneously handle low-quality and missing modalities in a unified framework. For low-quality modalities, we reduce their contributions to the fusion by quantitatively estimating modality qualities based on the distributions. For missing modalities, we build inter-modal mapping relationships supervised by samples and distributions, thereby recovering the missing modalities from available ones. In experiments, two disruption strategies that corrupt and discard some modalities in samples are adopted to mimic the low-quality and missing modalities in various real-world scenarios. Through comprehensive experiments on three publicly available image-text datasets, we demonstrate the universal improvements of DRF compared to SOTA methods under both two strategies, validating its effectiveness in robust multimodal sentiment analysis.",
+      "authors": [
+        "Daiqing Wu",
+        "Dongbao Yang",
+        "Can Ma",
+        "Yu Zhou"
+      ],
+      "published": "2025-11-24T12:24:33+08:00",
+      "updated": "2025-11-24T12:24:33+08:00",
+      "arxiv_id": "2511.18751v1",
+      "url": "https://arxiv.org/pdf/2511.18751v1",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Multimodal Large Language Models with Adaptive Preference Optimization for Sequential Recommendation",
+      "abstract": "Recent advances in Large Language Models (LLMs) have opened new avenues for sequential recommendation by enabling natural language reasoning over user behavior sequences. A common approach formulates recommendation as a language modeling task, where interaction histories are transformed into prompts and user preferences are learned via supervised fine-tuning. However, these methods operate solely in the textual modality and often miss users' fine-grained interests, especially when shaped by rich visual signals such as product images or movie posters. Multimodal Large Language Models (MLLMs) offer a promising alternative by aligning text and vision in a shared semantic space. A prevalent training paradigm applies Supervised Fine-Tuning (SFT) followed by Direct Preference Optimization (DPO) to model user preferences. Yet, two core challenges remain: 1) Imbalanced sample hardness, where random negative sampling causes overfitting on easy examples and under-training on hard ones; 2) Cross-modal semantic bias, where the fixed reference model in DPO prevents the policy model from correcting modality misalignments--especially over long sequences. To address these issues, we propose a Multimodal LLM framework that integrates Hardness-aware and Noise-regularized preference optimization for Recommendation (HaNoRec). Specifically, HaNoRec dynamically adjusts optimization weights based on both the estimated hardness of each training sample and the policy model's real-time responsiveness, prioritizing harder examples. It further introduces Gaussian-perturbed distribution optimization on output logits to enhance cross-modal semantic consistency and reduce modality bias inherited from the reference model.",
+      "authors": [
+        "Yu Wang",
+        "Yonghui Yang",
+        "Le Wu",
+        "Yi Zhang",
+        "Richang Hong"
+      ],
+      "published": "2025-11-24T12:10:46+08:00",
+      "updated": "2025-11-24T12:10:46+08:00",
+      "arxiv_id": "2511.18740v1",
+      "url": "https://arxiv.org/pdf/2511.18740v1",
+      "categories": [
+        "cs.IR"
+      ],
+      "primary_category": "cs.IR",
+      "matched_keywords": []
+    },
+    {
+      "title": "TouchFormer: A Robust Transformer-based Framework for Multimodal Material Perception",
+      "abstract": "Traditional vision-based material perception methods often experience substantial performance degradation under visually impaired conditions, thereby motivating the shift toward non-visual multimodal material perception. Despite this, existing approaches frequently perform naive fusion of multimodal inputs, overlooking key challenges such as modality-specific noise, missing modalities common in real-world scenarios, and the dynamically varying importance of each modality depending on the task. These limitations lead to suboptimal performance across several benchmark tasks. In this paper, we propose a robust multimodal fusion framework, TouchFormer. Specifically, we employ a Modality-Adaptive Gating (MAG) mechanism and intra- and inter-modality attention mechanisms to adaptively integrate cross-modal features, enhancing model robustness. Additionally, we introduce a Cross-Instance Embedding Regularization(CER) strategy, which significantly improves classification accuracy in fine-grained subcategory material recognition tasks. Experimental results demonstrate that, compared to existing non-visual methods, the proposed TouchFormer framework achieves classification accuracy improvements of 2.48% and 6.83% on SSMC and USMC tasks, respectively. Furthermore, real-world robotic experiments validate TouchFormer's effectiveness in enabling robots to better perceive and interpret their environment, paving the way for its deployment in safety-critical applications such as emergency response and industrial automation. The code and datasets will be open-source, and the videos are available in the supplementary materials.",
+      "authors": [
+        "Kailin Lyu",
+        "Long Xiao",
+        "Jianing Zeng",
+        "Junhao Dong",
+        "Xuexin Liu",
+        "Zhuojun Zou",
+        "Haoyue Yang",
+        "Lin Shu",
+        "Jie Hao"
+      ],
+      "published": "2025-11-24T08:43:59+08:00",
+      "updated": "2025-11-24T08:43:59+08:00",
+      "arxiv_id": "2511.19509v1",
+      "url": "https://arxiv.org/pdf/2511.19509v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "QuickLAP: Quick Language-Action Preference Learning for Autonomous Driving Agents",
+      "abstract": "Robots must learn from both what people do and what they say, but either modality alone is often incomplete: physical corrections are grounded but ambiguous in intent, while language expresses high-level goals but lacks physical grounding. We introduce QuickLAP: Quick Language-Action Preference learning, a Bayesian framework that fuses physical and language feedback to infer reward functions in real time. Our key insight is to treat language as a probabilistic observation over the user's latent preferences, clarifying which reward features matter and how physical corrections should be interpreted. QuickLAP uses Large Language Models (LLMs) to extract reward feature attention masks and preference shifts from free-form utterances, which it integrates with physical feedback in a closed-form update rule. This enables fast, real-time, and robust reward learning that handles ambiguous feedback. In a semi-autonomous driving simulator, QuickLAP reduces reward learning error by over 70% compared to physical-only and heuristic multimodal baselines. A 15-participant user study further validates our approach: participants found QuickLAP significantly more understandable and collaborative, and preferred its learned behavior over baselines. Code is available at https://github.com/MIT-CLEAR-Lab/QuickLAP.",
+      "authors": [
+        "Jordan Abi Nader",
+        "David Lee",
+        "Nathaniel Dennler",
+        "Andreea Bobu"
+      ],
+      "published": "2025-11-22T08:45:33+08:00",
+      "updated": "2025-11-22T08:45:33+08:00",
+      "arxiv_id": "2511.17855v1",
+      "url": "https://arxiv.org/pdf/2511.17855v1",
+      "categories": [
+        "cs.AI",
+        "cs.RO"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "REMSA: An LLM Agent for Foundation Model Selection in Remote Sensing",
+      "abstract": "Foundation Models (FMs) are increasingly used in remote sensing (RS) for tasks such as environmental monitoring, disaster assessment, and land-use mapping. These models include unimodal vision encoders trained on a single data modality and multimodal architectures trained on combinations of SAR, multispectral, hyperspectral, and image-text data. They support diverse RS tasks including semantic segmentation, image classification, change detection, and visual question answering. However, selecting an appropriate remote sensing foundation model (RSFM) remains difficult due to scattered documentation, heterogeneous formats, and varied deployment constraints. We introduce the RSFM Database (RS-FMD), a structured resource covering over 150 RSFMs spanning multiple data modalities, resolutions, and learning paradigms. Built on RS-FMD, we present REMSA, the first LLM-based agent for automated RSFM selection from natural language queries. REMSA interprets user requirements, resolves missing constraints, ranks candidate models using in-context learning, and provides transparent justifications. We also propose a benchmark of 75 expert-verified RS query scenarios, producing 900 configurations under an expert-centered evaluation protocol. REMSA outperforms several baselines, including naive agents, dense retrieval, and unstructured RAG-based LLMs. It operates entirely on publicly available metadata and does not access private or sensitive data.",
+      "authors": [
+        "Binger Chen",
+        "Tacettin Emre Bök",
+        "Behnood Rasti",
+        "Volker Markl",
+        "Begüm Demir"
+      ],
+      "published": "2025-11-22T01:41:26+08:00",
+      "updated": "2025-11-22T01:41:26+08:00",
+      "arxiv_id": "2511.17442v1",
+      "url": "https://arxiv.org/pdf/2511.17442v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "MCMoE: Completing Missing Modalities with Mixture of Experts for Incomplete Multimodal Action Quality Assessment",
+      "abstract": "Multimodal Action Quality Assessment (AQA) has recently emerged as a promising paradigm. By leveraging complementary information across shared contextual cues, it enhances the discriminative evaluation of subtle intra-class variations in highly similar action sequences. However, partial modalities are frequently unavailable at the inference stage in reality. The absence of any modality often renders existing multimodal models inoperable. Furthermore, it triggers catastrophic performance degradation due to interruptions in cross-modal interactions. To address this issue, we propose a novel Missing Completion Framework with Mixture of Experts (MCMoE) that unifies unimodal and joint representation learning in single-stage training. Specifically, we propose an adaptive gated modality generator that dynamically fuses available information to reconstruct missing modalities. We then design modality experts to learn unimodal knowledge and dynamically mix the knowledge of all experts to extract cross-modal joint representations. With a mixture of experts, missing modalities are further refined and complemented. Finally, in the training phase, we mine the complete multimodal features and unimodal expert knowledge to guide modality generation and generation-based joint representation extraction. Extensive experiments demonstrate that our MCMoE achieves state-of-the-art results in both complete and incomplete multimodal learning on three public AQA benchmarks. Code is available at https://github.com/XuHuangbiao/MCMoE.",
+      "authors": [
+        "Huangbiao Xu",
+        "Huanqi Wu",
+        "Xiao Ke",
+        "Junyi Wu",
+        "Rui Xu",
+        "Jinglin Xu"
+      ],
+      "published": "2025-11-22T00:56:25+08:00",
+      "updated": "2025-11-22T00:56:25+08:00",
+      "arxiv_id": "2511.17397v1",
+      "url": "https://arxiv.org/pdf/2511.17397v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "incomplete modality",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Patient-level Information Extraction by Consistent Integration of Textual and Tabular Evidence with Bayesian Networks",
+      "abstract": "Electronic health records (EHRs) form an invaluable resource for training clinical decision support systems. To leverage the potential of such systems in high-risk applications, we need large, structured tabular datasets on which we can build transparent feature-based models. While part of the EHR already contains structured information (e.g. diagnosis codes, medications, and lab results), much of the information is contained within unstructured text (e.g. discharge summaries and nursing notes). In this work, we propose a method for multi-modal patient-level information extraction that leverages both the tabular features available in the patient's EHR (using an expert-informed Bayesian network) as well as clinical notes describing the patient's symptoms (using neural text classifiers). We propose the use of virtual evidence augmented with a consistency node to provide an interpretable, probabilistic fusion of the models' predictions. The consistency node improves the calibration of the final predictions compared to virtual evidence alone, allowing the Bayesian network to better adjust the neural classifier's output to handle missing information and resolve contradictions between the tabular and text data. We show the potential of our method on the SimSUM dataset, a simulated benchmark linking tabular EHRs with clinical notes through expert knowledge.",
+      "authors": [
+        "Paloma Rabaey",
+        "Adrick Tench",
+        "Stefan Heytens",
+        "Thomas Demeester"
+      ],
+      "published": "2025-11-21T16:59:42+08:00",
+      "updated": "2025-11-21T16:59:42+08:00",
+      "arxiv_id": "2511.17056v1",
+      "url": "https://arxiv.org/pdf/2511.17056v1",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": []
+    },
+    {
+      "title": "Lane-Frame Quantum Multimodal Driving Forecasts for the Trajectory of Autonomous Vehicles",
+      "abstract": "Trajectory forecasting for autonomous driving must deliver accurate, calibrated multi-modal futures under tight compute and latency constraints. We propose a compact hybrid quantum architecture that aligns quantum inductive bias with road-scene structure by operating in an ego-centric, lane-aligned frame and predicting residual corrections to a kinematic baseline instead of absolute poses. The model combines a transformer-inspired quantum attention encoder (9 qubits), a parameter-lean quantum feedforward stack (64 layers, ${\\sim}1200$ trainable angles), and a Fourier-based decoder that uses shallow entanglement and phase superposition to generate 16 trajectory hypotheses in a single pass, with mode confidences derived from the latent spectrum. All circuit parameters are trained with Simultaneous Perturbation Stochastic Approximation (SPSA), avoiding backpropagation through non-analytic components. In the Waymo Open Motion Dataset, the model achieves minADE (minimum Average Displacement Error) of \\SI{1.94}{m} and minFDE (minimum Final Displacement Error) of \\SI{3.56}{m} in the $16$ models predicted over the horizon of \\SI{2.0}{s}, consistently outperforming a kinematic baseline with reduced miss rates and strong recall. Ablations confirm that residual learning in the lane frame, truncated Fourier decoding, shallow entanglement, and spectrum-based ranking focus capacity where it matters, yielding stable optimization and reliable multi-modal forecasts from small, shallow quantum circuits on a modern autonomous-driving benchmark.",
+      "authors": [
+        "Navneet Singh",
+        "Shiva Raj Pokhrel"
+      ],
+      "published": "2025-11-21T15:00:07+08:00",
+      "updated": "2025-11-21T15:00:07+08:00",
+      "arxiv_id": "2511.17675v1",
+      "url": "https://arxiv.org/pdf/2511.17675v1",
+      "categories": [
+        "cs.LG",
+        "quant-ph"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": []
+    },
+    {
+      "title": "Senti-iFusion: An Integrity-centered Hierarchical Fusion Framework for Multimodal Sentiment Analysis under Uncertain Modality Missingness",
+      "abstract": "Multimodal Sentiment Analysis (MSA) is critical for human-computer interaction but faces challenges when the modalities are incomplete or missing. Existing methods often assume pre-defined missing modalities or fixed missing rates, limiting their real-world applicability. To address this challenge, we propose Senti-iFusion, an integrity-centered hierarchical fusion framework capable of handling both inter- and intra-modality missingness simultaneously. It comprises three hierarchical components: Integrity Estimation, Integrity-weighted Completion, and Integrity-guided Fusion. First, the Integrity Estimation module predicts the completeness of each modality and mitigates the noise caused by incomplete data. Second, the Integrity-weighted Cross-modal Completion module employs a novel weighting mechanism to disentangle consistent semantic structures from modality-specific representations, enabling the precise recovery of sentiment-related features across language, acoustic, and visual modalities. To ensure consistency in reconstruction, a dual-depth validation with semantic- and feature-level losses ensures consistent reconstruction at both fine-grained (low-level) and semantic (high-level) scales. Finally, the Integrity-guided Adaptive Fusion mechanism dynamically selects the dominant modality for attention-based fusion, ensuring that the most reliable modality, based on completeness and quality, contributes more significantly to the final prediction. Senti-iFusion employs a progressive training approach to ensure stable convergence. Experimental results on popular MSA datasets demonstrate that Senti-iFusion outperforms existing methods, particularly in fine-grained sentiment analysis tasks. The code and our proposed Senti-iFusion model will be publicly available.",
+      "authors": [
+        "Liling Li",
+        "Guoyang Xu",
+        "Xiongri Shen",
+        "Zhifei Xu",
+        "Yanbo Zhang",
+        "Zhiguo Zhang",
+        "Zhenxi Song"
+      ],
+      "published": "2025-11-21T14:54:21+08:00",
+      "updated": "2025-11-21T14:54:21+08:00",
+      "arxiv_id": "2511.16990v1",
+      "url": "https://arxiv.org/pdf/2511.16990v1",
+      "categories": [
+        "cs.HC"
+      ],
+      "primary_category": "cs.HC",
+      "matched_keywords": [
+        "incomplete modality",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Data Annotation Quality Problems in AI-Enabled Perception System Development",
+      "abstract": "Data annotation is essential but highly error-prone in the development of AI-enabled perception systems (AIePS) for automated driving, and its quality directly influences model performance, safety, and reliability. However, the industry lacks empirical insights into how annotation errors emerge and spread across the multi-organisational automotive supply chain. This study addresses this gap through a multi-organisation case study involving six companies and four research institutes across Europe and the UK. Based on 19 semi-structured interviews with 20 experts (50 hours of transcripts) and a six-phase thematic analysis, we develop a taxonomy of 18 recurring annotation error types across three data-quality dimensions: completeness (e.g., attribute omission, missing feedback loops, edge-case omissions, selection bias), accuracy (e.g., mislabelling, bounding-box inaccuracies, granularity mismatches, bias-driven errors), and consistency (e.g., inter-annotator disagreement, ambiguous instructions, misaligned hand-offs, cross-modality inconsistencies). The taxonomy was validated with industry practitioners, who reported its usefulness for root-cause analysis, supplier quality reviews, onboarding, and improving annotation guidelines. They described it as a failure-mode catalogue similar to FMEA. By conceptualising annotation quality as a lifecycle and supply-chain issue, this study contributes to SE4AI by offering a shared vocabulary, diagnostic toolset, and actionable guidance for building trustworthy AI-enabled perception systems.",
+      "authors": [
+        "Hina Saeeda",
+        "Tommy Johansson",
+        "Mazen Mohamad",
+        "Eric Knauss"
+      ],
+      "published": "2025-11-20T22:30:51+08:00",
+      "updated": "2025-11-20T22:30:51+08:00",
+      "arxiv_id": "2511.16410v1",
+      "url": "https://arxiv.org/pdf/2511.16410v1",
+      "categories": [
+        "cs.SE"
+      ],
+      "primary_category": "cs.SE",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "BioBench: A Blueprint to Move Beyond ImageNet for Scientific ML Benchmarks",
+      "abstract": "ImageNet-1K linear-probe transfer accuracy remains the default proxy for visual representation quality, yet it no longer predicts performance on scientific imagery. Across 46 modern vision model checkpoints, ImageNet top-1 accuracy explains only 34% of variance on ecology tasks and mis-ranks 30% of models above 75% accuracy. We present BioBench, an open ecology vision benchmark that captures what ImageNet misses. BioBench unifies 9 publicly released, application-driven tasks, 4 taxonomic kingdoms, and 6 acquisition modalities (drone RGB, web video, micrographs, in-situ and specimen photos, camera-trap frames), totaling 3.1M images. A single Python API downloads data, fits lightweight classifiers to frozen backbones, and reports class-balanced macro-F1 (plus domain metrics for FishNet and FungiCLEF); ViT-L models evaluate in 6 hours on an A6000 GPU. BioBench provides new signal for computer vision in ecology and a template recipe for building reliable AI-for-science benchmarks in any domain. Code and predictions are available at https://github.com/samuelstevens/biobench and results at https://samuelstevens.me/biobench.",
+      "authors": [
+        "Samuel Stevens"
+      ],
+      "published": "2025-11-20T20:46:33+08:00",
+      "updated": "2025-11-20T20:46:33+08:00",
+      "arxiv_id": "2511.16315v1",
+      "url": "https://arxiv.org/pdf/2511.16315v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "Transparent Early ICU Mortality Prediction with Clinical Transformer and Per-Case Modality Attribution",
+      "abstract": "Early identification of intensive care patients at risk of in-hospital mortality enables timely intervention and efficient resource allocation. Despite high predictive performance, existing machine learning approaches lack transparency and robustness, limiting clinical adoption. We present a lightweight, transparent multimodal ensemble that fuses physiological time-series measurements with unstructured clinical notes from the first 48 hours of an ICU stay. A logistic regression model combines predictions from two modality-specific models: a bidirectional LSTM for vitals and a finetuned ClinicalModernBERT transformer for notes. This traceable architecture allows for multilevel interpretability: feature attributions within each modality and direct per-case modality attributions quantifying how vitals and notes influence each decision. On the MIMIC-III benchmark, our late-fusion ensemble improves discrimination over the best single model (AUPRC 0.565 vs. 0.526; AUROC 0.891 vs. 0.876) while maintaining well-calibrated predictions. The system remains robust through a calibrated fallback when a modality is missing. These results demonstrate competitive performance with reliable, auditable risk estimates and transparent, predictable operation, which together are crucial for clinical use.",
+      "authors": [
+        "Alexander Bakumenko",
+        "Janine Hoelscher",
+        "Hudson Smith"
+      ],
+      "published": "2025-11-20T04:11:49+08:00",
+      "updated": "2025-11-20T04:11:49+08:00",
+      "arxiv_id": "2511.15847v1",
+      "url": "https://arxiv.org/pdf/2511.15847v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Multi-Text Guided Few-Shot Semantic Segmentation",
+      "abstract": "Recent CLIP-based few-shot semantic segmentation methods introduce class-level textual priors to assist segmentation by typically using a single prompt (e.g., a photo of class). However, these approaches often result in incomplete activation of target regions, as a single textual description cannot fully capture the semantic diversity of complex categories. Moreover, they lack explicit cross-modal interaction and are vulnerable to noisy support features, further degrading visual prior quality. To address these issues, we propose the Multi-Text Guided Few-Shot Semantic Segmentation Network (MTGNet), a dual-branch framework that enhances segmentation performance by fusing diverse textual prompts to refine textual priors and guide the cross-modal optimization of visual priors. Specifically, we design a Multi-Textual Prior Refinement (MTPR) module that suppresses interference and aggregates complementary semantic cues to enhance foreground activation and expand semantic coverage for structurally complex objects. We introduce a Text Anchor Feature Fusion (TAFF) module, which leverages multi-text embeddings as semantic anchors to facilitate the transfer of discriminative local prototypes from support images to query images, thereby improving semantic consistency and alleviating intra-class variations. Furthermore, a Foreground Confidence-Weighted Attention (FCWA) module is presented to enhance visual prior robustness by leveraging internal self-similarity within support foreground features. It adaptively down-weights inconsistent regions and effectively suppresses interference in the query segmentation process. Extensive experiments on standard FSS benchmarks validate the effectiveness of MTGNet. In the 1-shot setting, it achieves 76.8% mIoU on PASCAL-5i and 57.4% on COCO-20i, with notable improvements in folds exhibiting high intra-class variations.",
+      "authors": [
+        "Qiang Jiao",
+        "Bin Yan",
+        "Yi Yang",
+        "Mengrui Shi",
+        "Qiang Zhang"
+      ],
+      "published": "2025-11-19T23:09:19+08:00",
+      "updated": "2025-11-19T23:09:19+08:00",
+      "arxiv_id": "2511.15515v1",
+      "url": "https://arxiv.org/pdf/2511.15515v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "HyMAD: A Hybrid Multi-Activity Detection Approach for Border Surveillance and Monitoring",
+      "abstract": "Seismic sensing has emerged as a promising solution for border surveillance and monitoring; the seismic sensors that are often buried underground are small and cannot be noticed easily, making them difficult for intruders to detect, avoid, or vandalize. This significantly enhances their effectiveness compared to highly visible cameras or fences. However, accurately detecting and distinguishing between overlapping activities that are happening simultaneously, such as human intrusions, animal movements, and vehicle rumbling, remains a major challenge due to the complex and noisy nature of seismic signals. Correctly identifying simultaneous activities is critical because failing to separate them can lead to misclassification, missed detections, and an incomplete understanding of the situation, thereby reducing the reliability of surveillance systems. To tackle this problem, we propose HyMAD (Hybrid Multi-Activity Detection), a deep neural architecture based on spatio-temporal feature fusion. The framework integrates spectral features extracted with SincNet and temporal dependencies modeled by a recurrent neural network (RNN). In addition, HyMAD employs self-attention layers to strengthen intra-modal representations and a cross-modal fusion module to achieve robust multi-label classification of seismic events. e evaluate our approach on a dataset constructed from real-world field recordings collected in the context of border surveillance and monitoring, demonstrating its ability to generalize to complex, simultaneous activity scenarios involving humans, animals, and vehicles. Our method achieves competitive performance and offers a modular framework for extending seismic-based activity recognition in real-world security applications.",
+      "authors": [
+        "Sriram Srinivasan",
+        "Srinivasan Aruchamy",
+        "Siva Ram Krisha Vadali"
+      ],
+      "published": "2025-11-19T01:37:38+08:00",
+      "updated": "2025-11-19T01:37:38+08:00",
+      "arxiv_id": "2511.14698v1",
+      "url": "https://arxiv.org/pdf/2511.14698v1",
+      "categories": [
+        "cs.CV",
+        "cs.LG",
+        "eess.SP"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "CCSD: Cross-Modal Compositional Self-Distillation for Robust Brain Tumor Segmentation with Missing Modalities",
+      "abstract": "The accurate segmentation of brain tumors from multi-modal MRI is critical for clinical diagnosis and treatment planning. While integrating complementary information from various MRI sequences is a common practice, the frequent absence of one or more modalities in real-world clinical settings poses a significant challenge, severely compromising the performance and generalizability of deep learning-based segmentation models. To address this challenge, we propose a novel Cross-Modal Compositional Self-Distillation (CCSD) framework that can flexibly handle arbitrary combinations of input modalities. CCSD adopts a shared-specific encoder-decoder architecture and incorporates two self-distillation strategies: (i) a hierarchical modality self-distillation mechanism that transfers knowledge across modality hierarchies to reduce semantic discrepancies, and (ii) a progressive modality combination distillation approach that enhances robustness to missing modalities by simulating gradual modality dropout during training. Extensive experiments on public brain tumor segmentation benchmarks demonstrate that CCSD achieves state-of-the-art performance across various missing-modality scenarios, with strong generalization and stability.",
+      "authors": [
+        "Dongqing Xie",
+        "Yonghuang Wu",
+        "Zisheng Ai",
+        "Jun Min",
+        "Zhencun Jiang",
+        "Shaojin Geng",
+        "Lei Wang"
+      ],
+      "published": "2025-11-18T23:39:53+08:00",
+      "updated": "2025-11-18T23:39:53+08:00",
+      "arxiv_id": "2511.14599v1",
+      "url": "https://arxiv.org/pdf/2511.14599v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Uncertainty-Resilient Multimodal Learning via Consistency-Guided Cross-Modal Transfer",
+      "abstract": "Multimodal learning systems often face substantial uncertainty due to noisy data, low-quality labels, and heterogeneous modality characteristics. These issues become especially critical in human-computer interaction settings, where data quality, semantic reliability, and annotation consistency vary across users and recording conditions. This thesis tackles these challenges by exploring uncertainty-resilient multimodal learning through consistency-guided cross-modal transfer. The central idea is to use cross-modal semantic consistency as a basis for robust representation learning. By projecting heterogeneous modalities into a shared latent space, the proposed framework mitigates modality gaps and uncovers structural relations that support uncertainty estimation and stable feature learning. Building on this foundation, the thesis investigates strategies to enhance semantic robustness, improve data efficiency, and reduce the impact of noise and imperfect supervision without relying on large, high-quality annotations. Experiments on multimodal affect-recognition benchmarks demonstrate that consistency-guided cross-modal transfer significantly improves model stability, discriminative ability, and robustness to noisy or incomplete supervision. Latent space analyses further show that the framework captures reliable cross-modal structure even under challenging conditions. Overall, this thesis offers a unified perspective on resilient multimodal learning by integrating uncertainty modeling, semantic alignment, and data-efficient supervision, providing practical insights for developing reliable and adaptive brain-computer interface systems.",
+      "authors": [
+        "Hyo-Jeong Jang"
+      ],
+      "published": "2025-11-18T23:26:42+08:00",
+      "updated": "2025-11-18T23:26:42+08:00",
+      "arxiv_id": "2511.15741v1",
+      "url": "https://arxiv.org/pdf/2511.15741v1",
+      "categories": [
+        "cs.AI",
+        "cs.HC",
+        "cs.LG"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "ArchMap: Arch-Flattening and Knowledge-Guided Vision Language Model for Tooth Counting and Structured Dental Understanding",
+      "abstract": "A structured understanding of intraoral 3D scans is essential for digital orthodontics. However, existing deep-learning approaches rely heavily on modality-specific training, large annotated datasets, and controlled scanning conditions, which limit generalization across devices and hinder deployment in real clinical workflows. Moreover, raw intraoral meshes exhibit substantial variation in arch pose, incomplete geometry caused by occlusion or tooth contact, and a lack of texture cues, making unified semantic interpretation highly challenging. To address these limitations, we propose ArchMap, a training-free and knowledge-guided framework for robust structured dental understanding. ArchMap first introduces a geometry-aware arch-flattening module that standardizes raw 3D meshes into spatially aligned, continuity-preserving multi-view projections. We then construct a Dental Knowledge Base (DKB) encoding hierarchical tooth ontology, dentition-stage policies, and clinical semantics to constrain the symbolic reasoning space. We validate ArchMap on 1060 pre-/post-orthodontic cases, demonstrating robust performance in tooth counting, anatomical partitioning, dentition-stage classification, and the identification of clinical conditions such as crowding, missing teeth, prosthetics, and caries. Compared with supervised pipelines and prompted VLM baselines, ArchMap achieves higher accuracy, reduced semantic drift, and superior stability under sparse or artifact-prone conditions. As a fully training-free system, ArchMap demonstrates that combining geometric normalization with ontology-guided multimodal reasoning offers a practical and scalable solution for the structured analysis of 3D intraoral scans in modern digital orthodontics.",
+      "authors": [
+        "Bohan Zhang",
+        "Yiyi Miao",
+        "Taoyu Wu",
+        "Tong Chen",
+        "Ji Jiang",
+        "Zhuoxiao Li",
+        "Zhe Tang",
+        "Limin Yu",
+        "Jionglong Su"
+      ],
+      "published": "2025-11-18T18:46:06+08:00",
+      "updated": "2025-11-18T18:46:06+08:00",
+      "arxiv_id": "2511.14336v1",
+      "url": "https://arxiv.org/pdf/2511.14336v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "incomplete modality",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "View-aware Cross-modal Distillation for Multi-view Action Recognition",
+      "abstract": "The widespread use of multi-sensor systems has increased research in multi-view action recognition. While existing approaches in multi-view setups with fully overlapping sensors benefit from consistent view coverage, partially overlapping settings where actions are visible in only a subset of views remain underexplored. This challenge becomes more severe in real-world scenarios, as many systems provide only limited input modalities and rely on sequence-level annotations instead of dense frame-level labels. In this study, we propose View-aware Cross-modal Knowledge Distillation (ViCoKD), a framework that distills knowledge from a fully supervised multi-modal teacher to a modality- and annotation-limited student. ViCoKD employs a cross-modal adapter with cross-modal attention, allowing the student to exploit multi-modal correlations while operating with incomplete modalities. Moreover, we propose a View-aware Consistency module to address view misalignment, where the same action may appear differently or only partially across viewpoints. It enforces prediction alignment when the action is co-visible across views, guided by human-detection masks and confidence-weighted Jensen-Shannon divergence between their predicted class distributions. Experiments on the real-world MultiSensor-Home dataset show that ViCoKD consistently outperforms competitive distillation methods across multiple backbones and environments, delivering significant gains and surpassing the teacher model under limited conditions.",
+      "authors": [
+        "Trung Thanh Nguyen",
+        "Yasutomo Kawanishi",
+        "Vijay John",
+        "Takahiro Komamizu",
+        "Ichiro Ide"
+      ],
+      "published": "2025-11-17T10:00:22+08:00",
+      "updated": "2025-11-17T10:00:22+08:00",
+      "arxiv_id": "2511.12870v1",
+      "url": "https://arxiv.org/pdf/2511.12870v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "Medical Knowledge Intervention Prompt Tuning for Medical Image Classification",
+      "abstract": "Vision-language foundation models (VLMs) have shown great potential in feature transfer and generalization across a wide spectrum of medical-related downstream tasks. However, fine-tuning these models is resource-intensive due to their large number of parameters. Prompt tuning has emerged as a viable solution to mitigate memory usage and reduce training time while maintaining competitive performance. Nevertheless, the challenge is that existing prompt tuning methods cannot precisely distinguish different kinds of medical concepts, which miss essentially specific disease-related features across various medical imaging modalities in medical image classification tasks. We find that Large Language Models (LLMs), trained on extensive text corpora, are particularly adept at providing this specialized medical knowledge. Motivated by this, we propose incorporating LLMs into the prompt tuning process. Specifically, we introduce the CILMP, Conditional Intervention of Large Language Models for Prompt Tuning, a method that bridges LLMs and VLMs to facilitate the transfer of medical knowledge into VLM prompts. CILMP extracts disease-specific representations from LLMs, intervenes within a low-rank linear subspace, and utilizes them to create disease-specific prompts. Additionally, a conditional mechanism is incorporated to condition the intervention process on each individual medical image, generating instance-adaptive prompts and thus enhancing adaptability. Extensive experiments across diverse medical image datasets demonstrate that CILMP consistently outperforms state-of-the-art prompt tuning methods, demonstrating its effectiveness. Code is available at https://github.com/usr922/cilmp.",
+      "authors": [
+        "Ye Du",
+        "Nanxi Yu",
+        "Shujun Wang"
+      ],
+      "published": "2025-11-16T23:09:46+08:00",
+      "updated": "2025-11-16T23:09:46+08:00",
+      "arxiv_id": "2511.12639v1",
+      "url": "https://arxiv.org/pdf/2511.12639v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "Calibrated Multimodal Representation Learning with Missing Modalities",
+      "abstract": "Multimodal representation learning harmonizes distinct modalities by aligning them into a unified latent space. Recent research generalizes traditional cross-modal alignment to produce enhanced multimodal synergy but requires all modalities to be present for a common instance, making it challenging to utilize prevalent datasets with missing modalities. We provide theoretical insights into this issue from an anchor shift perspective. Observed modalities are aligned with a local anchor that deviates from the optimal one when all modalities are present, resulting in an inevitable shift. To address this, we propose CalMRL for multimodal representation learning to calibrate incomplete alignments caused by missing modalities. Specifically, CalMRL leverages the priors and the inherent connections among modalities to model the imputation for the missing ones at the representation level. To resolve the optimization dilemma, we employ a bi-step learning method with the closed-form solution of the posterior distribution of shared latents. We validate its mitigation of anchor shift and convergence with theoretical guidance. By equipping the calibrated alignment with the existing advanced method, we offer new flexibility to absorb data with missing modalities, which is originally unattainable. Extensive experiments and comprehensive analyses demonstrate the superiority of CalMRL. Our code, model checkpoints, and evaluation raw data will be publicly available.",
+      "authors": [
+        "Xiaohao Liu",
+        "Xiaobo Xia",
+        "Jiaheng Wei",
+        "Shuo Yang",
+        "Xiu Su",
+        "See-Kiong Ng",
+        "Tat-Seng Chua"
+      ],
+      "published": "2025-11-15T13:01:43+08:00",
+      "updated": "2025-11-15T13:01:43+08:00",
+      "arxiv_id": "2511.12034v1",
+      "url": "https://arxiv.org/pdf/2511.12034v1",
+      "categories": [
+        "cs.CV",
+        "cs.LG",
+        "cs.MM"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "PI-NAIM: Path-Integrated Neural Adaptive Imputation Model",
+      "abstract": "Medical imaging and multi-modal clinical settings often face the challange of missing modality in their diagnostic pipelines. Existing imputation methods either lack representational capacity or are computationally expensive. We propose PI-NAIM, a novel dual-path architecture that dynamically routes samples to optimized imputation approaches based on missingness complexity. Our framework integrates: (1) intelligent path routing that directs low missingness samples to efficient statistical imputation (MICE) and complex patterns to powerful neural networks (GAIN with temporal analysis); (2) cross-path attention fusion that leverages missingness-aware embeddings to intelligently combine both branches; and (3) end-to-end joint optimization of imputation accuracy and downstream task performance. Extensive experiments on MIMIC-III and multimodal benchmarks demonstrate state-of-the-art performance, achieving RMSE of 0.108 (vs. baselines' 0.119-0.152) and substantial gains in downstream tasks with an AUROC of 0.812 for mortality prediction. PI-NAIM's modular design enables seamless integration into vision pipelines handling incomplete sensor measurements, missing modalities, or corrupted inputs, providing a unified solution for real-world scenario. The code is publicly available at https://github.com/AfifaKhaled/PI-NAIM-Path-Integrated-Neural-Adaptive-Imputation-Model",
+      "authors": [
+        "Afifa Khaled",
+        "Ebrahim Hamid Sumiea"
+      ],
+      "published": "2025-11-15T06:38:40+08:00",
+      "updated": "2025-11-15T06:38:40+08:00",
+      "arxiv_id": "2511.11908v1",
+      "url": "https://arxiv.org/pdf/2511.11908v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "incomplete modality",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "SynthSoM-Twin: A Multi-Modal Sensing-Communication Digital-Twin Dataset for Sim2Real Transfer via Synesthesia of Machines",
+      "abstract": "This paper constructs a novel multi-modal sensing-communication digital-twin dataset, named SynthSoM-Twin, which is spatio-temporally consistent with the real world, for Sim2Real transfer via Synesthesia of Machines (SoM). To construct the SynthSoM-Twin dataset, we propose a new framework that can extend the quantity and missing modality of existing real-world multi-modal sensing-communication dataset. Specifically, we exploit multi-modal sensing-assisted object detection and tracking algorithms to ensure spatio-temporal consistency of static objects and dynamic objects across real world and simulation environments. The constructed scenario is imported into three high-fidelity simulators, i.e., AirSim, WaveFarer, and Sionna RT. The SynthSoM-Twin dataset contains spatio-temporally consistent data with the real world, including 66,868 snapshots of synthetic RGB images, depth maps, light detection and ranging (LiDAR) point clouds, millimeter wave (mmWave) radar point clouds, and large-scale and small-scale channel fading data. To validate the utility of SynthSoM-Twin dataset, we conduct Sim2Real transfer investigation by implementing two cross-modal downstream tasks via cross-modal generative models (CMGMs), i.e., cross-modal channel generation model and multi-modal sensing-assisted beam generation model. Based on the downstream tasks, we explore the threshold of real-world data injection that can achieve a decent trade-off between real-world data usage and models' practical performance. Experimental results show that the model training on the SynthSoM-Twin dataset achieves a decent practical performance, and the injection of real-world data further facilitates Sim2Real transferability. Based on the SynthSoM-Twin dataset, injecting less than 15% of real-world data can achieve similar and even better performance compared to that trained with all the real-world data only.",
+      "authors": [
+        "Junlong Chen",
+        "Ziwei Huang",
+        "Xuesong Cai",
+        "Xiang Cheng",
+        "Liuqing Yang"
+      ],
+      "published": "2025-11-15T01:24:39+08:00",
+      "updated": "2025-11-15T01:24:39+08:00",
+      "arxiv_id": "2511.11503v1",
+      "url": "https://arxiv.org/pdf/2511.11503v1",
+      "categories": [
+        "eess.SP"
+      ],
+      "primary_category": "eess.SP",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Rethinking Efficient Mixture-of-Experts for Remote Sensing Modality-Missing Classification",
+      "abstract": "Multimodal classification in remote sensing often suffers from missing modalities caused by environmental interference, sensor failures, or atmospheric effects, which severely degrade classification performance. Existing two-stage adaptation methods are computationally expensive and assume complete multimodal data during training, limiting their generalization to real-world incompleteness. To overcome these issues, we propose a Missing-aware Mixture-of-Loras (MaMOL) framework that reformulates modality missing as a multi-task learning problem. MaMOL introduces a dual-routing mechanism: a task-oriented dynamic router that adaptively activates experts for different missing patterns, and a modality-specific-shared static router that maintains stable cross-modal knowledge sharing. Unlike prior methods that train separate networks for each missing configuration, MaMOL achieves parameter-efficient adaptation via lightweight expert updates and shared expert reuse. Experiments on multiple remote sensing benchmarks demonstrate superior robustness and generalization under varying missing rates, with minimal computational overhead. Moreover, transfer experiments on natural image datasets validate its scalability and cross-domain applicability, highlighting MaMOL as a general and efficient solution for incomplete multimodal learning.",
+      "authors": [
+        "Qinghao Gao",
+        "Jianhai Qu",
+        "Yunsong Li",
+        "Weiqiang Dong"
+      ],
+      "published": "2025-11-15T00:31:37+08:00",
+      "updated": "2025-11-15T00:31:37+08:00",
+      "arxiv_id": "2511.11460v1",
+      "url": "https://arxiv.org/pdf/2511.11460v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "incomplete modality",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "PROMISE: Prompt-Attentive Hierarchical Contrastive Learning for Robust Cross-Modal Representation with Missing Modalities",
+      "abstract": "Multimodal models integrating natural language and visual information have substantially improved generalization of representation models. However, their effectiveness significantly declines in real-world situations where certain modalities are missing or unavailable. This degradation primarily stems from inconsistent representation learning between complete multimodal data and incomplete modality scenarios. Existing approaches typically address missing modalities through relatively simplistic generation methods, yet these approaches fail to adequately preserve cross-modal consistency, leading to suboptimal performance. To overcome this limitation, we propose a novel multimodal framework named PROMISE, a PROMpting-Attentive HIerarchical ContraStive LEarning approach designed explicitly for robust cross-modal representation under conditions of missing modalities. Specifically, PROMISE innovatively incorporates multimodal prompt learning into a hierarchical contrastive learning framework, equipped with a specially designed prompt-attention mechanism. This mechanism dynamically generates robust and consistent representations for scenarios where particular modalities are absent, thereby effectively bridging the representational gap between complete and incomplete data. Extensive experiments conducted on benchmark datasets, along with comprehensive ablation studies, clearly demonstrate the superior performance of PROMISE compared to current state-of-the-art multimodal methods.",
+      "authors": [
+        "Jiajun Chen",
+        "Sai Cheng",
+        "Yutao Yuan",
+        "Yirui Zhang",
+        "Haitao Yuan",
+        "Peng Peng",
+        "Yi Zhong"
+      ],
+      "published": "2025-11-14T14:39:24+08:00",
+      "updated": "2025-11-14T14:39:24+08:00",
+      "arxiv_id": "2511.10997v1",
+      "url": "https://arxiv.org/pdf/2511.10997v1",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "incomplete modality",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Neighborhood and algebraic models for predicate modal logics with $ω$-rules",
+      "abstract": "This paper investigates neighborhood and algebraic models for predicate modal logics with $ω$-rules, including non-normal cases. We establish sufficient conditions under which such logics have neighborhood models with constant domains and satisfy the completeness theorem with respect to neighborhood frames with constant domains. Related results for normal modal logics with $ω$-rules were obtained by Tanaka, while similar results for non-normal modal logics without $ω$-rules were presented by Arló-Costa and Pacuit and by Tanaka. The results presented here extend these works. As applications, we prove that a predicate extension of GL is sound and complete with respect to a class of neighborhood frames with constant domains, and that a predicate common knowledge logic is Kripke incomplete but neighborhood complete.",
+      "authors": [
+        "Yoshihito Tanaka"
+      ],
+      "published": "2025-11-14T13:23:00+08:00",
+      "updated": "2025-11-14T13:23:00+08:00",
+      "arxiv_id": "2511.10966v1",
+      "url": "https://arxiv.org/pdf/2511.10966v1",
+      "categories": [
+        "math.LO"
+      ],
+      "primary_category": "math.LO",
+      "matched_keywords": []
+    },
+    {
+      "title": "TMDC: A Two-Stage Modality Denoising and Complementation Framework for Multimodal Sentiment Analysis with Missing and Noisy Modalities",
+      "abstract": "Multimodal Sentiment Analysis (MSA) aims to infer human sentiment by integrating information from multiple modalities such as text, audio, and video. In real-world scenarios, however, the presence of missing modalities and noisy signals significantly hinders the robustness and accuracy of existing models. While prior works have made progress on these issues, they are typically addressed in isolation, limiting overall effectiveness in practical settings. To jointly mitigate the challenges posed by missing and noisy modalities, we propose a framework called Two-stage Modality Denoising and Complementation (TMDC). TMDC comprises two sequential training stages. In the Intra-Modality Denoising Stage, denoised modality-specific and modality-shared representations are extracted from complete data using dedicated denoising modules, reducing the impact of noise and enhancing representational robustness. In the Inter-Modality Complementation Stage, these representations are leveraged to compensate for missing modalities, thereby enriching the available information and further improving robustness. Extensive evaluations on MOSI, MOSEI, and IEMOCAP demonstrate that TMDC consistently achieves superior performance compared to existing methods, establishing new state-of-the-art results.",
+      "authors": [
+        "Yan Zhuang",
+        "Minhao Liu",
+        "Yanru Zhang",
+        "Jiawen Deng",
+        "Fuji Ren"
+      ],
+      "published": "2025-11-13T21:59:57+08:00",
+      "updated": "2025-11-13T21:59:57+08:00",
+      "arxiv_id": "2511.10325v1",
+      "url": "https://arxiv.org/pdf/2511.10325v1",
+      "categories": [
+        "cs.MM"
+      ],
+      "primary_category": "cs.MM",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "MuSc-V2: Zero-Shot Multimodal Industrial Anomaly Classification and Segmentation with Mutual Scoring of Unlabeled Samples",
+      "abstract": "Zero-shot anomaly classification (AC) and segmentation (AS) methods aim to identify and outline defects without using any labeled samples. In this paper, we reveal a key property that is overlooked by existing methods: normal image patches across industrial products typically find many other similar patches, not only in 2D appearance but also in 3D shapes, while anomalies remain diverse and isolated. To explicitly leverage this discriminative property, we propose a Mutual Scoring framework (MuSc-V2) for zero-shot AC/AS, which flexibly supports single 2D/3D or multimodality. Specifically, our method begins by improving 3D representation through Iterative Point Grouping (IPG), which reduces false positives from discontinuous surfaces. Then we use Similarity Neighborhood Aggregation with Multi-Degrees (SNAMD) to fuse 2D/3D neighborhood cues into more discriminative multi-scale patch features for mutual scoring. The core comprises a Mutual Scoring Mechanism (MSM) that lets samples within each modality to assign score to each other, and Cross-modal Anomaly Enhancement (CAE) that fuses 2D and 3D scores to recover modality-specific missing anomalies. Finally, Re-scoring with Constrained Neighborhood (RsCon) suppresses false classification based on similarity to more representative samples. Our framework flexibly works on both the full dataset and smaller subsets with consistently robust performance, ensuring seamless adaptability across diverse product lines. In aid of the novel framework, MuSc-V2 achieves significant performance improvements: a $\\textbf{+23.7\\%}$ AP gain on the MVTec 3D-AD dataset and a $\\textbf{+19.3\\%}$ boost on the Eyecandies dataset, surpassing previous zero-shot benchmarks and even outperforming most few-shot methods. The code will be available at The code will be available at \\href{https://github.com/HUST-SLOW/MuSc-V2}{https://github.com/HUST-SLOW/MuSc-V2}.",
+      "authors": [
+        "Xurui Li",
+        "Feng Xue",
+        "Yu Zhou"
+      ],
+      "published": "2025-11-13T15:47:37+08:00",
+      "updated": "2025-11-13T15:47:37+08:00",
+      "arxiv_id": "2511.10047v1",
+      "url": "https://arxiv.org/pdf/2511.10047v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Towards Robust Multimodal Learning in the Open World",
+      "abstract": "The rapid evolution of machine learning has propelled neural networks to unprecedented success across diverse domains. In particular, multimodal learning has emerged as a transformative paradigm, leveraging complementary information from heterogeneous data streams (e.g., text, vision, audio) to advance contextual reasoning and intelligent decision-making. Despite these advancements, current neural network-based models often fall short in open-world environments characterized by inherent unpredictability, where unpredictable environmental composition dynamics, incomplete modality inputs, and spurious distributions relations critically undermine system reliability. While humans naturally adapt to such dynamic, ambiguous scenarios, artificial intelligence systems exhibit stark limitations in robustness, particularly when processing multimodal signals under real-world complexity. This study investigates the fundamental challenge of multimodal learning robustness in open-world settings, aiming to bridge the gap between controlled experimental performance and practical deployment requirements.",
+      "authors": [
+        "Fushuo Huo"
+      ],
+      "published": "2025-11-13T13:45:34+08:00",
+      "updated": "2025-11-13T13:45:34+08:00",
+      "arxiv_id": "2511.09989v1",
+      "url": "https://arxiv.org/pdf/2511.09989v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "Diffusion-Based Quality Control of Medical Image Segmentations across Organs",
+      "abstract": "Medical image segmentation using deep learning (DL) has enabled the development of automated analysis pipelines for large-scale population studies. However, state-of-the-art DL methods are prone to hallucinations, which can result in anatomically implausible segmentations. With manual correction impractical at scale, automated quality control (QC) techniques have to address the challenge. While promising, existing QC methods are organ-specific, limiting their generalizability and usability beyond their original intended task. To overcome this limitation, we propose no-new Quality Control (nnQC), a robust QC framework based on a diffusion-generative paradigm that self-adapts to any input organ dataset. Central to nnQC is a novel Team of Experts (ToE) architecture, where two specialized experts independently encode 3D spatial awareness, represented by the relative spatial position of an axial slice, and anatomical information derived from visual features from the original image. A weighted conditional module dynamically combines the pair of independent embeddings, or opinions to condition the sampling mechanism within a diffusion process, enabling the generation of a spatially aware pseudo-ground truth for predicting QC scores. Within its framework, nnQC integrates fingerprint adaptation to ensure adaptability across organs, datasets, and imaging modalities. We evaluated nnQC on seven organs using twelve publicly available datasets. Our results demonstrate that nnQC consistently outperforms state-of-the-art methods across all experiments, including cases where segmentation masks are highly degraded or completely missing, confirming its versatility and effectiveness across different organs.",
+      "authors": [
+        "Vincenzo Marcianò",
+        "Hava Chaptoukaev",
+        "Virginia Fernandez",
+        "M. Jorge Cardoso",
+        "Sébastien Ourselin",
+        "Michela Antonelli",
+        "Maria A. Zuluaga"
+      ],
+      "published": "2025-11-12T21:24:53+08:00",
+      "updated": "2025-11-12T21:24:53+08:00",
+      "arxiv_id": "2511.09588v1",
+      "url": "https://arxiv.org/pdf/2511.09588v1",
+      "categories": [
+        "eess.IV",
+        "q-bio.QM"
+      ],
+      "primary_category": "eess.IV",
+      "matched_keywords": []
+    },
+    {
+      "title": "Video Echoed in Music: Semantic, Temporal, and Rhythmic Alignment for Video-to-Music Generation",
+      "abstract": "Video-to-Music generation seeks to generate musically appropriate background music that enhances audiovisual immersion for videos. However, current approaches suffer from two critical limitations: 1) incomplete representation of video details, leading to weak alignment, and 2) inadequate temporal and rhythmic correspondence, particularly in achieving precise beat synchronization. To address the challenges, we propose Video Echoed in Music (VeM), a latent music diffusion that generates high-quality soundtracks with semantic, temporal, and rhythmic alignment for input videos. To capture video details comprehensively, VeM employs a hierarchical video parsing that acts as a music conductor, orchestrating multi-level information across modalities. Modality-specific encoders, coupled with a storyboard-guided cross-attention mechanism (SG-CAtt), integrate semantic cues while maintaining temporal coherence through position and duration encoding. For rhythmic precision, the frame-level transition-beat aligner and adapter (TB-As) dynamically synchronize visual scene transitions with music beats. We further contribute a novel video-music paired dataset sourced from e-commerce advertisements and video-sharing platforms, which imposes stricter transition-beat synchronization requirements. Meanwhile, we introduce novel metrics tailored to the task. Experimental results demonstrate superiority, particularly in semantic relevance and rhythmic precision.",
+      "authors": [
+        "Xinyi Tong",
+        "Yiran Zhu",
+        "Jishang Chen",
+        "Chunru Zhan",
+        "Tianle Wang",
+        "Sirui Zhang",
+        "Nian Liu",
+        "Tiezheng Ge",
+        "Duo Xu",
+        "Xin Jin",
+        "Feng Yu",
+        "Song-Chun Zhu"
+      ],
+      "published": "2025-11-12T19:38:39+08:00",
+      "updated": "2025-11-14T14:40:46+08:00",
+      "arxiv_id": "2511.09585v2",
+      "url": "https://arxiv.org/pdf/2511.09585v2",
+      "categories": [
+        "cs.SD",
+        "cs.MM"
+      ],
+      "primary_category": "cs.SD",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "Hierarchical Structure-Property Alignment for Data-Efficient Molecular Generation and Editing",
+      "abstract": "Property-constrained molecular generation and editing are crucial in AI-driven drug discovery but remain hindered by two factors: (i) capturing the complex relationships between molecular structures and multiple properties remains challenging, and (ii) the narrow coverage and incomplete annotations of molecular properties weaken the effectiveness of property-based models. To tackle these limitations, we propose HSPAG, a data-efficient framework featuring hierarchical structure-property alignment. By treating SMILES and molecular properties as complementary modalities, the model learns their relationships at atom, substructure, and whole-molecule levels. Moreover, we select representative samples through scaffold clustering and hard samples via an auxiliary variational auto-encoder (VAE), substantially reducing the required pre-training data. In addition, we incorporate a property relevance-aware masking mechanism and diversified perturbation strategies to enhance generation quality under sparse annotations. Experiments demonstrate that HSPAG captures fine-grained structure-property relationships and supports controllable generation under multiple property constraints. Two real-world case studies further validate the editing capabilities of HSPAG.",
+      "authors": [
+        "Ziyu Fan",
+        "Zhijian Huang",
+        "Yahan Li",
+        "Xiaowen Hu",
+        "Siyuan Shen",
+        "Yunliang Wang",
+        "Zeyu Zhong",
+        "Shuhong Liu",
+        "Shuning Yang",
+        "Shangqian Wu",
+        "Min Wu",
+        "Lei Deng"
+      ],
+      "published": "2025-11-11T18:31:09+08:00",
+      "updated": "2025-11-11T18:31:09+08:00",
+      "arxiv_id": "2511.08080v1",
+      "url": "https://arxiv.org/pdf/2511.08080v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": []
+    },
+    {
+      "title": "Omni-AVSR: Towards Unified Multimodal Speech Recognition with Large Language Models",
+      "abstract": "Large language models (LLMs) have recently achieved impressive results in speech recognition across multiple modalities, including Auditory Speech Recognition (ASR), Visual Speech Recognition (VSR), and Audio-Visual Speech Recognition (AVSR). Despite this progress, current LLM-based approaches typically address each task independently, training separate models that raise computational and deployment resource use while missing potential cross-task synergies. They also rely on fixed-rate token compression, which restricts flexibility in balancing accuracy with efficiency. These limitations highlight the need for a unified framework that can support ASR, VSR, and AVSR while enabling elastic inference. To this end, we present Omni-AVSR, a unified audio-visual LLM that combines efficient multi-granularity training with parameter-efficient adaptation. Specifically, we adapt the matryoshka representation learning paradigm to efficiently train across multiple audio and visual granularities, reducing its inherent training resource use. Furthermore, we explore three LoRA-based strategies for adapting the backbone LLM, balancing shared and task-specific specialization. Experiments on LRS2 and LRS3 show that Omni-AVSR achieves comparable or superior accuracy to state-of-the-art baselines while training a single model at substantially lower training and deployment resource use. The model also remains robust under acoustic noise, and we analyze its scaling behavior as LLM size increases, providing insights into the trade-off between performance and efficiency.",
+      "authors": [
+        "Umberto Cappellazzo",
+        "Xubo Liu",
+        "Pingchuan Ma",
+        "Stavros Petridis",
+        "Maja Pantic"
+      ],
+      "published": "2025-11-11T00:03:44+08:00",
+      "updated": "2025-11-11T00:03:44+08:00",
+      "arxiv_id": "2511.07253v1",
+      "url": "https://arxiv.org/pdf/2511.07253v1",
+      "categories": [
+        "eess.AS",
+        "cs.CV",
+        "cs.SD"
+      ],
+      "primary_category": "eess.AS",
+      "matched_keywords": []
+    },
+    {
+      "title": "On Modality Incomplete Infrared-Visible Object Detection: An Architecture Compatibility Perspective",
+      "abstract": "Infrared and visible object detection (IVOD) is essential for numerous around-the-clock applications. Despite notable advancements, current IVOD models exhibit notable performance declines when confronted with incomplete modality data, particularly if the dominant modality is missing. In this paper, we take a thorough investigation on modality incomplete IVOD problem from an architecture compatibility perspective. Specifically, we propose a plug-and-play Scarf Neck module for DETR variants, which introduces a modality-agnostic deformable attention mechanism to enable the IVOD detector to flexibly adapt to any single or double modalities during training and inference. When training Scarf-DETR, we design a pseudo modality dropout strategy to fully utilize the multi-modality information, making the detector compatible and robust to both working modes of single and double modalities. Moreover, we introduce a comprehensive benchmark for the modality-incomplete IVOD task aimed at thoroughly assessing situations where the absent modality is either dominant or secondary. Our proposed Scarf-DETR not only performs excellently in missing modality scenarios but also achieves superior performances on the standard IVOD modality complete benchmarks. Our code will be available at https://github.com/YinghuiXing/Scarf-DETR.",
+      "authors": [
+        "Shuo Yang",
+        "Yinghui Xing",
+        "Shizhou Zhang",
+        "Zhilong Niu"
+      ],
+      "published": "2025-11-09T22:38:32+08:00",
+      "updated": "2025-11-09T22:38:32+08:00",
+      "arxiv_id": "2511.06406v1",
+      "url": "https://arxiv.org/pdf/2511.06406v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "incomplete modality",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "LLM-Driven Completeness and Consistency Evaluation for Cultural Heritage Data Augmentation in Cross-Modal Retrieval",
+      "abstract": "Cross-modal retrieval is essential for interpreting cultural heritage data, but its effectiveness is often limited by incomplete or inconsistent textual descriptions, caused by historical data loss and the high cost of expert annotation. While large language models (LLMs) offer a promising solution by enriching textual descriptions, their outputs frequently suffer from hallucinations or miss visually grounded details. To address these challenges, we propose $C^3$, a data augmentation framework that enhances cross-modal retrieval performance by improving the completeness and consistency of LLM-generated descriptions. $C^3$ introduces a completeness evaluation module to assess semantic coverage using both visual cues and language-model outputs. Furthermore, to mitigate factual inconsistencies, we formulate a Markov Decision Process to supervise Chain-of-Thought reasoning, guiding consistency evaluation through adaptive query control. Experiments on the cultural heritage datasets CulTi and TimeTravel, as well as on general benchmarks MSCOCO and Flickr30K, demonstrate that $C^3$ achieves state-of-the-art performance in both fine-tuned and zero-shot settings.",
+      "authors": [
+        "Jian Zhang",
+        "Junyi Guo",
+        "Junyi Yuan",
+        "Huanda Lu",
+        "Yanlin Zhou",
+        "Fangyu Wu",
+        "Qiufeng Wang",
+        "Dongming Lu"
+      ],
+      "published": "2025-11-09T16:05:40+08:00",
+      "updated": "2025-11-09T16:05:40+08:00",
+      "arxiv_id": "2511.06268v1",
+      "url": "https://arxiv.org/pdf/2511.06268v1",
+      "categories": [
+        "cs.CV",
+        "cs.CY"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "MoRA: Missing Modality Low-Rank Adaptation for Visual Recognition",
+      "abstract": "Pre-trained vision language models have shown remarkable performance on visual recognition tasks, but they typically assume the availability of complete multimodal inputs during both training and inference. In real-world scenarios, however, modalities may be missing due to privacy constraints, collection difficulties, or resource limitations. While previous approaches have addressed this challenge using prompt learning techniques, they fail to capture the cross-modal relationships necessary for effective multimodal visual recognition and suffer from inevitable computational overhead. In this paper, we introduce MoRA, a parameter-efficient fine-tuning method that explicitly models cross-modal interactions while maintaining modality-specific adaptations. MoRA introduces modality-common parameters between text and vision encoders, enabling bidirectional knowledge transfer. Additionally, combined with the modality-specific parameters, MoRA allows the backbone model to maintain inter-modality interaction and enable intra-modality flexibility. Extensive experiments on standard benchmarks demonstrate that MoRA achieves an average performance improvement in missing-modality scenarios by 5.24% and uses only 25.90% of the inference time compared to the SOTA method while requiring only 0.11% of trainable parameters compared to full fine-tuning.",
+      "authors": [
+        "Shu Zhao",
+        "Nilesh Ahuja",
+        "Tan Yu",
+        "Tianyi Shen",
+        "Vijaykrishnan Narayanan"
+      ],
+      "published": "2025-11-09T12:52:42+08:00",
+      "updated": "2025-11-09T12:52:42+08:00",
+      "arxiv_id": "2511.06225v1",
+      "url": "https://arxiv.org/pdf/2511.06225v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "DiA-gnostic VLVAE: Disentangled Alignment-Constrained Vision Language Variational AutoEncoder for Robust Radiology Reporting with Missing Modalities",
+      "abstract": "The integration of medical images with clinical context is essential for generating accurate and clinically interpretable radiology reports. However, current automated methods often rely on resource-heavy Large Language Models (LLMs) or static knowledge graphs and struggle with two fundamental challenges in real-world clinical data: (1) missing modalities, such as incomplete clinical context , and (2) feature entanglement, where mixed modality-specific and shared information leads to suboptimal fusion and clinically unfaithful hallucinated findings. To address these challenges, we propose the DiA-gnostic VLVAE, which achieves robust radiology reporting through Disentangled Alignment. Our framework is designed to be resilient to missing modalities by disentangling shared and modality-specific features using a Mixture-of-Experts (MoE) based Vision-Language Variational Autoencoder (VLVAE). A constrained optimization objective enforces orthogonality and alignment between these latent representations to prevent suboptimal fusion. A compact LLaMA-X decoder then uses these disentangled representations to generate reports efficiently. On the IU X-Ray and MIMIC-CXR datasets, DiA has achieved competetive BLEU@4 scores of 0.266 and 0.134, respectively. Experimental results show that the proposed method significantly outperforms state-of-the-art models.",
+      "authors": [
+        "Nagur Shareef Shaik",
+        "Teja Krishna Cherukuri",
+        "Adnan Masood",
+        "Dong Hye Ye"
+      ],
+      "published": "2025-11-08T19:08:27+08:00",
+      "updated": "2025-11-08T19:08:27+08:00",
+      "arxiv_id": "2511.05968v1",
+      "url": "https://arxiv.org/pdf/2511.05968v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "incomplete modality",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "DAFM: Dynamic Adaptive Fusion for Multi-Model Collaboration in Composed Image Retrieval",
+      "abstract": "Composed Image Retrieval (CIR) is a cross-modal task that aims to retrieve target images from large-scale databases using a reference image and a modification text. Most existing methods rely on a single model to perform feature fusion and similarity matching. However, this paradigm faces two major challenges. First, one model alone can't see the whole picture and the tiny details at the same time; it has to handle different tasks with the same weights, so it often misses the small but important links between image and text. Second, the absence of dynamic weight allocation prevents adaptive leveraging of complementary model strengths, so the resulting embedding drifts away from the target and misleads the nearest-neighbor search in CIR. To address these limitations, we propose Dynamic Adaptive Fusion (DAFM) for multi-model collaboration in CIR. Rather than optimizing a single method in isolation, DAFM exploits the complementary strengths of heterogeneous models and adaptively rebalances their contributions. This not only maximizes retrieval accuracy but also ensures that the performance gains are independent of the fusion order, highlighting the robustness of our approach. Experiments on the CIRR and FashionIQ benchmarks demonstrate consistent improvements. Our method achieves a Recall@10 of 93.21 and an Rmean of 84.43 on CIRR, and an average Rmean of 67.48 on FashionIQ, surpassing recent strong baselines by up to 4.5%. These results confirm that dynamic multi-model collaboration provides an effective and general solution for CIR.",
+      "authors": [
+        "Yawei Cai",
+        "Jiapeng Mi",
+        "Nan Ji",
+        "Haotian Rong",
+        "Yawei Zhang",
+        "Zhangti Li",
+        "Wenbin Guo",
+        "Rensong Xie"
+      ],
+      "published": "2025-11-07T14:51:10+08:00",
+      "updated": "2025-11-07T14:51:10+08:00",
+      "arxiv_id": "2511.05020v1",
+      "url": "https://arxiv.org/pdf/2511.05020v1",
+      "categories": [
+        "cs.GR",
+        "cs.CV"
+      ],
+      "primary_category": "cs.GR",
+      "matched_keywords": []
+    },
+    {
+      "title": "BrainCSD: A Hierarchical Consistency-Driven MoE Foundation Model for Unified Connectome Synthesis and Multitask Brain Trait Prediction",
+      "abstract": "Functional and structural connectivity (FC/SC) are key multimodal biomarkers for brain analysis, yet their clinical utility is hindered by costly acquisition, complex preprocessing, and frequent missing modalities. Existing foundation models either process single modalities or lack explicit mechanisms for cross-modal and cross-scale consistency. We propose BrainCSD, a hierarchical mixture-of-experts (MoE) foundation model that jointly synthesizes FC/SC biomarkers and supports downstream decoding tasks (diagnosis and prediction). BrainCSD features three neuroanatomically grounded components: (1) a ROI-specific MoE that aligns regional activations from canonical networks (e.g., DMN, FPN) with a global atlas via contrastive consistency; (2) a Encoding-Activation MOE that models dynamic cross-time/gradient dependencies in fMRI/dMRI; and (3) a network-aware refinement MoE that enforces structural priors and symmetry at individual and population levels. Evaluated on the datasets under complete and missing-modality settings, BrainCSD achieves SOTA results: 95.6\\% accuracy for MCI vs. CN classification without FC, low synthesis error (FC RMSE: 0.038; SC RMSE: 0.006), brain age prediction (MAE: 4.04 years), and MMSE score estimation (MAE: 1.72 points). Code is available in \\href{https://github.com/SXR3015/BrainCSD}{BrainCSD}",
+      "authors": [
+        "Xiongri Shen",
+        "Jiaqi Wang",
+        "Yi Zhong",
+        "Zhenxi Song",
+        "Leilei Zhao",
+        "Liling Li",
+        "Yichen Wei",
+        "Lingyan Liang",
+        "Shuqiang Wang",
+        "Baiying Lei",
+        "Demao Deng",
+        "Zhiguo Zhang"
+      ],
+      "published": "2025-11-07T12:40:47+08:00",
+      "updated": "2025-11-07T12:40:47+08:00",
+      "arxiv_id": "2511.05630v1",
+      "url": "https://arxiv.org/pdf/2511.05630v1",
+      "categories": [
+        "q-bio.NC",
+        "cs.AI"
+      ],
+      "primary_category": "q-bio.NC",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Pattern-Aware Diffusion Synthesis of fMRI/dMRI with Tissue and Microstructural Refinement",
+      "abstract": "Magnetic resonance imaging (MRI), especially functional MRI (fMRI) and diffusion MRI (dMRI), is essential for studying neurodegenerative diseases. However, missing modalities pose a major barrier to their clinical use. Although GAN- and diffusion model-based approaches have shown some promise in modality completion, they remain limited in fMRI-dMRI synthesis due to (1) significant BOLD vs. diffusion-weighted signal differences between fMRI and dMRI in time/gradient axis, and (2) inadequate integration of disease-related neuroanatomical patterns during generation. To address these challenges, we propose PDS, introducing two key innovations: (1) a pattern-aware dual-modal 3D diffusion framework for cross-modality learning, and (2) a tissue refinement network integrated with a efficient microstructure refinement to maintain structural fidelity and fine details. Evaluated on OASIS-3, ADNI, and in-house datasets, our method achieves state-of-the-art results, with PSNR/SSIM scores of 29.83 dB/90.84\\% for fMRI synthesis (+1.54 dB/+4.12\\% over baselines) and 30.00 dB/77.55\\% for dMRI synthesis (+1.02 dB/+2.2\\%). In clinical validation, the synthesized data show strong diagnostic performance, achieving 67.92\\%/66.02\\%/64.15\\% accuracy (NC vs. MCI vs. AD) in hybrid real-synthetic experiments. Code is available in \\href{https://github.com/SXR3015/PDS}{PDS GitHub Repository}",
+      "authors": [
+        "Xiongri Shen",
+        "Jiaqi Wang",
+        "Yi Zhong",
+        "Zhenxi Song",
+        "Leilei Zhao",
+        "Yichen Wei",
+        "Lingyan Liang",
+        "Shuqiang Wang",
+        "Baiying Lei",
+        "Demao Deng",
+        "Zhiguo Zhang"
+      ],
+      "published": "2025-11-07T11:51:00+08:00",
+      "updated": "2025-11-07T11:51:00+08:00",
+      "arxiv_id": "2511.04963v1",
+      "url": "https://arxiv.org/pdf/2511.04963v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Early GVHD Prediction in Liver Transplantation via Multi-Modal Deep Learning on Imbalanced EHR Data",
+      "abstract": "Graft-versus-host disease (GVHD) is a rare but often fatal complication in liver transplantation, with a very high mortality rate. By harnessing multi-modal deep learning methods to integrate heterogeneous and imbalanced electronic health records (EHR), we aim to advance early prediction of GVHD, paving the way for timely intervention and improved patient outcomes. In this study, we analyzed pre-transplant electronic health records (EHR) spanning the period before surgery for 2,100 liver transplantation patients, including 42 cases of graft-versus-host disease (GVHD), from a cohort treated at Mayo Clinic between 1992 and 2025. The dataset comprised four major modalities: patient demographics, laboratory tests, diagnoses, and medications. We developed a multi-modal deep learning framework that dynamically fuses these modalities, handles irregular records with missing values, and addresses extreme class imbalance through AUC-based optimization. The developed framework outperforms all single-modal and multi-modal machine learning baselines, achieving an AUC of 0.836, an AUPRC of 0.157, a recall of 0.768, and a specificity of 0.803. It also demonstrates the effectiveness of our approach in capturing complementary information from different modalities, leading to improved performance. Our multi-modal deep learning framework substantially improves existing approaches for early GVHD prediction. By effectively addressing the challenges of heterogeneity and extreme class imbalance in real-world EHR, it achieves accurate early prediction. Our proposed multi-modal deep learning method demonstrates promising results for early prediction of a GVHD in liver transplantation, despite the challenge of extremely imbalanced EHR data.",
+      "authors": [
+        "Yushan Jiang",
+        "Shuteng Niu",
+        "Dongjin Song",
+        "Yichen Wang",
+        "Jingna Feng",
+        "Xinyue Hu",
+        "Liu Yang",
+        "Cui Tao"
+      ],
+      "published": "2025-11-07T04:56:39+08:00",
+      "updated": "2025-11-07T04:56:39+08:00",
+      "arxiv_id": "2511.11623v1",
+      "url": "https://arxiv.org/pdf/2511.11623v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": []
+    },
+    {
+      "title": "From Global to Local Correlation: Geometric Decomposition of Statistical Inference",
+      "abstract": "Understanding feature-outcome associations in high-dimensional data remains\n  challenging when relationships vary across subpopulations, yet standard\n  methods assuming global associations miss context-dependent patterns, reducing\n  statistical power and interpretability. We develop a geometric decomposition\n  framework offering two strategies for partitioning inference problems into\n  regional analyses on data-derived Riemannian graphs. Gradient flow\n  decomposition uses path-monotonicity-validated discrete Morse theory to\n  partition samples into gradient flow cells where outcomes exhibit monotonic\n  behavior. Co-monotonicity decomposition utilizes vertex-level coefficients\n  that provide context-dependent versions of the classical Pearson correlation:\n  these coefficients measure edge-based directional concordance between outcome\n  and features, or between feature pairs, defining embeddings of samples into\n  association space. These embeddings induce Riemannian k-NN graphs on which\n  biclustering identifies co-monotonicity cells (coherent regions) and feature\n  modules. This extends naturally to multi-modal integration across multiple\n  feature sets. Both strategies apply independently or jointly, with Bayesian\n  posterior sampling providing credible intervals.",
+      "authors": [
+        "Pawel Gajer",
+        "Jacques Ravel"
+      ],
+      "published": "2025-11-07T01:51:32+08:00",
+      "updated": "2025-11-19T17:55:48+08:00",
+      "arxiv_id": "2511.04599v4",
+      "url": "https://arxiv.org/pdf/2511.04599v4",
+      "categories": [
+        "stat.ME",
+        "math.ST",
+        "stat.ML"
+      ],
+      "primary_category": "stat.ME",
+      "matched_keywords": []
+    },
+    {
+      "title": "Cross-Modal Alignment via Variational Copula Modelling",
+      "abstract": "Various data modalities are common in real-world applications (e.g., electronic health records, medical images and clinical notes in healthcare). It is essential to develop multimodal learning methods to aggregate various information from multiple modalities. The main challenge is how to appropriately align and fuse the representations of different modalities into a joint distribution. Existing methods mainly rely on concatenation or the Kronecker product, oversimplifying the interaction structure between modalities and indicating a need to model more complex interactions. Additionally, the joint distribution of latent representations with higher-order interactions is underexplored. Copula is a powerful statistical structure for modelling the interactions among variables, as it naturally bridges the joint distribution and marginal distributions of multiple variables. We propose a novel copula-driven multimodal learning framework, which focuses on learning the joint distribution of various modalities to capture the complex interactions among them. The key idea is to interpret the copula model as a tool to align the marginal distributions of the modalities efficiently. By assuming a Gaussian mixture distribution for each modality and a copula model on the joint distribution, our model can generate accurate representations for missing modalities. Extensive experiments on public MIMIC datasets demonstrate the superior performance of our model over other competitors. The code is available at https://github.com/HKU-MedAI/CMCM.",
+      "authors": [
+        "Feng Wu",
+        "Tsai Hor Chan",
+        "Fuying Wang",
+        "Guosheng Yin",
+        "Lequan Yu"
+      ],
+      "published": "2025-11-05T13:28:28+08:00",
+      "updated": "2025-11-05T13:28:28+08:00",
+      "arxiv_id": "2511.03196v1",
+      "url": "https://arxiv.org/pdf/2511.03196v1",
+      "categories": [
+        "cs.LG",
+        "stat.ML"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "A Foundation Model for Brain MRI with Dynamic Modality Integration",
+      "abstract": "We present a foundation model for brain MRI that can work with different combinations of imaging sequences. The model uses one encoder with learnable modality embeddings, conditional layer normalization, and a masked autoencoding objective that accounts for missing modalities. A variance-covariance regularizer is applied to stabilize feature learning and improve representation diversity. This design removes the need for separate models for each modality and allows the network to adapt when some sequences are missing or unseen. It is trained on about 60,000 multi-center MRIs using self-supervised reconstruction and modality imputation to learn flexible representations. A learnable modality embedding guides feature extraction so the encoder can adjust to different inputs. We describe our planned evaluation on brain tumor and multiple sclerosis segmentation, as well as lesion classification, under various modality settings. Preliminary results show that the method works feasibly, and further experiments are planned to study its performance in more detail. All code and pretrained models are available at https://github.com/BrainFM/brainfm",
+      "authors": [
+        "Minh Sao Khue Luu",
+        "Bair N. Tuchinov"
+      ],
+      "published": "2025-11-05T05:25:48+08:00",
+      "updated": "2025-11-05T05:25:48+08:00",
+      "arxiv_id": "2511.03014v1",
+      "url": "https://arxiv.org/pdf/2511.03014v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "ProM3E: Probabilistic Masked MultiModal Embedding Model for Ecology",
+      "abstract": "We introduce ProM3E, a probabilistic masked multimodal embedding model for any-to-any generation of multimodal representations for ecology. ProM3E is based on masked modality reconstruction in the embedding space, learning to infer missing modalities given a few context modalities. By design, our model supports modality inversion in the embedding space. The probabilistic nature of our model allows us to analyse the feasibility of fusing various modalities for given downstream tasks, essentially learning what to fuse. Using these features of our model, we propose a novel cross-modal retrieval approach that mixes inter-modal and intra-modal similarities to achieve superior performance across all retrieval tasks. We further leverage the hidden representation from our model to perform linear probing tasks and demonstrate the superior representation learning capability of our model. All our code, datasets and model will be released at https://vishu26.github.io/prom3e.",
+      "authors": [
+        "Srikumar Sastry",
+        "Subash Khanal",
+        "Aayush Dhakal",
+        "Jiayu Lin",
+        "Dan Cher",
+        "Phoenix Jarosz",
+        "Nathan Jacobs"
+      ],
+      "published": "2025-11-05T03:47:22+08:00",
+      "updated": "2025-11-05T03:47:22+08:00",
+      "arxiv_id": "2511.02946v1",
+      "url": "https://arxiv.org/pdf/2511.02946v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Ignorance as an excuse, formally",
+      "abstract": "There is a lively debate in the current literature on epistemology on which type of ignorance may provide a moral excuse. A good candidate is the one in which an agent has never thought about or considered as true a proposition $p$. From a logical perspective, it is usual to model situations involving ignorance by means of epistemic logic. However, no formal analysis has been provided for ignorance as an excuse. We fill this gap by proposing an original logical setting for modelling this type of ignorance. In particular, we introduce a complete and sound logic in which excusable ignorance is expressed as a primitive modality. This logic is characterized by Kripke semantics with possibly incomplete worlds. Moreover, to consider the conditions of a possible change of an agent's ignorance, we will extend the setting to public announcement logic equipped with a novel update procedure.",
+      "authors": [
+        "Ekaterina Kubyshkina",
+        "Marcio Kléos Pereira",
+        "Mattia Petrolo"
+      ],
+      "published": "2025-11-05T03:44:40+08:00",
+      "updated": "2025-11-05T03:44:40+08:00",
+      "arxiv_id": "2511.02942v1",
+      "url": "https://arxiv.org/pdf/2511.02942v1",
+      "categories": [
+        "math.LO"
+      ],
+      "primary_category": "math.LO",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "HAGI++: Head-Assisted Gaze Imputation and Generation",
+      "abstract": "Mobile eye tracking plays a vital role in capturing human visual attention across both real-world and extended reality (XR) environments, making it an essential tool for applications ranging from behavioural research to human-computer interaction. However, missing values due to blinks, pupil detection errors, or illumination changes pose significant challenges for further gaze data analysis. To address this challenge, we introduce HAGI++ - a multi-modal diffusion-based approach for gaze data imputation that, for the first time, uses the integrated head orientation sensors to exploit the inherent correlation between head and eye movements. HAGI++ employs a transformer-based diffusion model to learn cross-modal dependencies between eye and head representations and can be readily extended to incorporate additional body movements. Extensive evaluations on the large-scale Nymeria, Ego-Exo4D, and HOT3D datasets demonstrate that HAGI++ consistently outperforms conventional interpolation methods and deep learning-based time-series imputation baselines in gaze imputation. Furthermore, statistical analyses confirm that HAGI++ produces gaze velocity distributions that closely match actual human gaze behaviour, ensuring more realistic gaze imputations. Moreover, by incorporating wrist motion captured from commercial wearable devices, HAGI++ surpasses prior methods that rely on full-body motion capture in the extreme case of 100% missing gaze data (pure gaze generation). Our method paves the way for more complete and accurate eye gaze recordings in real-world settings and has significant potential for enhancing gaze-based analysis and interaction across various application domains.",
+      "authors": [
+        "Chuhan Jiao",
+        "Zhiming Hu",
+        "Andreas Bulling"
+      ],
+      "published": "2025-11-04T18:51:34+08:00",
+      "updated": "2025-11-04T18:51:34+08:00",
+      "arxiv_id": "2511.02468v1",
+      "url": "https://arxiv.org/pdf/2511.02468v1",
+      "categories": [
+        "cs.HC",
+        "cs.CV"
+      ],
+      "primary_category": "cs.HC",
+      "matched_keywords": []
+    },
+    {
+      "title": "Collaborative Attention and Consistent-Guided Fusion of MRI and PET for Alzheimer's Disease Diagnosis",
+      "abstract": "Alzheimer's disease (AD) is the most prevalent form of dementia, and its early diagnosis is essential for slowing disease progression. Recent studies on multimodal neuroimaging fusion using MRI and PET have achieved promising results by integrating multi-scale complementary features. However, most existing approaches primarily emphasize cross-modal complementarity while overlooking the diagnostic importance of modality-specific features. In addition, the inherent distributional differences between modalities often lead to biased and noisy representations, degrading classification performance. To address these challenges, we propose a Collaborative Attention and Consistent-Guided Fusion framework for MRI and PET based AD diagnosis. The proposed model introduces a learnable parameter representation (LPR) block to compensate for missing modality information, followed by a shared encoder and modality-independent encoders to preserve both shared and specific representations. Furthermore, a consistency-guided mechanism is employed to explicitly align the latent distributions across modalities. Experimental results on the ADNI dataset demonstrate that our method achieves superior diagnostic performance compared with existing fusion strategies.",
+      "authors": [
+        "Delin Ma",
+        "Menghui Zhou",
+        "Jun Qi",
+        "Yun Yang",
+        "Po Yang"
+      ],
+      "published": "2025-11-04T11:42:07+08:00",
+      "updated": "2025-11-04T11:42:07+08:00",
+      "arxiv_id": "2511.02228v1",
+      "url": "https://arxiv.org/pdf/2511.02228v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Dynamic Reconstruction of Ultrasound-Derived Flow Fields With Physics-Informed Neural Fields",
+      "abstract": "Blood flow is sensitive to disease and provides insight into cardiac function, making flow field analysis valuable for diagnosis. However, while safer than radiation-based imaging and more suitable for patients with medical implants, ultrasound suffers from attenuation with depth, limiting the quality of the image. Despite advances in echocardiographic particle image velocimetry (EchoPIV), accurately measuring blood velocity remains challenging due to the technique's limitations and the complexity of blood flow dynamics. Physics-informed machine learning can enhance accuracy and robustness, particularly in scenarios where noisy or incomplete data challenge purely data-driven approaches. We present a physics-informed neural field model with multi-scale Fourier Feature encoding for estimating blood flow from sparse and noisy ultrasound data without requiring ground truth supervision. We demonstrate that this model achieves consistently low mean squared error in denoising and inpainting both synthetic and real datasets, verified against reference flow fields and ground truth flow rate measurements. While physics-informed neural fields have been widely used to reconstruct medical images, applications to medical flow reconstruction are mostly prominent in Flow MRI. In this work, we adapt methods that have proven effective in other imaging modalities to address the specific challenge of ultrasound-based flow reconstruction.",
+      "authors": [
+        "Viraj Patel",
+        "Lisa Kreusser",
+        "Katharine Fraser"
+      ],
+      "published": "2025-11-04T02:05:11+08:00",
+      "updated": "2025-11-04T02:05:11+08:00",
+      "arxiv_id": "2511.01804v1",
+      "url": "https://arxiv.org/pdf/2511.01804v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": []
+    },
+    {
+      "title": "Contrast-Guided Cross-Modal Distillation for Thermal Object Detection",
+      "abstract": "Robust perception at night remains challenging for thermal-infrared detection: low contrast and weak high-frequency cues lead to duplicate, overlapping boxes, missed small objects, and class confusion. Prior remedies either translate TIR to RGB and hope pixel fidelity transfers to detection -- making performance fragile to color or structure artifacts -- or fuse RGB and TIR at test time, which requires extra sensors, precise calibration, and higher runtime cost. Both lines can help in favorable conditions, but do not directly shape the thermal representation used by the detector. We keep mono-modality inference and tackle the root causes during training. Specifically, we introduce training-only objectives that sharpen instance-level decision boundaries by pulling together features of the same class and pushing apart those of different classes -- suppressing duplicate and confusing detections -- and that inject cross-modal semantic priors by aligning the student's multi-level pyramid features with an RGB-trained teacher, thereby strengthening texture-poor thermal features without visible input at test time. In experiments, our method outperformed prior approaches and achieved state-of-the-art performance.",
+      "authors": [
+        "SiWoo Kim",
+        "JhongHyun An"
+      ],
+      "published": "2025-11-03T18:38:01+08:00",
+      "updated": "2025-11-03T18:38:01+08:00",
+      "arxiv_id": "2511.01435v1",
+      "url": "https://arxiv.org/pdf/2511.01435v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "Structurally Refined Graph Transformer for Multimodal Recommendation",
+      "abstract": "Multimodal recommendation systems utilize various types of information, including images and text, to enhance the effectiveness of recommendations. The key challenge is predicting user purchasing behavior from the available data. Current recommendation models prioritize extracting multimodal information while neglecting the distinction between redundant and valuable data. They also rely heavily on a single semantic framework (e.g., local or global semantics), resulting in an incomplete or biased representation of user preferences, particularly those less expressed in prior interactions. Furthermore, these approaches fail to capture the complex interactions between users and items, limiting the model's ability to meet diverse users. To address these challenges, we present SRGFormer, a structurally optimized multimodal recommendation model. By modifying the transformer for better integration into our model, we capture the overall behavior patterns of users. Then, we enhance structural information by embedding multimodal information into a hypergraph structure to aid in learning the local structures between users and items. Meanwhile, applying self-supervised tasks to user-item collaborative signals enhances the integration of multimodal information, thereby revealing the representational features inherent to the data's modality. Extensive experiments on three public datasets reveal that SRGFormer surpasses previous benchmark models, achieving an average performance improvement of 4.47 percent on the Sports dataset. The code is publicly available online.",
+      "authors": [
+        "Ke Shi",
+        "Yan Zhang",
+        "Miao Zhang",
+        "Lifan Chen",
+        "Jiali Yi",
+        "Kui Xiao",
+        "Xiaoju Hou",
+        "Zhifei Li"
+      ],
+      "published": "2025-11-01T23:18:00+08:00",
+      "updated": "2025-11-01T23:18:00+08:00",
+      "arxiv_id": "2511.00584v1",
+      "url": "https://arxiv.org/pdf/2511.00584v1",
+      "categories": [
+        "cs.IR",
+        "cs.CL"
+      ],
+      "primary_category": "cs.IR",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "Federated Dialogue-Semantic Diffusion for Emotion Recognition under Incomplete Modalities",
+      "abstract": "Multimodal Emotion Recognition in Conversations (MERC) enhances emotional understanding through the fusion of multimodal signals. However, unpredictable modality absence in real-world scenarios significantly degrades the performance of existing methods. Conventional missing-modality recovery approaches, which depend on training with complete multimodal data, often suffer from semantic distortion under extreme data distributions, such as fixed-modality absence. To address this, we propose the Federated Dialogue-guided and Semantic-Consistent Diffusion (FedDISC) framework, pioneering the integration of federated learning into missing-modality recovery. By federated aggregation of modality-specific diffusion models trained on clients and broadcasting them to clients missing corresponding modalities, FedDISC overcomes single-client reliance on modality completeness. Additionally, the DISC-Diffusion module ensures consistency in context, speaker identity, and semantics between recovered and available modalities, using a Dialogue Graph Network to capture conversational dependencies and a Semantic Conditioning Network to enforce semantic alignment. We further introduce a novel Alternating Frozen Aggregation strategy, which cyclically freezes recovery and classifier modules to facilitate collaborative optimization. Extensive experiments on the IEMOCAP, CMUMOSI, and CMUMOSEI datasets demonstrate that FedDISC achieves superior emotion classification performance across diverse missing modality patterns, outperforming existing approaches.",
+      "authors": [
+        "Xihang Qiu",
+        "Jiarong Cheng",
+        "Yuhao Fang",
+        "Wanpeng Zhang",
+        "Yao Lu",
+        "Ye Zhang",
+        "Chun Li"
+      ],
+      "published": "2025-11-01T09:00:06+08:00",
+      "updated": "2025-11-01T09:00:06+08:00",
+      "arxiv_id": "2511.00344v1",
+      "url": "https://arxiv.org/pdf/2511.00344v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "incomplete modality",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Transit-MP: Transit-Prioritized Max-Pressure Control in Sparse Connected Vehicle Environments",
+      "abstract": "Max-pressure (MP) control stands out among real-time network traffic signal control methods due to its simplicity, decentralized nature, and theoretical stability. However, existing MP control methods have limited consideration of public transportation and do not address the network stability problem of transit-prioritized MP in partially connected vehicle (CV) environments. In this study, we propose Transit-MP, which realizes transit-prioritized MP control in partially CV environments by considering real-time vehicle occupancy and the impact of transit dwell at stations. Theoretically, we demonstrate that Transit-MP, while using different traffic state measures for upstream and downstream links for pressure calculation, still achieves road network stability even in partially CV environments. Note that for MP controllers in sparse CV environments, some movements may have missing CV observations, leading to link spillovers, which create the queue starvation phenomenon: a movement no longer receives the green phase despite the queue spillover. Therefore, we further propose a modified Transit-MP (mTransit-MP) that incorporates historical traffic data to address this issue. We rigorously prove that the proposed mTransit-MP can effectively avoid the queue starvation phenomenon. Experimental results on a real-world corridor in Amsterdam with 15 transit lines and 31 stations show that our method significantly reduces the real-time vehicle and spillover count, and improves delays for both private vehicles and transit vehicles compared to a state-of-the-art MP controller for transit signal priority. In sparse CV environments, our mTransit-MP is effective in mitigating link spillovers while enhancing the overall performance of multi-modal traffic.",
+      "authors": [
+        "Chaopeng Tan",
+        "Hao Liu",
+        "Dingshan Sun",
+        "Marco Rinaldi",
+        "Hans van Lint"
+      ],
+      "published": "2025-11-01T07:13:37+08:00",
+      "updated": "2025-11-01T07:13:37+08:00",
+      "arxiv_id": "2511.00309v1",
+      "url": "https://arxiv.org/pdf/2511.00309v1",
+      "categories": [
+        "math.OC"
+      ],
+      "primary_category": "math.OC",
+      "matched_keywords": []
+    }
+  ]
+}

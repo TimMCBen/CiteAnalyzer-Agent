@@ -1,0 +1,675 @@
+{
+  "metadata": {
+    "last_updated": "2025-11-19T10:23:28.762939+00:00",
+    "total_papers": 25,
+    "matched_keywords_stats": {
+      "multimodal": 15,
+      "lora": 25,
+      "vision-language": 12,
+      "cross-modal": 2,
+      "vlm": 9,
+      "qlora": 3
+    }
+  },
+  "papers": [
+    {
+      "title": "SpinalSAM-R1: A Vision-Language Multimodal Interactive System for Spine CT Segmentation",
+      "abstract": "The anatomical structure segmentation of the spine and adjacent structures from computed tomography (CT) images is a key step for spinal disease diagnosis and treatment. However, the segmentation of CT images is impeded by low contrast and complex vertebral boundaries. Although advanced models such as the Segment Anything Model (SAM) have shown promise in various segmentation tasks, their performance in spinal CT imaging is limited by high annotation requirements and poor domain adaptability. To address these limitations, we propose SpinalSAM-R1, a multimodal vision-language interactive system that integrates a fine-tuned SAM with DeepSeek-R1, for spine CT image segmentation. Specifically, our SpinalSAM-R1 introduces an anatomy-guided attention mechanism to improve spine segmentation performance, and a semantics-driven interaction protocol powered by DeepSeek-R1, enabling natural language-guided refinement. The SpinalSAM-R1 is fine-tuned using Low-Rank Adaptation (LoRA) for efficient adaptation. We validate our SpinalSAM-R1 on the spine anatomical structure with CT images. Experimental results suggest that our method achieves superior segmentation performance. Meanwhile, we develop a PyQt5-based interactive software, which supports point, box, and text-based prompts. The system supports 11 clinical operations with 94.3\\% parsing accuracy and sub-800 ms response times. The software is released on https://github.com/6jm233333/spinalsam-r1.",
+      "authors": [
+        "Jiaming Liu",
+        "Dingwei Fan",
+        "Junyong Zhao",
+        "Chunlin Li",
+        "Haipeng Si",
+        "Liang Sun"
+      ],
+      "published": "2025-10-30T18:14:42+08:00",
+      "updated": "2025-10-30T18:14:42+08:00",
+      "arxiv_id": "2511.00095v1",
+      "url": "https://arxiv.org/pdf/2511.00095v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "Teaching Sarcasm: Few-Shot Multimodal Sarcasm Detection via Distillation to a Parameter-Efficient Student",
+      "abstract": "Multimodal sarcasm detection is challenging, especially in low-resource settings where subtle image-text contradictions are hard to learn due to scarce annotated data, which hinders the model's performance. Parameter-efficient fine-tuning (PEFT) methods like adapters, LoRA, and prompt tuning reduce overfitting but struggle to reach optimal performance due to limited supervision from few-shot data. We propose PEKD, a unified framework that enhances PEFT methods via distillation from an expert model trained on large-scale sarcasm data, which acts as the teacher. To mitigate unreliable signals from the teacher, we introduce an entropy-aware gating mechanism that dynamically adjusts the distillation strength based on teacher confidence. Experiments on two public datasets demonstrate that our PEKD framework enables PEFT methods to outperform both prior parameter-efficient approaches and large multimodal models, achieving strong results in the few-shot scenario. The framework is modular and adaptable to a wide range of multimodal models and tasks.",
+      "authors": [
+        "Soumyadeep Jana",
+        "Sanasam Ranbir Singh"
+      ],
+      "published": "2025-10-29T17:14:41+08:00",
+      "updated": "2025-10-29T17:14:41+08:00",
+      "arxiv_id": "2510.25303v1",
+      "url": "https://arxiv.org/pdf/2510.25303v1",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "MemEIC: A Step Toward Continual and Compositional Knowledge Editing",
+      "abstract": "The dynamic nature of information necessitates continuously updating large vision-language models (LVLMs). While recent knowledge editing techniques hint at promising directions, they often focus on editing a single modality (vision or language) in isolation. This prevalent practice neglects the inherent multimodality of LVLMs and the continuous nature of knowledge updates, potentially leading to suboptimal editing outcomes when considering the interplay between modalities and the need for ongoing knowledge refinement. To address these limitations, we propose MemEIC, a novel method for Continual and Compositional Knowledge Editing (CCKE) in LVLMs. MemEIC enables compositional editing of both visual and textual knowledge sequentially. Our approach employs a hybrid external-internal editor featuring a dual external memory for cross-modal evidence retrieval and dual LoRA adapters that facilitate disentangled parameter updates for each modality. A key component is a brain-inspired knowledge connector, activated selectively for compositional reasoning, that integrates information across different modalities. Experiments demonstrate that MemEIC significantly improves performance on complex multimodal questions and effectively preserves prior edits, setting a new benchmark for CCKE in LVLMs.",
+      "authors": [
+        "Jin Seong",
+        "Jiyun Park",
+        "Wencke Liermann",
+        "Hongseok Choi",
+        "Yoonji Nam",
+        "Hyun Kim",
+        "Soojong Lim",
+        "Namhoon Lee"
+      ],
+      "published": "2025-10-29T11:11:59+08:00",
+      "updated": "2025-10-29T11:11:59+08:00",
+      "arxiv_id": "2510.25798v1",
+      "url": "https://arxiv.org/pdf/2510.25798v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "multimodal",
+        "lora",
+        "vision-language",
+        "cross-modal",
+        "vlm"
+      ]
+    },
+    {
+      "title": "DecoDINO: 3D Human-Scene Contact Prediction with Semantic Classification",
+      "abstract": "Accurate vertex-level contact prediction between humans and surrounding objects is a prerequisite for high fidelity human object interaction models used in robotics, AR/VR, and behavioral simulation. DECO was the first in the wild estimator for this task but is limited to binary contact maps and struggles with soft surfaces, occlusions, children, and false-positive foot contacts. We address these issues and introduce DecoDINO, a three-branch network based on DECO's framework. It uses two DINOv2 ViT-g/14 encoders, class-balanced loss weighting to reduce bias, and patch-level cross-attention for improved local reasoning. Vertex features are finally passed through a lightweight MLP with a softmax to assign semantic contact labels. We also tested a vision-language model (VLM) to integrate text features, but the simpler architecture performed better and was used instead. On the DAMON benchmark, DecoDINO (i) raises the binary-contact F1 score by 7$\\%$, (ii) halves the geodesic error, and (iii) augments predictions with object-level semantic labels. Ablation studies show that LoRA fine-tuning and the dual encoders are key to these improvements. DecoDINO outperformed the challenge baseline in both tasks of the DAMON Challenge. Our code is available at https://github.com/DavidePasero/deco/tree/main.",
+      "authors": [
+        "Lukas Bierling",
+        "Davide Pasero",
+        "Fleur Dolmans",
+        "Helia Ghasemi",
+        "Angelo Broere"
+      ],
+      "published": "2025-10-27T18:46:22+08:00",
+      "updated": "2025-10-27T18:46:22+08:00",
+      "arxiv_id": "2510.23203v1",
+      "url": "https://arxiv.org/pdf/2510.23203v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "Adapting Speech Foundation Models with Large Language Models for Unified Speech Recognition",
+      "abstract": "Unified speech recognition aims to perform auditory, visual, and audiovisual speech recognition within a single model framework. While speech foundation models (SFMs) have demonstrated remarkable performance in auditory tasks, their adaptation to multimodal scenarios remains underexplored. This paper presents UASR-LLM, a novel framework that adapts frozen SFMs to unified VSR, ASR, and AVSR tasks by leveraging large language models (LLMs) as text decoders. Our approach introduces visual representations into multiple SFM layers through visual injection modules, enabling multimodal input processing and unified hidden representations. The augmented SFMs connect with decoder-only LLMs via a feed-forward adaptor, where concatenated representations and instruction prompts guide speech transcription. We implement a twostage training strategy: visual injection pretraining followed by speech recognition finetuning. SFM parameters remain frozen throughout training, with only visual injection modules optimized initially, and LLMs finetuned using LoRA parameters subsequently. Experimental results demonstrate superior performance over state-of-the-art baselines across VSR, ASR, and AVSR tasks under both clean and noisy conditions. Ablation studies confirm generalization across various SFMs and LLMs, validating the proposed training strategy.",
+      "authors": [
+        "Jing-Xuan Zhang",
+        "Genshun Wan",
+        "Jin Li",
+        "Jianqing Gao"
+      ],
+      "published": "2025-10-27T11:36:05+08:00",
+      "updated": "2025-10-27T11:36:05+08:00",
+      "arxiv_id": "2510.22961v1",
+      "url": "https://arxiv.org/pdf/2510.22961v1",
+      "categories": [
+        "eess.AS"
+      ],
+      "primary_category": "eess.AS",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "LLM-based Fusion of Multi-modal Features for Commercial Memorability Prediction",
+      "abstract": "This paper addresses the prediction of commercial (brand) memorability as part of \"Subtask 2: Commercial/Ad Memorability\" within the \"Memorability: Predicting movie and commercial memorability\" task at the MediaEval 2025 workshop competition. We propose a multimodal fusion system with a Gemma-3 LLM backbone that integrates pre-computed visual (ViT) and textual (E5) features by multi-modal projections. The model is adapted using Low-Rank Adaptation (LoRA). A heavily-tuned ensemble of gradient boosted trees serves as a baseline. A key contribution is the use of LLM-generated rationale prompts, grounded in expert-derived aspects of memorability, to guide the fusion model. The results demonstrate that the LLM-based system exhibits greater robustness and generalization performance on the final test set, compared to the baseline.\n  The paper's codebase can be found at https://github.com/dsgt-arc/mediaeval-2025-memorability",
+      "authors": [
+        "Aleksandar Pramov"
+      ],
+      "published": "2025-10-27T04:51:52+08:00",
+      "updated": "2025-10-27T04:51:52+08:00",
+      "arxiv_id": "2510.22829v1",
+      "url": "https://arxiv.org/pdf/2510.22829v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.MM"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "CoSense-LLM: Semantics at the Edge with Cost- and Uncertainty-Aware Cloud-Edge Cooperation",
+      "abstract": "We present CoSense-LLM, an edge-first framework that turns continuous multimodal sensor streams (for example Wi-Fi CSI, IMU, audio, RFID, and lightweight vision) into compact, verifiable semantic tokens and coordinates with large language models under explicit latency, energy, bandwidth, and privacy constraints. CoSense-LLM has four parts: (i) SenseFusion, a lightweight encoder that aligns sensor embeddings with language and compresses them into short discrete code sequences; (ii) Edge-RAG, a local hybrid retrieval layer that grounds generation in site specific policies and notes; (iii) PromptRouter, a cost and uncertainty aware policy that selects edge only generation, edge plus retrieval, or compact cloud escalation; and (iv) Secure Execution, an auditable redaction path that enforces data minimization so raw waveforms never leave the device. The system works with modern serving optimizations, including paged or streaming KV caches, FlashAttention style kernels, speculative decoding, and quantized LoRA adapters, and supports on device personalization and federated updates under non IID drift. Across home, office, and clinic deployments, CoSense-LLM delivers grounded explanations while meeting tight service level objectives: it sustains sub second (p95) end to end latency on edge dominant paths, reduces inter tier token and bandwidth costs by preferring local retrieval grounded responses, and preserves privacy by transmitting only discrete codes and redacted metadata. Ablations show that Edge-RAG improves factual consistency and reduces contradictions, calibrated uncertainty enables selective abstention and controlled escalations, and KV plus decoding accelerators lower energy per decision. The results support an edge first design that treats semantics, privacy, and predictable latency as co equal goals for large model deployments in interference prone environments.",
+      "authors": [
+        "Hasan Akgul",
+        "Mari Eplik",
+        "Javier Rojas",
+        "Aina Binti Abdullah",
+        "Pieter van der Merwe"
+      ],
+      "published": "2025-10-22T23:16:56+08:00",
+      "updated": "2025-11-18T14:18:28+08:00",
+      "arxiv_id": "2510.19670v3",
+      "url": "https://arxiv.org/pdf/2510.19670v3",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "FairNet: Dynamic Fairness Correction without Performance Loss via Contrastive Conditional LoRA",
+      "abstract": "Ensuring fairness in machine learning models is a critical challenge. Existing debiasing methods often compromise performance, rely on static correction strategies, and struggle with data sparsity, particularly within minority groups. Furthermore, their utilization of sensitive attributes is often suboptimal, either depending excessively on complete attribute labeling or disregarding these attributes entirely. To overcome these limitations, we propose FairNet, a novel framework for dynamic, instance-level fairness correction. FairNet integrates a bias detector with conditional low-rank adaptation (LoRA), which enables selective activation of the fairness correction mechanism exclusively for instances identified as biased, and thereby preserve performance on unbiased instances. A key contribution is a new contrastive loss function for training the LoRA module, specifically designed to minimize intra-class representation disparities across different sensitive groups and effectively address underfitting in minority groups. The FairNet framework can flexibly handle scenarios with complete, partial, or entirely absent sensitive attribute labels. Theoretical analysis confirms that, under moderate TPR/FPR for the bias detector, FairNet can enhance the performance of the worst group without diminishing overall model performance, and potentially yield slight performance improvements. Comprehensive empirical evaluations across diverse vision and language benchmarks validate the effectiveness of FairNet.",
+      "authors": [
+        "Songqi Zhou",
+        "Zeyuan Liu",
+        "Benben Jiang"
+      ],
+      "published": "2025-10-22T17:44:03+08:00",
+      "updated": "2025-10-22T17:44:03+08:00",
+      "arxiv_id": "2510.19421v1",
+      "url": "https://arxiv.org/pdf/2510.19421v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "lora"
+      ]
+    },
+    {
+      "title": "ImageGem: In-the-wild Generative Image Interaction Dataset for Generative Model Personalization",
+      "abstract": "We introduce ImageGem, a dataset for studying generative models that understand fine-grained individual preferences. We posit that a key challenge hindering the development of such a generative model is the lack of in-the-wild and fine-grained user preference annotations. Our dataset features real-world interaction data from 57K users, who collectively have built 242K customized LoRAs, written 3M text prompts, and created 5M generated images. With user preference annotations from our dataset, we were able to train better preference alignment models. In addition, leveraging individual user preference, we investigated the performance of retrieval models and a vision-language model on personalized image retrieval and generative model recommendation. Finally, we propose an end-to-end framework for editing customized diffusion models in a latent weight space to align with individual user preferences. Our results demonstrate that the ImageGem dataset enables, for the first time, a new paradigm for generative model personalization.",
+      "authors": [
+        "Yuanhe Guo",
+        "Linxi Xie",
+        "Zhuoran Chen",
+        "Kangrui Yu",
+        "Ryan Po",
+        "Guandao Yang",
+        "Gordon Wetztein",
+        "Hongyi Wen"
+      ],
+      "published": "2025-10-21T17:08:01+08:00",
+      "updated": "2025-10-21T17:08:01+08:00",
+      "arxiv_id": "2510.18433v1",
+      "url": "https://arxiv.org/pdf/2510.18433v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.IR"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "Frugal Federated Learning for Violence Detection: A Comparison of LoRA-Tuned VLMs and Personalized CNNs",
+      "abstract": "We examine frugal federated learning approaches to violence detection by comparing two complementary strategies: (i) zero-shot and federated fine-tuning of vision-language models (VLMs), and (ii) personalized training of a compact 3D convolutional neural network (CNN3D). Using LLaVA-7B and a 65.8M parameter CNN3D as representative cases, we evaluate accuracy, calibration, and energy usage under realistic non-IID settings. Both approaches exceed 90% accuracy. CNN3D slightly outperforms Low-Rank Adaptation(LoRA)-tuned VLMs in ROC AUC and log loss, while using less energy. VLMs remain favorable for contextual reasoning and multimodal inference. We quantify energy and CO$_2$ emissions across training and inference, and analyze sustainability trade-offs for deployment. To our knowledge, this is the first comparative study of LoRA-tuned vision-language models and personalized CNNs for federated violence detection, with an emphasis on energy efficiency and environmental metrics. These findings support a hybrid model: lightweight CNNs for routine classification, with selective VLM activation for complex or descriptive scenarios. The resulting framework offers a reproducible baseline for responsible, resource-aware AI in video surveillance, with extensions toward real-time, multimodal, and lifecycle-aware systems.",
+      "authors": [
+        "Sébastien Thuau",
+        "Siba Haidar",
+        "Ayush Bajracharya",
+        "Rachid Chelouah"
+      ],
+      "published": "2025-10-20T23:26:43+08:00",
+      "updated": "2025-10-20T23:26:43+08:00",
+      "arxiv_id": "2510.17651v1",
+      "url": "https://arxiv.org/pdf/2510.17651v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "multimodal",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "EMRRG: Efficient Fine-Tuning Pre-trained X-ray Mamba Networks for Radiology Report Generation",
+      "abstract": "X-ray image-based medical report generation (MRG) is a pivotal area in artificial intelligence that can significantly reduce diagnostic burdens for clinicians and patient wait times. Existing MRG models predominantly rely on Large Language Models (LLMs) to improve report generation, with limited exploration of pre-trained vision foundation models or advanced fine-tuning techniques. Mainstream frameworks either avoid fine-tuning or utilize simplistic methods like LoRA, often neglecting the potential of enhancing cross-attention mechanisms. Additionally, while Transformer-based models dominate vision-language tasks, non-Transformer architectures, such as the Mamba network, remain underexplored for medical report generation, presenting a promising avenue for future research. In this paper, we propose EMRRG, a novel X-ray report generation framework that fine-tunes pre-trained Mamba networks using parameter-efficient methods. Specifically, X-ray images are divided into patches, tokenized, and processed by an SSM-based vision backbone for feature extraction, with Partial LoRA yielding optimal performance. An LLM with a hybrid decoder generates the medical report, enabling end-to-end training and achieving strong results on benchmark datasets. Extensive experiments on three widely used benchmark datasets fully validated the effectiveness of our proposed strategies for the X-ray MRG. The source code of this paper will be released on https://github.com/Event-AHU/Medical_Image_Analysis.",
+      "authors": [
+        "Mingzheng Zhang",
+        "Jinfeng Gao",
+        "Dan Xu",
+        "Jiangrui Yu",
+        "Yuhan Qiao",
+        "Lan Chen",
+        "Jin Tang",
+        "Xiao Wang"
+      ],
+      "published": "2025-10-19T17:54:36+08:00",
+      "updated": "2025-10-19T17:54:36+08:00",
+      "arxiv_id": "2510.16776v1",
+      "url": "https://arxiv.org/pdf/2510.16776v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "Fine-Tuning MedGemma for Clinical Captioning to Enhance Multimodal RAG over Malaysia CPGs",
+      "abstract": "Retrieval-Augmented Generation systems are essential for providing fact-based guidance from Malaysian Clinical Practice Guidelines. However, their effectiveness with image-based queries is limited, as general Vision-Language Model captions often lack clinical specificity and factual grounding. This study proposes and validates a framework to specialize the MedGemma model for generating high-fidelity captions that serve as superior queries. To overcome data scarcity, we employ a knowledge distillation pipeline to create a synthetic dataset across dermatology, fundus, and chest radiography domains, and fine-tune MedGemma using the parameter-efficient QLoRA method. Performance was rigorously assessed through a dual framework measuring both classification accuracy and, via a novel application of the RAGAS framework, caption faithfulness, relevancy, and correctness. The fine-tuned model demonstrated substantial improvements in classification performance, while RAGAS evaluation confirmed significant gains in caption faithfulness and correctness, validating the models ability to produce reliable, factually grounded descriptions. This work establishes a robust pipeline for specializing medical VLMs and validates the resulting model as a high-quality query generator, laying the groundwork for enhancing multimodal RAG systems in evidence-based clinical decision support.",
+      "authors": [
+        "Lee Qi Zun",
+        "Mohamad Zulhilmi Bin Abdul Halim",
+        "Goh Man Fye"
+      ],
+      "published": "2025-10-17T16:11:54+08:00",
+      "updated": "2025-11-07T13:24:14+08:00",
+      "arxiv_id": "2510.15418v2",
+      "url": "https://arxiv.org/pdf/2510.15418v2",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "multimodal",
+        "qlora",
+        "lora",
+        "vision-language",
+        "vlm"
+      ]
+    },
+    {
+      "title": "Exploring Cross-Modal Flows for Few-Shot Learning",
+      "abstract": "Aligning features from different modalities, is one of the most fundamental challenges for cross-modal tasks. Although pre-trained vision-language models can achieve a general alignment between image and text, they often require parameter-efficient fine-tuning (PEFT) for further adjustment. Today's PEFT methods (e.g., prompt tuning, LoRA-based, or adapter-based) always selectively fine-tune a subset of parameters, which can slightly adjust either visual or textual features, and avoid overfitting. In this paper, we are the first to highlight that all existing PEFT methods perform one-step adjustment. It is insufficient for complex (or difficult) datasets, where features of different modalities are highly entangled. To this end, we propose the first model-agnostic multi-step adjustment approach by learning a cross-modal velocity field: Flow Matching Alignment (FMA). Specifically, to ensure the correspondence between categories during training, we first utilize a fixed coupling strategy. Then, we propose a noise augmentation strategy to alleviate the data scarcity issue. Finally, we design an early-stopping solver, which terminates the transformation process earlier, improving both efficiency and accuracy. Compared with one-step PEFT methods, FMA has the multi-step rectification ability to achieve more precise and robust alignment. Extensive results have demonstrated that FMA can consistently yield significant performance gains across various benchmarks and backbones, particularly on challenging datasets.",
+      "authors": [
+        "Ziqi Jiang",
+        "Yanghao Wang",
+        "Long Chen"
+      ],
+      "published": "2025-10-16T18:32:48+08:00",
+      "updated": "2025-10-21T13:40:11+08:00",
+      "arxiv_id": "2510.14543v2",
+      "url": "https://arxiv.org/pdf/2510.14543v2",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vision-language",
+        "lora",
+        "cross-modal"
+      ]
+    },
+    {
+      "title": "What \"Not\" to Detect: Negation-Aware VLMs via Structured Reasoning and Token Merging",
+      "abstract": "State-of-the-art vision-language models (VLMs) suffer from a critical failure in understanding negation, often referred to as affirmative bias. This limitation is particularly severe in described object detection (DOD) tasks. To address this, we propose two primary contributions: (1) a new dataset pipeline and (2) a novel, lightweight adaptation recipe. First, we introduce CoVAND, a dataset constructed with a systematic chain-of-thought (CoT) and VQA-based pipeline to generate high-quality, instance-grounded negation data. Second, we propose NegToMe, a novel text token merging module that directly tackles the architectural cause of affirmative bias. NegToMe fundamentally addresses the structural loss of negation cues in tokenization, grouping them with attributes into coherent semantic phrases. It maintains correct polarity at the input level, enabling robust negation understanding even with limited data. For instance, to prevent a model from treating the fragmented tokens \"not\" and \"girl\" as simply \"girl\", NegToMe binds them into a single token whose meaning is correctly distinguished from that of \"girl\" alone. This module is integrated with a parameter-efficient and strategic LoRA fine-tuning approach. Our method significantly improves performance on challenging negation benchmarks with a lowered false positive rate, boosting NMS-AP by up to +10.8 points on OVDEval and demonstrating generalization to SoTA VLMs. This work marks a crucial step forward in addressing negation understanding for real-world detection applications.",
+      "authors": [
+        "Inha Kang",
+        "Youngsun Lim",
+        "Seonho Lee",
+        "Jiho Choi",
+        "Junsuk Choe",
+        "Hyunjung Shim"
+      ],
+      "published": "2025-10-15T15:36:38+08:00",
+      "updated": "2025-10-15T15:36:38+08:00",
+      "arxiv_id": "2510.13232v1",
+      "url": "https://arxiv.org/pdf/2510.13232v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "Evolution of meta's llama models and parameter-efficient fine-tuning of large language models: a survey",
+      "abstract": "This review surveys the rapid evolution of Meta AI's LLaMA (Large Language Model Meta AI) series - from LLaMA 1 through LLaMA 4 and the specialized parameter-efficient fine-tuning (PEFT) methods developed for these models. We first describe the LLaMA family of foundation models (7B-65B to 288B parameters), their architectures (including native multimodal and Mixtureof-Experts variants), and key performance characteristics. We then describe and discuss the concept of PEFT, which adapts large pre-trained models by updating only a small subset of parameters, and review five PEFT methods that have been applied to LLaMA: LoRA (Low-Rank Adaptation), LLaMA-Adapter V1 and V2, LLaMA-Excitor, and QLoRA (Quantized LoRA). We discuss each method's mechanism, parameter savings, and example application to LLaMA (e.g., instruction tuning, multimodal tasks). We provide structured discussion and analysis of model and adapter architectures, parameter counts, and benchmark results (including examples where fine-tuned LLaMA models outperform larger baselines). Finally, we examine real-world use cases where LLaMA-based models and PEFT have been successfully applied (e.g., legal and medical domains), and we discuss ongoing challenges and future research directions (such as scaling to even larger contexts and improving robustness). This survey paper provides a one-stop resource for ML researchers and practitioners interested in LLaMA models and efficient fine-tuning strategies.",
+      "authors": [
+        "Abdulhady Abas Abdullah",
+        "Arkaitz Zubiaga",
+        "Seyedali Mirjalili",
+        "Amir H. Gandomi",
+        "Fatemeh Daneshfar",
+        "Mohammadsadra Amini",
+        "Alan Salam Mohammed",
+        "Hadi Veisi"
+      ],
+      "published": "2025-10-14T14:12:44+08:00",
+      "updated": "2025-10-14T14:12:44+08:00",
+      "arxiv_id": "2510.12178v1",
+      "url": "https://arxiv.org/pdf/2510.12178v1",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "qlora",
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "AndesVL Technical Report: An Efficient Mobile-side Multimodal Large Language Model",
+      "abstract": "In recent years, while cloud-based MLLMs such as QwenVL, InternVL, GPT-4o, Gemini, and Claude Sonnet have demonstrated outstanding performance with enormous model sizes reaching hundreds of billions of parameters, they significantly surpass the limitations in memory, power consumption, and computing capacity of edge devices such as mobile phones. This paper introduces AndesVL, a suite of mobile-side MLLMs with 0.6B to 4B parameters based on Qwen3's LLM and various visual encoders. We comprehensively outline the model architectures, training pipeline, and training data of AndesVL, which achieves first-tier performance across a wide range of open-source benchmarks, including fields such as text-rich image understanding, reasoning and math, multi-image comprehension, general VQA, hallucination mitigation, multilingual understanding, and GUI-related tasks when compared with state-of-the-art models of a similar scale. Furthermore, we introduce a 1+N LoRA architecture alongside a Quantization-Aware LoRA Fine-Tuning (QALFT) framework to facilitate efficient task adaptation and model compression during mobile-side deployment of AndesVL. Moreover, utilizing our cache eviction algorithm -- OKV -- along with customized speculative decoding and compression strategies, we achieve a 6.7x peak decoding speedup ratio, up to 30.9% memory reduction, and 1.8 bits-per-weight when deploying AndesVL-4B on MediaTek Dimensity 9500 chips. We release all models on https://huggingface.co/OPPOer.",
+      "authors": [
+        "Zhiwei Jin",
+        "Xiaohui Song",
+        "Nan Wang",
+        "Yafei Liu",
+        "Chao Li",
+        "Xin Li",
+        "Ruichen Wang",
+        "Zhihao Li",
+        "Qi Qi",
+        "Long Cheng",
+        "Dongze Hao",
+        "Quanlong Zheng",
+        "Yanhao Zhang",
+        "Haobo Ji",
+        "Jian Ma",
+        "Zhitong Zheng",
+        "Zhenyi Lin",
+        "Haolin Deng",
+        "Xin Zou",
+        "Xiaojie Yin",
+        "Ruilin Wang",
+        "Liankai Cai",
+        "Haijing Liu",
+        "Yuqing Qiu",
+        "Ke Chen",
+        "Zixian Li",
+        "Chi Xie",
+        "Huafei Li",
+        "Chenxing Li",
+        "Chuangchuang Wang",
+        "Kai Tang",
+        "Zhiguang Zhu",
+        "Kai Tang",
+        "Wenmei Gao",
+        "Rui Wang",
+        "Jun Wu",
+        "Chao Liu",
+        "Qin Xie",
+        "Chen Chen",
+        "Haonan Lu"
+      ],
+      "published": "2025-10-13T23:04:38+08:00",
+      "updated": "2025-10-14T13:05:14+08:00",
+      "arxiv_id": "2510.11496v2",
+      "url": "https://arxiv.org/pdf/2510.11496v2",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Vision Language Models: A Survey of 26K Papers",
+      "abstract": "We present a transparent, reproducible measurement of research trends across 26,104 accepted papers from CVPR, ICLR, and NeurIPS spanning 2023-2025. Titles and abstracts are normalized, phrase-protected, and matched against a hand-crafted lexicon to assign up to 35 topical labels and mine fine-grained cues about tasks, architectures, training regimes, objectives, datasets, and co-mentioned modalities. The analysis quantifies three macro shifts: (1) a sharp rise of multimodal vision-language-LLM work, which increasingly reframes classic perception as instruction following and multi-step reasoning; (2) steady expansion of generative methods, with diffusion research consolidating around controllability, distillation, and speed; and (3) resilient 3D and video activity, with composition moving from NeRFs to Gaussian splatting and a growing emphasis on human- and agent-centric understanding. Within VLMs, parameter-efficient adaptation like prompting/adapters/LoRA and lightweight vision-language bridges dominate; training practice shifts from building encoders from scratch to instruction tuning and finetuning strong backbones; contrastive objectives recede relative to cross-entropy/ranking and distillation. Cross-venue comparisons show CVPR has a stronger 3D footprint and ICLR the highest VLM share, while reliability themes such as efficiency or robustness diffuse across areas. We release the lexicon and methodology to enable auditing and extension. Limitations include lexicon recall and abstract-only scope, but the longitudinal signals are consistent across venues and years.",
+      "authors": [
+        "Fengming Lin"
+      ],
+      "published": "2025-10-11T01:43:17+08:00",
+      "updated": "2025-10-11T01:43:17+08:00",
+      "arxiv_id": "2510.09586v1",
+      "url": "https://arxiv.org/pdf/2510.09586v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "multimodal",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "Auto-scaling Continuous Memory for GUI Agent",
+      "abstract": "We study how to endow GUI agents with scalable memory that help generalize across unfamiliar interfaces and long-horizon tasks. Prior GUI agents compress past trajectories into text tokens, which balloons context length and misses decisive visual cues (e.g., exact widget size and position). We propose a continuous memory that encodes each GUI trajectory into a fixed-length sequence of continuous embeddings using the VLM itself as an encoder; these embeddings are plugged directly into the backbone's input layer, sharply reducing context cost while preserving fine-grained visual information. As memory size and retrieval depth increase, performance improves monotonically, unlike text memories that degrade with long prompts. To grow memory at low cost, we introduce an auto-scaling data flywheel that (i) discovers new environments via search, (ii) synthesizes tasks with an open-source VLM, (iii) rolls out trajectories with the agent, and (iv) verifies success with the same VLM. Using this pipeline, we collect 100k+ trajectories for about \\$4000 and fine-tune only the memory encoder (LoRA on a Q-Former, 1.2\\% parameters) with 1,500 samples. On real-world GUI benchmarks, our memory-augmented agent consistently improves success rates under long horizons and distribution shifts. Notably, Qwen-2.5-VL-7B + continuous memory achieves performance comparable to state-of-the-art closed-source models (e.g., GPT-4o, Claude-4).",
+      "authors": [
+        "Wenyi Wu",
+        "Kun Zhou",
+        "Ruoxin Yuan",
+        "Vivian Yu",
+        "Stephen Wang",
+        "Zhiting Hu",
+        "Biwei Huang"
+      ],
+      "published": "2025-10-10T14:16:45+08:00",
+      "updated": "2025-10-10T14:16:45+08:00",
+      "arxiv_id": "2510.09038v1",
+      "url": "https://arxiv.org/pdf/2510.09038v1",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.CV",
+        "cs.CY",
+        "cs.LG"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "vlm",
+        "lora"
+      ]
+    },
+    {
+      "title": "DoRAN: Stabilizing Weight-Decomposed Low-Rank Adaptation via Noise Injection and Auxiliary Networks",
+      "abstract": "Parameter-efficient fine-tuning (PEFT) methods have become the standard paradigm for adapting large-scale models. Among these techniques, Weight-Decomposed Low-Rank Adaptation (DoRA) has been shown to improve both the learning capacity and training stability of the vanilla Low-Rank Adaptation (LoRA) method by explicitly decomposing pre-trained weights into magnitude and directional components. In this work, we propose DoRAN, a new variant of DoRA designed to further stabilize training and boost the sample efficiency of DoRA. Our approach includes two key stages: (i) injecting noise into the denominator of DoRA's weight decomposition, which serves as an adaptive regularizer to mitigate instabilities; and (ii) replacing static low-rank matrices with auxiliary networks that generate them dynamically, enabling parameter coupling across layers and yielding better sample efficiency in both theory and practice. Comprehensive experiments on vision and language benchmarks show that DoRAN consistently outperforms LoRA, DoRA, and other PEFT baselines. These results underscore the effectiveness of combining stabilization through noise-based regularization with network-based parameter generation, offering a promising direction for robust and efficient fine-tuning of foundation models.",
+      "authors": [
+        "Nghiem T. Diep",
+        "Hien Dang",
+        "Tuan Truong",
+        "Tan Dinh",
+        "Huy Nguyen",
+        "Nhat Ho"
+      ],
+      "published": "2025-10-06T03:27:48+08:00",
+      "updated": "2025-10-06T03:27:48+08:00",
+      "arxiv_id": "2510.04331v1",
+      "url": "https://arxiv.org/pdf/2510.04331v1",
+      "categories": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "lora"
+      ]
+    },
+    {
+      "title": "HoRA: Cross-Head Low-Rank Adaptation with Joint Hypernetworks",
+      "abstract": "Low-Rank Adaptation (LoRA) is a parameter-efficient fine-tuning (PEFT) technique that adapts large pre-trained models by adding low-rank matrices to their weight updates. However, in the context of fine-tuning multi-head self-attention (MHA), LoRA has been employed to adapt each attention head separately, thereby overlooking potential synergies across different heads. To mitigate this issue, we propose a novel Hyper-shared Low-Rank Adaptation (HoRA) method, which utilizes joint hypernetworks to generate low-rank matrices across attention heads. By coupling their adaptation through a shared generator, HoRA encourages cross-head information sharing, and thus directly addresses the aforementioned limitation of LoRA. By comparing LoRA and HoRA through the lens of hierarchical mixture of experts, our theoretical findings reveal that the latter achieves superior sample efficiency to the former. Furthermore, through extensive experiments across diverse language and vision benchmarks, we demonstrate that HoRA outperforms LoRA and other PEFT methods while requiring only a marginal increase in the number of trainable parameters.",
+      "authors": [
+        "Nghiem T. Diep",
+        "Dung Le",
+        "Tuan Truong",
+        "Tan Dinh",
+        "Huy Nguyen",
+        "Nhat Ho"
+      ],
+      "published": "2025-10-06T01:13:39+08:00",
+      "updated": "2025-10-06T01:13:39+08:00",
+      "arxiv_id": "2510.04295v1",
+      "url": "https://arxiv.org/pdf/2510.04295v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "lora"
+      ]
+    },
+    {
+      "title": "GROK: From Quantitative Biomarkers to Qualitative Diagnosis via a Grounded MLLM with Knowledge-Guided Instruction",
+      "abstract": "Multimodal large language models (MLLMs) hold promise for integrating diverse data modalities, but current medical adaptations such as LLaVA-Med often fail to fully exploit the synergy between color fundus photography (CFP) and optical coherence tomography (OCT), and offer limited interpretability of quantitative biomarkers. We introduce GROK, a grounded multimodal large language model that jointly processes CFP, OCT, and text to deliver clinician-grade diagnoses of ocular and systemic disease. GROK comprises three core modules: Knowledge-Guided Instruction Generation, CLIP-Style OCT-Biomarker Alignment, and Supervised Instruction Fine-Tuning, which together establish a quantitative-to-qualitative diagnostic chain of thought, mirroring real clinical reasoning when producing detailed lesion annotations. To evaluate our approach, we introduce the Grounded Ophthalmic Understanding benchmark, which covers six disease categories and three tasks: macro-level diagnostic classification, report generation quality, and fine-grained clinical assessment of the generated chain of thought. Experiments show that, with only LoRA (Low-Rank Adaptation) fine-tuning of a 7B-parameter Qwen2 backbone, GROK outperforms comparable 7B and 32B baselines on both report quality and fine-grained clinical metrics, and even exceeds OpenAI o3. Code and data are publicly available in the GROK repository.",
+      "authors": [
+        "Zhuangzhi Gao",
+        "Hongyi Qin",
+        "He Zhao",
+        "Qinkai Yu",
+        "Feixiang Zhou",
+        "Eduard Shantsila",
+        "Uazman Alam",
+        "Alena Shantsila",
+        "Wahbi El-Bouri",
+        "Gregory Y. H. Lip",
+        "Yalin Zheng"
+      ],
+      "published": "2025-10-06T00:46:29+08:00",
+      "updated": "2025-10-06T00:46:29+08:00",
+      "arxiv_id": "2510.04281v1",
+      "url": "https://arxiv.org/pdf/2510.04281v1",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "DHQA-4D: Perceptual Quality Assessment of Dynamic 4D Digital Human",
+      "abstract": "With the rapid development of 3D scanning and reconstruction technologies, dynamic digital human avatars based on 4D meshes have become increasingly popular. A high-precision dynamic digital human avatar can be applied to various fields such as game production, animation generation, and remote immersive communication. However, these 4D human avatar meshes are prone to being degraded by various types of noise during the processes of collection, compression, and transmission, thereby affecting the viewing experience of users. In light of this fact, quality assessment of dynamic 4D digital humans becomes increasingly important. In this paper, we first propose a large-scale dynamic digital human quality assessment dataset, DHQA-4D, which contains 32 high-quality real-scanned 4D human mesh sequences, 1920 distorted textured 4D human meshes degraded by 11 textured distortions, as well as their corresponding textured and non-textured mean opinion scores (MOSs). Equipped with DHQA-4D dataset, we analyze the influence of different types of distortion on human perception for textured dynamic 4D meshes and non-textured dynamic 4D meshes. Additionally, we propose DynaMesh-Rater, a novel large multimodal model (LMM) based approach that is able to assess both textured 4D meshes and non-textured 4D meshes. Concretely, DynaMesh-Rater elaborately extracts multi-dimensional features, including visual features from a projected 2D video, motion features from cropped video clips, and geometry features from the 4D human mesh to provide comprehensive quality-related information. Then we utilize a LMM model to integrate the multi-dimensional features and conduct a LoRA-based instruction tuning technique to teach the LMM model to predict the quality scores. Extensive experimental results on the DHQA-4D dataset demonstrate the superiority of our DynaMesh-Rater method over previous quality assessment methods.",
+      "authors": [
+        "Yunhao Li",
+        "Sijing Wu",
+        "Yucheng Zhu",
+        "Huiyu Duan",
+        "Zicheng Zhang",
+        "Guangtao Zhai"
+      ],
+      "published": "2025-10-05T00:51:08+08:00",
+      "updated": "2025-10-05T00:51:08+08:00",
+      "arxiv_id": "2510.03874v1",
+      "url": "https://arxiv.org/pdf/2510.03874v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "TRepLiNa: Layer-wise CKA+REPINA Alignment Improves Low-Resource Machine Translation in Aya-23 8B",
+      "abstract": "The 2025 Multimodal Models for Low-Resource Contexts and Social Impact (MMLoSo) Language Challenge addresses one of India's most pressing linguistic gaps: the lack of resources for its diverse low-resource languages (LRLs). In this study, we investigate whether enforcing cross-lingual similarity in specific internal layers of a decoder-only multilingual large language model (LLM) can improve translation quality from LRL to high-resource language (HRL). Specifically, we combine Centered Kernel Alignment (CKA), a similarity metric that encourages representations of different languages to align, with REPINA, a regularization method that constrains parameter updates to remain close to the pretrained model, into a joint method we call TRepLiNa. In this research project, we experiment with zero-shot, few-shot, and fine-tuning settings using Aya-23 8B with QLoRA across MMLoSo shared task language pairs (Mundari, Santali, Bhili) with Hindi/English pivots. Our results show that aligning mid-level layers using TRepLiNa (CKA+REPINA) is a low-cost, practical approach to improving LRL translation, especially in data-scarce settings.",
+      "authors": [
+        "Toshiki Nakai",
+        "Ravi Kiran Chikkala",
+        "Lena Sophie Oberkircher",
+        "Nicholas Jennings",
+        "Natalia Skachkova",
+        "Tatiana Anikina",
+        "Jesujoba Oluwadara Alabi"
+      ],
+      "published": "2025-10-04T01:36:12+08:00",
+      "updated": "2025-10-11T23:03:48+08:00",
+      "arxiv_id": "2510.06249v2",
+      "url": "https://arxiv.org/pdf/2510.06249v2",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "qlora",
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Multimodal Carotid Risk Stratification with Large Vision-Language Models: Benchmarking, Fine-Tuning, and Clinical Insights",
+      "abstract": "Reliable risk assessment for carotid atheromatous disease remains a major clinical challenge, as it requires integrating diverse clinical and imaging information in a manner that is transparent and interpretable to clinicians. This study investigates the potential of state-of-the-art and recent large vision-language models (LVLMs) for multimodal carotid plaque assessment by integrating ultrasound imaging (USI) with structured clinical, demographic, laboratory, and protein biomarker data. A framework that simulates realistic diagnostic scenarios through interview-style question sequences is proposed, comparing a range of open-source LVLMs, including both general-purpose and medically tuned models. Zero-shot experiments reveal that even if they are very powerful, not all LVLMs can accurately identify imaging modality and anatomy, while all of them perform poorly in accurate risk classification. To address this limitation, LLaVa-NeXT-Vicuna is adapted to the ultrasound domain using low-rank adaptation (LoRA), resulting in substantial improvements in stroke risk stratification. The integration of multimodal tabular data in the form of text further enhances specificity and balanced accuracy, yielding competitive performance compared to prior convolutional neural network (CNN) baselines trained on the same dataset. Our findings highlight both the promise and limitations of LVLMs in ultrasound-based cardiovascular risk prediction, underscoring the importance of multimodal integration, model calibration, and domain adaptation for clinical translation.",
+      "authors": [
+        "Daphne Tsolissou",
+        "Theofanis Ganitidis",
+        "Konstantinos Mitsis",
+        "Stergios CHristodoulidis",
+        "Maria Vakalopoulou",
+        "Konstantina Nikita"
+      ],
+      "published": "2025-10-03T19:48:12+08:00",
+      "updated": "2025-10-03T19:48:12+08:00",
+      "arxiv_id": "2510.02922v1",
+      "url": "https://arxiv.org/pdf/2510.02922v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "multimodal",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "Strategic Fusion of Vision Language Models: Shapley-Credited Context-Aware Dawid-Skene for Multi-Label Tasks in Autonomous Driving",
+      "abstract": "Large vision-language models (VLMs) are increasingly used in autonomous-vehicle (AV) stacks, but hallucination limits their reliability in safety-critical pipelines. We present Shapley-credited Context-Aware Dawid-Skene with Agreement, a game-theoretic fusion method for multi-label understanding of ego-view dashcam video. It learns per-model, per-label, context-conditioned reliabilities from labelled history and, at inference, converts each model's report into an agreement-guardrailed log-likelihood ratio that is combined with a contextual prior and a public reputation state updated via Shapley-based team credit. The result is calibrated, thresholdable posteriors that (i) amplify agreement among reliable models, (ii) preserve uniquely correct single-model signals, and (iii) adapt to drift. To specialise general VLMs, we curate 1,000 real-world dashcam clips with structured annotations (scene description, manoeuvre recommendation, rationale) via an automatic pipeline that fuses HDD ground truth, vehicle kinematics, and YOLOv11 + BoT-SORT tracking, guided by a three-step chain-of-thought prompt; three heterogeneous VLMs are then fine-tuned with LoRA. We evaluate with Hamming distance, Micro-Macro-F1, and average per-video latency. Empirically, the proposed method achieves a 23% reduction in Hamming distance, 55% improvement in Macro-F1, and 47% improvement in Micro-F1 when comparing with the best single model, supporting VLM fusion as a calibrated, interpretable, and robust decision-support component for AV pipelines.",
+      "authors": [
+        "Yuxiang Feng",
+        "Keyang Zhang",
+        "Hassane Ouchouid",
+        "Ashwil Kaniamparambil",
+        "Ioannis Souflas",
+        "Panagiotis Angeloudis"
+      ],
+      "published": "2025-10-02T01:14:11+08:00",
+      "updated": "2025-10-02T01:14:11+08:00",
+      "arxiv_id": "2510.01126v1",
+      "url": "https://arxiv.org/pdf/2510.01126v1",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "lora",
+        "vision-language"
+      ]
+    }
+  ]
+}

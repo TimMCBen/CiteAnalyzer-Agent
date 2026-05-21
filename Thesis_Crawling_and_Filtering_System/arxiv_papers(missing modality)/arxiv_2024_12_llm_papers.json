@@ -1,0 +1,551 @@
+{
+  "metadata": {
+    "last_updated": "2025-11-29T12:01:48.777695+00:00",
+    "total_papers": 24,
+    "matched_keywords_stats": {
+      "missing modality": 8,
+      "incomplete modality": 5
+    }
+  },
+  "papers": [
+    {
+      "title": "Semantic Incompleteness of Liberman et al. (2020)'s Hilbert-style System for Term-modal Logic K with Equality and Non-rigid Terms",
+      "abstract": "In this paper, we prove the semantic incompleteness of the Hilbert-style system for the minimal normal term-modal logic with equality and non-rigid terms that was proposed in Liberman et al. (2020) \"Dynamic Term-modal Logics for First-order Epistemic Planning.\" Term-modal logic is a family of first-order modal logics having term-modal operators indexed with terms in the first-order language. While some first-order formula is valid over the class of all frames in the Kripke semantics for the term-modal logic proposed there, it is not derivable in Liberman et al. (2020)'s Hilbert-style system. We show this fact by introducing a non-standard Kripke semantics which makes the meanings of constants and function symbols relative to the meanings of relation symbols combined with them.",
+      "authors": [
+        "Takahiro Sawasaki"
+      ],
+      "published": "2024-12-31T23:12:04+08:00",
+      "updated": "2024-12-31T23:12:04+08:00",
+      "arxiv_id": "2501.00486v1",
+      "url": "https://arxiv.org/pdf/2501.00486v1",
+      "categories": [
+        "cs.LO"
+      ],
+      "primary_category": "cs.LO",
+      "matched_keywords": []
+    },
+    {
+      "title": "Multimodal Variational Autoencoder: a Barycentric View",
+      "abstract": "Multiple signal modalities, such as vision and sounds, are naturally present in real-world phenomena. Recently, there has been growing interest in learning generative models, in particular variational autoencoder (VAE), to for multimodal representation learning especially in the case of missing modalities. The primary goal of these models is to learn a modality-invariant and modality-specific representation that characterizes information across multiple modalities. Previous attempts at multimodal VAEs approach this mainly through the lens of experts, aggregating unimodal inference distributions with a product of experts (PoE), a mixture of experts (MoE), or a combination of both. In this paper, we provide an alternative generic and theoretical formulation of multimodal VAE through the lens of barycenter. We first show that PoE and MoE are specific instances of barycenters, derived by minimizing the asymmetric weighted KL divergence to unimodal inference distributions. Our novel formulation extends these two barycenters to a more flexible choice by considering different types of divergences. In particular, we explore the Wasserstein barycenter defined by the 2-Wasserstein distance, which better preserves the geometry of unimodal distributions by capturing both modality-specific and modality-invariant representations compared to KL divergence. Empirical studies on three multimodal benchmarks demonstrated the effectiveness of the proposed method.",
+      "authors": [
+        "Peijie Qiu",
+        "Wenhui Zhu",
+        "Sayantan Kumar",
+        "Xiwen Chen",
+        "Xiaotong Sun",
+        "Jin Yang",
+        "Abolfazl Razi",
+        "Yalin Wang",
+        "Aristeidis Sotiras"
+      ],
+      "published": "2024-12-29T23:02:50+08:00",
+      "updated": "2024-12-29T23:02:50+08:00",
+      "arxiv_id": "2412.20487v1",
+      "url": "https://arxiv.org/pdf/2412.20487v1",
+      "categories": [
+        "cs.LG",
+        "cs.CV",
+        "cs.IT"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "EPE-P: Evidence-based Parameter-efficient Prompting for Multimodal Learning with Missing Modalities",
+      "abstract": "Missing modalities are a common challenge in real-world multimodal learning scenarios, occurring during both training and testing. Existing methods for managing missing modalities often require the design of separate prompts for each modality or missing case, leading to complex designs and a substantial increase in the number of parameters to be learned. As the number of modalities grows, these methods become increasingly inefficient due to parameter redundancy. To address these issues, we propose Evidence-based Parameter-Efficient Prompting (EPE-P), a novel and parameter-efficient method for pretrained multimodal networks. Our approach introduces a streamlined design that integrates prompting information across different modalities, reducing complexity and mitigating redundant parameters. Furthermore, we propose an Evidence-based Loss function to better handle the uncertainty associated with missing modalities, improving the model's decision-making. Our experiments demonstrate that EPE-P outperforms existing prompting-based methods in terms of both effectiveness and efficiency. The code is released at https://github.com/Boris-Jobs/EPE-P_MLLMs-Robustness.",
+      "authors": [
+        "Zhe Chen",
+        "Xun Lin",
+        "Yawen Cui",
+        "Zitong Yu"
+      ],
+      "published": "2024-12-24T00:01:12+08:00",
+      "updated": "2024-12-24T00:01:12+08:00",
+      "arxiv_id": "2412.17677v1",
+      "url": "https://arxiv.org/pdf/2412.17677v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "PointVoxelFormer -- Reviving point cloud networks for 3D medical imaging",
+      "abstract": "Point clouds are a very efficient way to represent volumetric data in medical imaging. First, they do not occupy resources for empty spaces and therefore can avoid trade-offs between resolution and field-of-view for voxel-based 3D convolutional networks (CNNs) - leading to smaller and robust models. Second, they provide a modality agnostic representation of anatomical surfaces and shapes to avoid domain gaps for generic geometric models. Third, they remove identifiable patient-specific information and may increase privacy preservation when publicly sharing data. Despite their benefits, point clouds are still underexplored in medical imaging compared to volumetric 3D CNNs and vision transformers. To date both datasets and stringent studies on comparative strengths and weaknesses of methodological choices are missing. Interactions and information exchange of spatially close points - e.g. through k-nearest neighbour graphs in edge convolutions or point transformations - within points clouds are crucial for learning geometrically meaningful features but may incur computational bottlenecks. This work presents a hybrid approach that combines point-wise operations with intermediate differentiable rasterisation and dense localised CNNs. For deformable point cloud registration, we devise an early fusion scheme for coordinate features that joins both clouds within a common reference frame and is coupled with an inverse consistent, two-step alignment architecture. Our extensive experiments on three different datasets for segmentation and registration demonstrate that our method, PointVoxelFormer, enables very compact models that excel with threefold speed-ups, fivefold memory reduction and over 30% registration error reduction against edge convolutions and other state-of-the-art models in geometric deep learning.",
+      "authors": [
+        "Mattias Paul Heinrich"
+      ],
+      "published": "2024-12-23T16:43:39+08:00",
+      "updated": "2024-12-23T16:43:39+08:00",
+      "arxiv_id": "2412.17390v1",
+      "url": "https://arxiv.org/pdf/2412.17390v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Bag of Tricks for Multimodal AutoML with Image, Text, and Tabular Data",
+      "abstract": "This paper studies the best practices for automatic machine learning (AutoML). While previous AutoML efforts have predominantly focused on unimodal data, the multimodal aspect remains under-explored. Our study delves into classification and regression problems involving flexible combinations of image, text, and tabular data. We curate a benchmark comprising 22 multimodal datasets from diverse real-world applications, encompassing all 4 combinations of the 3 modalities. Across this benchmark, we scrutinize design choices related to multimodal fusion strategies, multimodal data augmentation, converting tabular data into text, cross-modal alignment, and handling missing modalities. Through extensive experimentation and analysis, we distill a collection of effective strategies and consolidate them into a unified pipeline, achieving robust performance on diverse datasets.",
+      "authors": [
+        "Zhiqiang Tang",
+        "Zihan Zhong",
+        "Tong He",
+        "Gerald Friedland"
+      ],
+      "published": "2024-12-20T04:52:10+08:00",
+      "updated": "2024-12-20T04:52:10+08:00",
+      "arxiv_id": "2412.16243v1",
+      "url": "https://arxiv.org/pdf/2412.16243v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": []
+    },
+    {
+      "title": "Relational Programming with Foundation Models",
+      "abstract": "Foundation models have vast potential to enable diverse AI applications. The powerful yet incomplete nature of these models has spurred a wide range of mechanisms to augment them with capabilities such as in-context learning, information retrieval, and code interpreting. We propose Vieira, a declarative framework that unifies these mechanisms in a general solution for programming with foundation models. Vieira follows a probabilistic relational paradigm and treats foundation models as stateless functions with relational inputs and outputs. It supports neuro-symbolic applications by enabling the seamless combination of such models with logic programs, as well as complex, multi-modal applications by streamlining the composition of diverse sub-models. We implement Vieira by extending the Scallop compiler with a foreign interface that supports foundation models as plugins. We implement plugins for 12 foundation models including GPT, CLIP, and SAM. We evaluate Vieira on 9 challenging tasks that span language, vision, and structured and vector databases. Our evaluation shows that programs in Vieira are concise, can incorporate modern foundation models, and have comparable or better accuracy than competitive baselines.",
+      "authors": [
+        "Ziyang Li",
+        "Jiani Huang",
+        "Jason Liu",
+        "Felix Zhu",
+        "Eric Zhao",
+        "William Dodds",
+        "Neelay Velingker",
+        "Rajeev Alur",
+        "Mayur Naik"
+      ],
+      "published": "2024-12-19T12:26:45+08:00",
+      "updated": "2024-12-19T12:26:45+08:00",
+      "arxiv_id": "2412.14515v1",
+      "url": "https://arxiv.org/pdf/2412.14515v1",
+      "categories": [
+        "cs.AI",
+        "cs.PL"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": []
+    },
+    {
+      "title": "WikiStyle+: A Multimodal Approach to Content-Style Representation Disentanglement for Artistic Image Stylization",
+      "abstract": "Artistic image stylization aims to render the content provided by text or image with the target style, where content and style decoupling is the key to achieve satisfactory results. However, current methods for content and style disentanglement primarily rely on image supervision, which leads to two problems: 1) models can only support one modality for style or content input;2) incomplete disentanglement resulting in content leakage from the reference image. To address the above issues, this paper proposes a multimodal approach to content-style disentanglement for artistic image stylization. We construct a \\textit{WikiStyle+} dataset consists of artworks with corresponding textual descriptions for style and content. Based on the multimodal dataset, we propose a disentangled representations-guided diffusion model. The disentangled representations are first learned by Q-Formers and then injected into a pre-trained diffusion model using learnable multi-step cross-attention layers. Experimental results show that our method achieves a thorough disentanglement of content and style in reference images under multimodal supervision, thereby enabling more refined stylization that aligns with the artistic characteristics of the reference style. The code of our method will be available upon acceptance.",
+      "authors": [
+        "Ma Zhuoqi",
+        "Zhang Yixuan",
+        "You Zejun",
+        "Tian Long",
+        "Liu Xiyang"
+      ],
+      "published": "2024-12-19T11:42:58+08:00",
+      "updated": "2025-04-12T23:23:37+08:00",
+      "arxiv_id": "2412.14496v2",
+      "url": "https://arxiv.org/pdf/2412.14496v2",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "Towards Generalist Robot Policies: What Matters in Building Vision-Language-Action Models",
+      "abstract": "Foundation Vision Language Models (VLMs) exhibit strong capabilities in multi-modal representation learning, comprehension, and reasoning. By injecting action components into the VLMs, Vision-Language-Action Models (VLAs) can be naturally formed and also show promising performance. Existing work has demonstrated the effectiveness and generalization of VLAs in multiple scenarios and tasks. Nevertheless, the transfer from VLMs to VLAs is not trivial since existing VLAs differ in their backbones, action-prediction formulations, data distributions, and training recipes. This leads to a missing piece for a systematic understanding of the design choices of VLAs. In this work, we disclose the key factors that significantly influence the performance of VLA and focus on answering three essential design choices: which backbone to select, how to formulate the VLA architectures, and when to add cross-embodiment data. The obtained results convince us firmly to explain why we need VLA and develop a new family of VLAs, RoboVLMs, which require very few manual designs and achieve a new state-of-the-art performance in three simulation tasks and real-world experiments. Through our extensive experiments, which include over 8 VLM backbones, 4 policy architectures, and over 600 distinct designed experiments, we provide a detailed guidebook for the future design of VLAs. In addition to the study, the highly flexible RoboVLMs framework, which supports easy integrations of new VLMs and free combinations of various design choices, is made public to facilitate future research. We open-source all details, including codes, models, datasets, and toolkits, along with detailed training and evaluation recipes at: robovlms.github.io.",
+      "authors": [
+        "Xinghang Li",
+        "Peiyan Li",
+        "Minghuan Liu",
+        "Dong Wang",
+        "Jirong Liu",
+        "Bingyi Kang",
+        "Xiao Ma",
+        "Tao Kong",
+        "Hanbo Zhang",
+        "Huaping Liu"
+      ],
+      "published": "2024-12-19T01:07:20+08:00",
+      "updated": "2024-12-24T12:43:45+08:00",
+      "arxiv_id": "2412.14058v3",
+      "url": "https://arxiv.org/pdf/2412.14058v3",
+      "categories": [
+        "cs.RO",
+        "cs.CV"
+      ],
+      "primary_category": "cs.RO",
+      "matched_keywords": []
+    },
+    {
+      "title": "CoMT: A Novel Benchmark for Chain of Multi-modal Thought on Large Vision-Language Models",
+      "abstract": "Large Vision-Language Models (LVLMs) have recently demonstrated amazing success in multi-modal tasks, including advancements in Multi-modal Chain-of-Thought (MCoT) reasoning. Despite these successes, current benchmarks still follow a traditional paradigm with multi-modal input and text-modal output, which leads to significant drawbacks such as missing visual operations and vague expressions. Motivated by this, we introduce a novel Chain of Multi-modal Thought (CoMT) benchmark to address these limitations. Different from the traditional MCoT benchmark, CoMT requires both multi-modal input and multi-modal reasoning output, aiming to mimic human-like reasoning that inherently integrates visual operation. Specifically, CoMT consists of four categories: (1) Visual Creation, (2) Visual Deletion, (3) Visual Update, and (4) Visual Selection to comprehensively explore complex visual operations and concise expression in real scenarios. We evaluate various LVLMs and strategies on CoMT, revealing some key insights into the capabilities and limitations of the current approaches. We hope that CoMT can inspire more research on introducing multi-modal generation into the reasoning process.",
+      "authors": [
+        "Zihui Cheng",
+        "Qiguang Chen",
+        "Jin Zhang",
+        "Hao Fei",
+        "Xiaocheng Feng",
+        "Wanxiang Che",
+        "Min Li",
+        "Libo Qin"
+      ],
+      "published": "2024-12-17T22:10:16+08:00",
+      "updated": "2025-03-09T16:47:34+08:00",
+      "arxiv_id": "2412.12932v3",
+      "url": "https://arxiv.org/pdf/2412.12932v3",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "PT: A Plain Transformer is Good Hospital Readmission Predictor",
+      "abstract": "Hospital readmission prediction is critical for clinical decision support, aiming to identify patients at risk of returning within 30 days post-discharge. High readmission rates often indicate inadequate treatment or post-discharge care, making effective prediction models essential for optimizing resources and improving patient outcomes. We propose PT, a Transformer-based model that integrates Electronic Health Records (EHR), medical images, and clinical notes to predict 30-day all-cause hospital readmissions. PT extracts features from raw data and uses specialized Transformer blocks tailored to the data's complexity. Enhanced with Random Forest for EHR feature selection and test-time ensemble techniques, PT achieves superior accuracy, scalability, and robustness. It performs well even when temporal information is missing. Our main contributions are: (1)Simplicity: A powerful and efficient baseline model outperforming existing ones in prediction accuracy; (2)Scalability: Flexible handling of various features from different modalities, achieving high performance with just clinical notes or EHR data; (3)Robustness: Strong predictive performance even with missing or unclear temporal data.",
+      "authors": [
+        "Zhenyi Fan",
+        "Jiaqi Li",
+        "Dongyu Luo",
+        "Yuqi Yuan"
+      ],
+      "published": "2024-12-17T21:37:11+08:00",
+      "updated": "2024-12-17T21:37:11+08:00",
+      "arxiv_id": "2412.12909v1",
+      "url": "https://arxiv.org/pdf/2412.12909v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": []
+    },
+    {
+      "title": "VinTAGe: Joint Video and Text Conditioning for Holistic Audio Generation",
+      "abstract": "Recent advances in audio generation have focused on text-to-audio (T2A) and video-to-audio (V2A) tasks. However, T2A or V2A methods cannot generate holistic sounds (onscreen and off-screen). This is because T2A cannot generate sounds aligning with onscreen objects, while V2A cannot generate semantically complete (offscreen sounds missing). In this work, we address the task of holistic audio generation: given a video and a text prompt, we aim to generate both onscreen and offscreen sounds that are temporally synchronized with the video and semantically aligned with text and video. Previous approaches for joint text and video-to-audio generation often suffer from modality bias, favoring one modality over the other. To overcome this limitation, we introduce VinTAGe, a flow-based transformer model that jointly considers text and video to guide audio generation. Our framework comprises two key components: a Visual-Text Encoder and a Joint VT-SiT model. To reduce modality bias and improve generation quality, we employ pretrained uni-modal text-to-audio and video-to-audio generation models for additional guidance. Due to the lack of appropriate benchmarks, we also introduce VinTAGe-Bench, a dataset of 636 video-text-audio pairs containing both onscreen and offscreen sounds. Our comprehensive experiments on VinTAGe-Bench demonstrate that joint text and visual interaction is necessary for holistic audio generation. Furthermore, VinTAGe achieves state-of-the-art results on the VGGSound benchmark. Our source code and pre-trained models will be released. Demo is available at: https://www.youtube.com/watch?v=QmqWhUjPkJI.",
+      "authors": [
+        "Saksham Singh Kushwaha",
+        "Yapeng Tian"
+      ],
+      "published": "2024-12-14T17:36:10+08:00",
+      "updated": "2024-12-14T17:36:10+08:00",
+      "arxiv_id": "2412.10768v1",
+      "url": "https://arxiv.org/pdf/2412.10768v1",
+      "categories": [
+        "cs.CV",
+        "cs.MM",
+        "cs.SD",
+        "eess.AS"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Embedding and Enriching Explicit Semantics for Visible-Infrared Person Re-Identification",
+      "abstract": "Visible-infrared person re-identification (VIReID) retrieves pedestrian images with the same identity across different modalities. Existing methods learn visual content solely from images, lacking the capability to sense high-level semantics. In this paper, we propose an Embedding and Enriching Explicit Semantics (EEES) framework to learn semantically rich cross-modality pedestrian representations. Our method offers several contributions. First, with the collaboration of multiple large language-vision models, we develop Explicit Semantics Embedding (ESE), which automatically supplements language descriptions for pedestrians and aligns image-text pairs into a common space, thereby learning visual content associated with explicit semantics. Second, recognizing the complementarity of multi-view information, we present Cross-View Semantics Compensation (CVSC), which constructs multi-view image-text pair representations, establishes their many-to-many matching, and propagates knowledge to single-view representations, thus compensating visual content with its missing cross-view semantics. Third, to eliminate noisy semantics such as conflicting color attributes in different modalities, we design Cross-Modality Semantics Purification (CMSP), which constrains the distance between inter-modality image-text pair representations to be close to that between intra-modality image-text pair representations, further enhancing the modality-invariance of visual content. Finally, experimental results demonstrate the effectiveness and superiority of the proposed EEES.",
+      "authors": [
+        "Neng Dong",
+        "Shuanglin Yan",
+        "Liyan Zhang",
+        "Jinhui Tang"
+      ],
+      "published": "2024-12-11T22:27:30+08:00",
+      "updated": "2024-12-11T22:27:30+08:00",
+      "arxiv_id": "2412.08406v1",
+      "url": "https://arxiv.org/pdf/2412.08406v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Towards Brain Passage Retrieval -- An Investigation of EEG Query Representations",
+      "abstract": "Information Retrieval (IR) systems primarily rely on users' ability to translate their internal information needs into (text) queries. However, this translation process is often uncertain and cognitively demanding, leading to queries that incompletely or inaccurately represent users' true needs. This challenge is particularly acute for users with ill-defined information needs or physical impairments that limit traditional text input, where the gap between cognitive intent and query expression becomes even more pronounced. Recent neuroscientific studies have explored Brain-Machine Interfaces (BMIs) as a potential solution, aiming to bridge the gap between users' cognitive semantics and their search intentions. However, current approaches attempting to decode explicit text queries from brain signals have shown limited effectiveness in learning robust brain-to-text representations, often failing to capture the nuanced semantic information present in brain patterns. To address these limitations, we propose BPR (Brain Passage Retrieval), a novel framework that eliminates the need for intermediate query translation by enabling direct retrieval of relevant passages from users' brain signals. Our approach leverages dense retrieval architectures to map EEG signals and text passages into a shared semantic space. Through comprehensive experiments on the ZuCo dataset, we demonstrate that BPR achieves up to 8.81% improvement in precision@5 over existing EEG-to-text baselines, while maintaining effectiveness across 30 participants. Our ablation studies reveal the critical role of hard negative sampling and specialised brain encoders in achieving robust cross-modal alignment. These results establish the viability of direct brain-to-passage retrieval and provide a foundation for developing more natural interfaces between users' cognitive states and IR systems.",
+      "authors": [
+        "Niall McGuire",
+        "Yashar Moshfeghi"
+      ],
+      "published": "2024-12-10T01:41:25+08:00",
+      "updated": "2025-05-13T03:57:03+08:00",
+      "arxiv_id": "2412.06695v3",
+      "url": "https://arxiv.org/pdf/2412.06695v3",
+      "categories": [
+        "cs.IR"
+      ],
+      "primary_category": "cs.IR",
+      "matched_keywords": []
+    },
+    {
+      "title": "XLSTM-HVED: Cross-Modal Brain Tumor Segmentation and MRI Reconstruction Method Using Vision XLSTM and Heteromodal Variational Encoder-Decoder",
+      "abstract": "Neurogliomas are among the most aggressive forms of cancer, presenting considerable challenges in both treatment and monitoring due to their unpredictable biological behavior. Magnetic resonance imaging (MRI) is currently the preferred method for diagnosing and monitoring gliomas. However, the lack of specific imaging techniques often compromises the accuracy of tumor segmentation during the imaging process. To address this issue, we introduce the XLSTM-HVED model. This model integrates a hetero-modal encoder-decoder framework with the Vision XLSTM module to reconstruct missing MRI modalities. By deeply fusing spatial and temporal features, it enhances tumor segmentation performance. The key innovation of our approach is the Self-Attention Variational Encoder (SAVE) module, which improves the integration of modal features. Additionally, it optimizes the interaction of features between segmentation and reconstruction tasks through the Squeeze-Fusion-Excitation Cross Awareness (SFECA) module. Our experiments using the BraTS 2024 dataset demonstrate that our model significantly outperforms existing advanced methods in handling cases where modalities are missing. Our source code is available at https://github.com/Quanato607/XLSTM-HVED.",
+      "authors": [
+        "Shenghao Zhu",
+        "Yifei Chen",
+        "Shuo Jiang",
+        "Weihong Chen",
+        "Chang Liu",
+        "Yuanhan Wang",
+        "Xu Chen",
+        "Yifan Ke",
+        "Feiwei Qin",
+        "Changmiao Wang",
+        "Zhu Zhu"
+      ],
+      "published": "2024-12-09T17:04:02+08:00",
+      "updated": "2025-03-05T18:09:25+08:00",
+      "arxiv_id": "2412.07804v3",
+      "url": "https://arxiv.org/pdf/2412.07804v3",
+      "categories": [
+        "eess.IV",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "primary_category": "eess.IV",
+      "matched_keywords": []
+    },
+    {
+      "title": "Reconstruction of 3D lumbar spine models from incomplete segmentations using landmark detection",
+      "abstract": "Patient-specific 3D spine models serve as a foundation for spinal treatment and surgery planning as well as analysis of loading conditions in biomechanical and biomedical research. Despite advancements in imaging technologies, the reconstruction of complete 3D spine models often faces challenges due to limitations in imaging modalities such as planar X-Ray and missing certain spinal structures, such as the spinal or transverse processes, in volumetric medical images and resulting segmentations. In this study, we present a novel accurate and time-efficient method to reconstruct complete 3D lumbar spine models from incomplete 3D vertebral bodies obtained from segmented magnetic resonance images (MRI). In our method, we use an affine transformation to align artificial vertebra models with patient-specific incomplete vertebrae. The transformation matrix is derived from vertebra landmarks, which are automatically detected on the vertebra endplates. The results of our evaluation demonstrate the high accuracy of the performed registration, achieving an average point-to-model distance of 1.95 mm. Additionally, in assessing the morphological properties of the vertebrae and intervertebral characteristics, our method demonstrated a mean absolute error (MAE) of 3.4° in the angles of functional spine units (FSUs), emphasizing its effectiveness in maintaining important spinal features throughout the transformation process of individual vertebrae. Our method achieves the registration of the entire lumbar spine, spanning segments L1 to L5, in just 0.14 seconds, showcasing its time-efficiency. Clinical relevance: the fast and accurate reconstruction of spinal models from incomplete input data such as segmentations provides a foundation for many applications in spine diagnostics, treatment planning, and the development of spinal healthcare solutions.",
+      "authors": [
+        "Lara Blomenkamp",
+        "Ivanna Kramer",
+        "Sabine Bauer",
+        "Kevin Weirauch",
+        "Dietrich Paulus"
+      ],
+      "published": "2024-12-06T22:23:42+08:00",
+      "updated": "2024-12-06T22:23:42+08:00",
+      "arxiv_id": "2412.05065v1",
+      "url": "https://arxiv.org/pdf/2412.05065v1",
+      "categories": [
+        "eess.IV",
+        "cs.CV"
+      ],
+      "primary_category": "eess.IV",
+      "matched_keywords": []
+    },
+    {
+      "title": "Unsupervised Hyperspectral and Multispectral Image Fusion via Self-Supervised Modality Decoupling",
+      "abstract": "Hyperspectral and Multispectral Image Fusion (HMIF) aims to fuse low-resolution hyperspectral images (LR-HSIs) and high-resolution multispectral images (HR-MSIs) to reconstruct high spatial and high spectral resolution images. Current methods typically apply direct fusion from the two modalities without effective supervision, leading to an incomplete perception of deep modality-complementary information and a limited understanding of inter-modality correlations. To address these issues, we propose a simple yet effective solution for unsupervised HMIF, revealing that modality decoupling is key to improving fusion performance. Specifically, we propose an end-to-end self-supervised \\textbf{Mo}dality-Decoupled \\textbf{S}patial-\\textbf{S}pectral Fusion (\\textbf{MossFuse}) framework that decouples shared and complementary information across modalities and aggregates a concise representation of both LR-HSIs and HR-MSIs to reduce modality redundancy. Also, we introduce the subspace clustering loss as a clear guide to decouple modality-shared features from modality-complementary ones. Systematic experiments over multiple datasets demonstrate that our simple and effective approach consistently outperforms the existing HMIF methods while requiring considerably fewer parameters with reduced inference time. The anonymous source code is in \\href{https://github.com/dusongcheng/MossFuse}{MossFuse}.",
+      "authors": [
+        "Songcheng Du",
+        "Yang Zou",
+        "Zixu Wang",
+        "Xingyuan Li",
+        "Ying Li",
+        "Changjing Shang",
+        "Qiang Shen"
+      ],
+      "published": "2024-12-06T14:22:43+08:00",
+      "updated": "2025-04-22T12:20:45+08:00",
+      "arxiv_id": "2412.04802v3",
+      "url": "https://arxiv.org/pdf/2412.04802v3",
+      "categories": [
+        "eess.IV",
+        "cs.CV"
+      ],
+      "primary_category": "eess.IV",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "Customize Segment Anything Model for Multi-Modal Semantic Segmentation with Mixture of LoRA Experts",
+      "abstract": "The recent Segment Anything Model (SAM) represents a significant breakthrough in scaling segmentation models, delivering strong performance across various downstream applications in the RGB modality. However, directly applying SAM to emerging visual modalities, such as depth and event data results in suboptimal performance in multi-modal segmentation tasks. In this paper, we make the first attempt to adapt SAM for multi-modal semantic segmentation by proposing a Mixture of Low-Rank Adaptation Experts (MoE-LoRA) tailored for different input visual modalities. By training only the MoE-LoRA layers while keeping SAM's weights frozen, SAM's strong generalization and segmentation capabilities can be preserved for downstream tasks. Specifically, to address cross-modal inconsistencies, we propose a novel MoE routing strategy that adaptively generates weighted features across modalities, enhancing multi-modal feature integration. Additionally, we incorporate multi-scale feature extraction and fusion by adapting SAM's segmentation head and introducing an auxiliary segmentation head to combine multi-scale features for improved segmentation performance effectively. Extensive experiments were conducted on three multi-modal benchmarks: DELIVER, MUSES, and MCubeS. The results consistently demonstrate that the proposed method significantly outperforms state-of-the-art approaches across diverse scenarios. Notably, under the particularly challenging condition of missing modalities, our approach exhibits a substantial performance gain, achieving an improvement of 32.15% compared to existing methods.",
+      "authors": [
+        "Chenyang Zhu",
+        "Bin Xiao",
+        "Lin Shi",
+        "Shoukun Xu",
+        "Xu Zheng"
+      ],
+      "published": "2024-12-05T22:54:31+08:00",
+      "updated": "2024-12-05T22:54:31+08:00",
+      "arxiv_id": "2412.04220v1",
+      "url": "https://arxiv.org/pdf/2412.04220v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Pre-train, Align, and Disentangle: Empowering Sequential Recommendation with Large Language Models",
+      "abstract": "Sequential Recommendation (SR) aims to leverage the sequential patterns in users' historical interactions to accurately track their preferences. However, the primary reliance of existing SR methods on collaborative data results in challenges such as the cold-start problem and sub-optimal performance. Concurrently, despite the proven effectiveness of large language models (LLMs), their integration into commercial recommender systems is impeded by issues such as high inference latency, incomplete capture of all distribution statistics, and catastrophic forgetting. To address these issues, we introduce a novel Pre-train, Align, and Disentangle (PAD) framework to enhance SR models with LLMs. In particular, we initially pre-train both the SR and LLM models to obtain collaborative and textual embeddings. Subsequently, we propose a characteristic recommendation-anchored alignment loss using multi-kernel maximum mean discrepancy with Gaussian kernels. Lastly, a triple-experts architecture, comprising aligned and modality-specific experts with disentangled embeddings, is fine-tuned in a frequency-aware manner. Experimental results on three public datasets validate the efficacy of PAD, indicating substantial enhancements and compatibility with various SR backbone models, particularly for cold items. The code and datasets are accessible for reproduction at https://github.com/Applied-Machine-Learning-Lab/PAD.",
+      "authors": [
+        "Yuhao Wang",
+        "Junwei Pan",
+        "Pengyue Jia",
+        "Wanyu Wang",
+        "Maolin Wang",
+        "Zhixiang Feng",
+        "Xiaotian Li",
+        "Jie Jiang",
+        "Xiangyu Zhao"
+      ],
+      "published": "2024-12-05T20:17:56+08:00",
+      "updated": "2025-04-26T02:32:35+08:00",
+      "arxiv_id": "2412.04107v2",
+      "url": "https://arxiv.org/pdf/2412.04107v2",
+      "categories": [
+        "cs.IR",
+        "cs.AI"
+      ],
+      "primary_category": "cs.IR",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "BodyMetric: Evaluating the Realism of Human Bodies in Text-to-Image Generation",
+      "abstract": "Accurately generating images of human bodies from text remains a challenging problem for state of the art text-to-image models. Commonly observed body-related artifacts include extra or missing limbs, unrealistic poses, blurred body parts, etc. Currently, evaluation of such artifacts relies heavily on time-consuming human judgments, limiting the ability to benchmark models at scale. We address this by proposing BodyMetric, a learnable metric that predicts body realism in images. BodyMetric is trained on realism labels and multi-modal signals including 3D body representations inferred from the input image, and textual descriptions. In order to facilitate this approach, we design an annotation pipeline to collect expert ratings on human body realism leading to a new dataset for this task, namely, BodyRealism. Ablation studies support our architectural choices for BodyMetric and the importance of leveraging a 3D human body prior in capturing body-related artifacts in 2D images. In comparison to concurrent metrics which evaluate general user preference in images, BodyMetric specifically reflects body-related artifacts. We demonstrate the utility of BodyMetric through applications that were previously infeasible at scale. In particular, we use BodyMetric to benchmark the generation ability of text-to-image models to produce realistic human bodies. We also demonstrate the effectiveness of BodyMetric in ranking generated images based on the predicted realism scores.",
+      "authors": [
+        "Nefeli Andreou",
+        "Varsha Vivek",
+        "Ying Wang",
+        "Alex Vorobiov",
+        "Tiffany Deng",
+        "Raja Bala",
+        "Larry Davis",
+        "Betty Mohler Tesch"
+      ],
+      "published": "2024-12-05T19:48:54+08:00",
+      "updated": "2024-12-06T17:00:39+08:00",
+      "arxiv_id": "2412.04086v2",
+      "url": "https://arxiv.org/pdf/2412.04086v2",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "M$^{3}$D: A Multimodal, Multilingual and Multitask Dataset for Grounded Document-level Information Extraction",
+      "abstract": "Multimodal information extraction (IE) tasks have attracted increasing attention because many studies have shown that multimodal information benefits text information extraction. However, existing multimodal IE datasets mainly focus on sentence-level image-facilitated IE in English text, and pay little attention to video-based multimodal IE and fine-grained visual grounding. Therefore, in order to promote the development of multimodal IE, we constructed a multimodal multilingual multitask dataset, named M$^{3}$D, which has the following features: (1) It contains paired document-level text and video to enrich multimodal information; (2) It supports two widely-used languages, namely English and Chinese; (3) It includes more multimodal IE tasks such as entity recognition, entity chain extraction, relation extraction and visual grounding. In addition, our dataset introduces an unexplored theme, i.e., biography, enriching the domains of multimodal IE resources. To establish a benchmark for our dataset, we propose an innovative hierarchical multimodal IE model. This model effectively leverages and integrates multimodal information through a Denoised Feature Fusion Module (DFFM). Furthermore, in non-ideal scenarios, modal information is often incomplete. Thus, we designed a Missing Modality Construction Module (MMCM) to alleviate the issues caused by missing modalities. Our model achieved an average performance of 53.80% and 53.77% on four tasks in English and Chinese datasets, respectively, which set a reasonable standard for subsequent research. In addition, we conducted more analytical experiments to verify the effectiveness of our proposed module. We believe that our work can promote the development of the field of multimodal IE.",
+      "authors": [
+        "Jiang Liu",
+        "Bobo Li",
+        "Xinran Yang",
+        "Na Yang",
+        "Hao Fei",
+        "Mingyao Zhang",
+        "Fei Li",
+        "Donghong Ji"
+      ],
+      "published": "2024-12-05T18:00:58+08:00",
+      "updated": "2024-12-15T11:43:06+08:00",
+      "arxiv_id": "2412.04026v2",
+      "url": "https://arxiv.org/pdf/2412.04026v2",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "incomplete modality",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Multimodal Fusion Learning with Dual Attention for Medical Imaging",
+      "abstract": "Multimodal fusion learning has shown significant promise in classifying various diseases such as skin cancer and brain tumors. However, existing methods face three key limitations. First, they often lack generalizability to other diagnosis tasks due to their focus on a particular disease. Second, they do not fully leverage multiple health records from diverse modalities to learn robust complementary information. And finally, they typically rely on a single attention mechanism, missing the benefits of multiple attention strategies within and across various modalities. To address these issues, this paper proposes a dual robust information fusion attention mechanism (DRIFA) that leverages two attention modules, i.e. multi-branch fusion attention module and the multimodal information fusion attention module. DRIFA can be integrated with any deep neural network, forming a multimodal fusion learning framework denoted as DRIFA-Net. We show that the multi-branch fusion attention of DRIFA learns enhanced representations for each modality, such as dermoscopy, pap smear, MRI, and CT-scan, whereas multimodal information fusion attention module learns more refined multimodal shared representations, improving the network's generalization across multiple tasks and enhancing overall performance. Additionally, to estimate the uncertainty of DRIFA-Net predictions, we have employed an ensemble Monte Carlo dropout strategy. Extensive experiments on five publicly available datasets with diverse modalities demonstrate that our approach consistently outperforms state-of-the-art methods. The code is available at https://github.com/misti1203/DRIFA-Net.",
+      "authors": [
+        "Joy Dhar",
+        "Nayyar Zaidi",
+        "Maryam Haghighat",
+        "Puneet Goyal",
+        "Sudipta Roy",
+        "Azadeh Alavi",
+        "Vikas Kumar"
+      ],
+      "published": "2024-12-02T16:11:12+08:00",
+      "updated": "2024-12-02T16:11:12+08:00",
+      "arxiv_id": "2412.01248v1",
+      "url": "https://arxiv.org/pdf/2412.01248v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "missing modality"
+      ]
+    },
+    {
+      "title": "EsurvFusion: An evidential multimodal survival fusion model based on Gaussian random fuzzy numbers",
+      "abstract": "Multimodal survival analysis aims to combine heterogeneous data sources (e.g., clinical, imaging, text, genomics) to improve the prediction quality of survival outcomes. However, this task is particularly challenging due to high heterogeneity and noise across data sources, which vary in structure, distribution, and context. Additionally, the ground truth is often censored (uncertain) due to incomplete follow-up data. In this paper, we propose a novel evidential multimodal survival fusion model, EsurvFusion, designed to combine multimodal data at the decision level through an evidence-based decision fusion layer that jointly addresses both data and model uncertainty while incorporating modality-level reliability. Specifically, EsurvFusion first models unimodal data with newly introduced Gaussian random fuzzy numbers, producing unimodal survival predictions along with corresponding aleatoric and epistemic uncertainties. It then estimates modality-level reliability through a reliability discounting layer to correct the misleading impact of noisy data modalities. Finally, a multimodal evidence-based fusion layer is introduced to combine the discounted predictions to form a unified, interpretable multimodal survival analysis model, revealing each modality's influence based on the learned reliability coefficients. This is the first work that studies multimodal survival analysis with both uncertainty and reliability. Extensive experiments on four multimodal survival datasets demonstrate the effectiveness of our model in handling high heterogeneity data, establishing new state-of-the-art on several benchmarks.",
+      "authors": [
+        "Ling Huang",
+        "Yucheng Xing",
+        "Qika Lin",
+        "Su Ruan",
+        "Mengling Feng"
+      ],
+      "published": "2024-12-02T15:35:29+08:00",
+      "updated": "2024-12-02T15:35:29+08:00",
+      "arxiv_id": "2412.01215v1",
+      "url": "https://arxiv.org/pdf/2412.01215v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "AlignMamba: Enhancing Multimodal Mamba with Local and Global Cross-modal Alignment",
+      "abstract": "Cross-modal alignment is crucial for multimodal representation fusion due to the inherent heterogeneity between modalities. While Transformer-based methods have shown promising results in modeling inter-modal relationships, their quadratic computational complexity limits their applicability to long-sequence or large-scale data. Although recent Mamba-based approaches achieve linear complexity, their sequential scanning mechanism poses fundamental challenges in comprehensively modeling cross-modal relationships. To address this limitation, we propose AlignMamba, an efficient and effective method for multimodal fusion. Specifically, grounded in Optimal Transport, we introduce a local cross-modal alignment module that explicitly learns token-level correspondences between different modalities. Moreover, we propose a global cross-modal alignment loss based on Maximum Mean Discrepancy to implicitly enforce the consistency between different modal distributions. Finally, the unimodal representations after local and global alignment are passed to the Mamba backbone for further cross-modal interaction and multimodal fusion. Extensive experiments on complete and incomplete multimodal fusion tasks demonstrate the effectiveness and efficiency of the proposed method.",
+      "authors": [
+        "Yan Li",
+        "Yifei Xing",
+        "Xiangyuan Lan",
+        "Xin Li",
+        "Haifeng Chen",
+        "Dongmei Jiang"
+      ],
+      "published": "2024-12-01T22:47:41+08:00",
+      "updated": "2024-12-01T22:47:41+08:00",
+      "arxiv_id": "2412.00833v1",
+      "url": "https://arxiv.org/pdf/2412.00833v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "Needle: A Generative AI-Powered Multi-modal Database for Answering Complex Natural Language Queries",
+      "abstract": "Multi-modal datasets, like those involving images, often miss the detailed descriptions that properly capture the rich information encoded in each item. This makes answering complex natural language queries a major challenge in this domain. In particular, unlike the traditional nearest neighbor search, where the tuples and the query are represented as points in a single metric space, these settings involve queries and tuples embedded in fundamentally different spaces, making the traditional query answering methods inapplicable. Existing literature addresses this challenge for image datasets through vector representations jointly trained on natural language and images. This technique, however, underperforms for complex queries due to various reasons.\n  This paper takes a step towards addressing this challenge by introducing a Generative-based Monte Carlo method that utilizes foundation models to generate synthetic samples that capture the complexity of the natural language query and represent it in the same metric space as the multi-modal data.\n  Following this method, we propose Needle, a database for image data retrieval. Instead of relying on contrastive learning or metadata-searching approaches, our system is based on synthetic data generation to capture the complexities of natural language queries. Our system is open-source and ready for deployment, designed to be easily adopted by researchers and developers. The comprehensive experiments on various benchmark datasets verify that this system significantly outperforms state-of-the-art text-to-image retrieval methods in the literature. Any foundation model and embedder can be easily integrated into Needle to improve the performance, piggybacking on the advancements in these technologies.",
+      "authors": [
+        "Mahdi Erfanian",
+        "Mohsen Dehghankar",
+        "Abolfazl Asudeh"
+      ],
+      "published": "2024-12-01T09:36:41+08:00",
+      "updated": "2025-06-02T23:22:19+08:00",
+      "arxiv_id": "2412.00639v2",
+      "url": "https://arxiv.org/pdf/2412.00639v2",
+      "categories": [
+        "cs.IR",
+        "cs.DB"
+      ],
+      "primary_category": "cs.IR",
+      "matched_keywords": []
+    }
+  ]
+}

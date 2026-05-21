@@ -1,0 +1,2348 @@
+{
+  "metadata": {
+    "last_updated": "2025-11-19T10:22:09.437328+00:00",
+    "total_papers": 90,
+    "matched_keywords_stats": {
+      "Multimodal Large Models": 16,
+      "Multimodal Large Language Model": 13,
+      "Vision-Language Model": 15,
+      "MLLM": 7,
+      "MLLMs": 6,
+      "multimodal": 15,
+      "lora": 25,
+      "vision-language": 12,
+      "task interference": 9,
+      "VLM": 9,
+      "cross-modal": 2,
+      "vlm": 9,
+      "Cross-Modal Model": 33,
+      "Multimodal Foundation Model": 7,
+      "partial modality": 5,
+      "Multimodal Reasoning": 10,
+      "modality imbalance": 5,
+      "modality missing": 10,
+      "missing modality": 10,
+      "incomplete modality": 5,
+      "modality conflict": 3,
+      "cross-modal interference": 4,
+      "qlora": 3,
+      "imbalanced modality": 1,
+      "modality bias": 5,
+      "cross-modal conflict": 2
+    }
+  },
+  "papers": [
+    {
+      "title": "NAUTILUS: A Large Multimodal Model for Underwater Scene Understanding",
+      "abstract": "Underwater exploration offers critical insights into our planet and attracts increasing attention for its broader applications in resource exploration, national security, etc. We study the underwater scene understanding methods, which aim to achieve automated underwater exploration. The underwater scene understanding task demands multi-task perceptions from multiple granularities. However, the absence of large-scale underwater multi-task instruction-tuning datasets hinders the progress of this research. To bridge this gap, we construct NautData, a dataset containing 1.45 M image-text pairs supporting eight underwater scene understanding tasks. It enables the development and thorough evaluation of the underwater scene understanding models. Underwater image degradation is a widely recognized challenge that interferes with underwater tasks. To improve the robustness of underwater scene understanding, we introduce physical priors derived from underwater imaging models and propose a plug-and-play vision feature enhancement (VFE) module, which explicitly restores clear underwater information. We integrate this module into renowned baselines LLaVA-1.5 and Qwen2.5-VL and build our underwater LMM, NAUTILUS. Experiments conducted on the NautData and public underwater datasets demonstrate the effectiveness of the VFE module, consistently improving the performance of both baselines on the majority of supported tasks, thus ensuring the superiority of NAUTILUS in the underwater scene understanding area. Data and models are available at https://github.com/H-EmbodVis/NAUTILUS.",
+      "authors": [
+        "Wei Xu",
+        "Cheng Wang",
+        "Dingkang Liang",
+        "Zongchuang Zhao",
+        "Xingyu Jiang",
+        "Peng Zhang",
+        "Xiang Bai"
+      ],
+      "published": "2025-10-31T22:00:35+08:00",
+      "updated": "2025-10-31T22:00:35+08:00",
+      "arxiv_id": "2510.27481v1",
+      "url": "https://arxiv.org/pdf/2510.27481v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Multimodal Large Models"
+      ]
+    },
+    {
+      "title": "Unveiling Intrinsic Text Bias in Multimodal Large Language Models through Attention Key-Space Analysis",
+      "abstract": "Multimodal large language models (MLLMs) exhibit a pronounced preference for textual inputs when processing vision-language data, limiting their ability to reason effectively from visual evidence. Unlike prior studies that attribute this text bias to external factors such as data imbalance or instruction tuning, we propose that the bias originates from the model's internal architecture. Specifically, we hypothesize that visual key vectors (Visual Keys) are out-of-distribution (OOD) relative to the text key space learned during language-only pretraining. Consequently, these visual keys receive systematically lower similarity scores during attention computation, leading to their under-utilization in the context representation. To validate this hypothesis, we extract key vectors from LLaVA and Qwen2.5-VL and analyze their distributional structures using qualitative (t-SNE) and quantitative (Jensen-Shannon divergence) methods. The results provide direct evidence that visual and textual keys occupy markedly distinct subspaces within the attention space. The inter-modal divergence is statistically significant, exceeding intra-modal variation by several orders of magnitude. These findings reveal that text bias arises from an intrinsic misalignment within the attention key space rather than solely from external data factors.",
+      "authors": [
+        "Xinhan Zheng",
+        "Huyu Wu",
+        "Xueting Wang",
+        "Haiyun Jiang"
+      ],
+      "published": "2025-10-31T01:22:22+08:00",
+      "updated": "2025-10-31T01:22:22+08:00",
+      "arxiv_id": "2510.26721v1",
+      "url": "https://arxiv.org/pdf/2510.26721v1",
+      "categories": [
+        "cs.AI",
+        "cs.MM"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "Multimodal Large Language Model",
+        "Multimodal Large Models",
+        "Vision-Language Model",
+        "MLLM",
+        "MLLMs"
+      ]
+    },
+    {
+      "title": "SpinalSAM-R1: A Vision-Language Multimodal Interactive System for Spine CT Segmentation",
+      "abstract": "The anatomical structure segmentation of the spine and adjacent structures from computed tomography (CT) images is a key step for spinal disease diagnosis and treatment. However, the segmentation of CT images is impeded by low contrast and complex vertebral boundaries. Although advanced models such as the Segment Anything Model (SAM) have shown promise in various segmentation tasks, their performance in spinal CT imaging is limited by high annotation requirements and poor domain adaptability. To address these limitations, we propose SpinalSAM-R1, a multimodal vision-language interactive system that integrates a fine-tuned SAM with DeepSeek-R1, for spine CT image segmentation. Specifically, our SpinalSAM-R1 introduces an anatomy-guided attention mechanism to improve spine segmentation performance, and a semantics-driven interaction protocol powered by DeepSeek-R1, enabling natural language-guided refinement. The SpinalSAM-R1 is fine-tuned using Low-Rank Adaptation (LoRA) for efficient adaptation. We validate our SpinalSAM-R1 on the spine anatomical structure with CT images. Experimental results suggest that our method achieves superior segmentation performance. Meanwhile, we develop a PyQt5-based interactive software, which supports point, box, and text-based prompts. The system supports 11 clinical operations with 94.3\\% parsing accuracy and sub-800 ms response times. The software is released on https://github.com/6jm233333/spinalsam-r1.",
+      "authors": [
+        "Jiaming Liu",
+        "Dingwei Fan",
+        "Junyong Zhao",
+        "Chunlin Li",
+        "Haipeng Si",
+        "Liang Sun"
+      ],
+      "published": "2025-10-30T18:14:42+08:00",
+      "updated": "2025-10-30T18:14:42+08:00",
+      "arxiv_id": "2511.00095v1",
+      "url": "https://arxiv.org/pdf/2511.00095v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "PairUni: Pairwise Training for Unified Multimodal Language Models",
+      "abstract": "Unified vision-language models (UVLMs) must perform both understanding and generation within a single architecture, but these tasks rely on heterogeneous data and supervision, making it difficult to balance them during reinforcement learning (RL). We propose PairUni, a unified framework that reorganizes data into understanding-generation (UG) pairs and aligns optimization accordingly. We first use GPT-o3 to augment single-task data, generating captions for understanding samples and question-answer (QA) pairs for generation samples, forming aligned pairs from the same instance. Additionally, for each generation sample, we retrieve a semantically related understanding example to form a retrieved pair, linking different but related data points. These paired structures expose cross-task semantic correspondences and support consistent policy learning. To leverage this structure, we present Pair-GPRO, a pair-aware variant based on Group Relative Policy Optimization. It assigns a similarity score to each pair to modulate the advantage, strengthening learning from well-aligned examples and reducing task interference. We curate a high-quality dataset of 16K UG pairs named PairUG for RL fine-tuning and evaluate PairUni on the powerful Janus-Pro UVLMs. Our approach achieves balanced improvements on various UVLMs, outperforming strong UVLM RL baselines. Codes are available at https://github.com/Haochen-Wang409/PairUni.",
+      "authors": [
+        "Jiani Zheng",
+        "Zhiyang Teng",
+        "Xiangtai Li",
+        "Anran Wang",
+        "Yu Tian",
+        "Kunpeng Qiu",
+        "Ye Tian",
+        "Haochen Wang",
+        "Zhuochen Wang"
+      ],
+      "published": "2025-10-30T00:47:02+08:00",
+      "updated": "2025-10-30T22:28:46+08:00",
+      "arxiv_id": "2510.25682v2",
+      "url": "https://arxiv.org/pdf/2510.25682v2",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "task interference",
+        "Vision-Language Model",
+        "VLM"
+      ]
+    },
+    {
+      "title": "Teaching Sarcasm: Few-Shot Multimodal Sarcasm Detection via Distillation to a Parameter-Efficient Student",
+      "abstract": "Multimodal sarcasm detection is challenging, especially in low-resource settings where subtle image-text contradictions are hard to learn due to scarce annotated data, which hinders the model's performance. Parameter-efficient fine-tuning (PEFT) methods like adapters, LoRA, and prompt tuning reduce overfitting but struggle to reach optimal performance due to limited supervision from few-shot data. We propose PEKD, a unified framework that enhances PEFT methods via distillation from an expert model trained on large-scale sarcasm data, which acts as the teacher. To mitigate unreliable signals from the teacher, we introduce an entropy-aware gating mechanism that dynamically adjusts the distillation strength based on teacher confidence. Experiments on two public datasets demonstrate that our PEKD framework enables PEFT methods to outperform both prior parameter-efficient approaches and large multimodal models, achieving strong results in the few-shot scenario. The framework is modular and adaptable to a wide range of multimodal models and tasks.",
+      "authors": [
+        "Soumyadeep Jana",
+        "Sanasam Ranbir Singh"
+      ],
+      "published": "2025-10-29T17:14:41+08:00",
+      "updated": "2025-10-29T17:14:41+08:00",
+      "arxiv_id": "2510.25303v1",
+      "url": "https://arxiv.org/pdf/2510.25303v1",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "MemEIC: A Step Toward Continual and Compositional Knowledge Editing",
+      "abstract": "The dynamic nature of information necessitates continuously updating large vision-language models (LVLMs). While recent knowledge editing techniques hint at promising directions, they often focus on editing a single modality (vision or language) in isolation. This prevalent practice neglects the inherent multimodality of LVLMs and the continuous nature of knowledge updates, potentially leading to suboptimal editing outcomes when considering the interplay between modalities and the need for ongoing knowledge refinement. To address these limitations, we propose MemEIC, a novel method for Continual and Compositional Knowledge Editing (CCKE) in LVLMs. MemEIC enables compositional editing of both visual and textual knowledge sequentially. Our approach employs a hybrid external-internal editor featuring a dual external memory for cross-modal evidence retrieval and dual LoRA adapters that facilitate disentangled parameter updates for each modality. A key component is a brain-inspired knowledge connector, activated selectively for compositional reasoning, that integrates information across different modalities. Experiments demonstrate that MemEIC significantly improves performance on complex multimodal questions and effectively preserves prior edits, setting a new benchmark for CCKE in LVLMs.",
+      "authors": [
+        "Jin Seong",
+        "Jiyun Park",
+        "Wencke Liermann",
+        "Hongseok Choi",
+        "Yoonji Nam",
+        "Hyun Kim",
+        "Soojong Lim",
+        "Namhoon Lee"
+      ],
+      "published": "2025-10-29T11:11:59+08:00",
+      "updated": "2025-10-29T11:11:59+08:00",
+      "arxiv_id": "2510.25798v1",
+      "url": "https://arxiv.org/pdf/2510.25798v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "multimodal",
+        "lora",
+        "vision-language",
+        "cross-modal",
+        "vlm"
+      ]
+    },
+    {
+      "title": "Enhancing Vision-Language Models for Autonomous Driving through Task-Specific Prompting and Spatial Reasoning",
+      "abstract": "This technical report presents our solution for the RoboSense Challenge at IROS 2025, which evaluates Vision-Language Models (VLMs) on autonomous driving scene understanding across perception, prediction, planning, and corruption detection tasks. We propose a systematic framework built on four core components. First, a Mixture-of-Prompts router classifies questions and dispatches them to task-specific expert prompts, eliminating interference across diverse question types. Second, task-specific prompts embed explicit coordinate systems, spatial reasoning rules, role-playing, Chain-of-Thought/Tree-of-Thought reasoning, and few-shot examples tailored to each task. Third, a visual assembly module composes multi-view images with object crops, magenta markers, and adaptive historical frames based on question requirements. Fourth, we configure model inference parameters (temperature, top-p, message roles) per task to optimize output quality. Implemented on Qwen2.5-VL-72B, our approach achieves 70.87% average accuracy on Phase-1 (clean data) and 72.85% on Phase-2 (corrupted data), demonstrating that structured prompting and spatial grounding substantially enhance VLM performance on safety-critical autonomous driving tasks. Code and prompt are available at https://github.com/wuaodi/UCAS-CSU-phase2.",
+      "authors": [
+        "Aodi Wu",
+        "Xubo Luo"
+      ],
+      "published": "2025-10-28T15:43:30+08:00",
+      "updated": "2025-10-28T15:43:30+08:00",
+      "arxiv_id": "2510.24152v1",
+      "url": "https://arxiv.org/pdf/2510.24152v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "task interference",
+        "Vision-Language Model",
+        "VLM"
+      ]
+    },
+    {
+      "title": "Solar flare forecasting with foundational transformer models across image, video, and time-series modalities",
+      "abstract": "We present a comparative study of transformer-based architectures for solar flare forecasting using heterogeneous data modalities, including images, video sequences, and time-series observations. Our analysis evaluates three recent foundational models - SigLIP2 for image encoding, VideoMAE for spatio-temporal video representation, and Moirai2 for multivariate time-series forecasting - applied to publicly available datasets of solar magnetograms from the SDO/HMI mission and soft X-ray fluxes acquired by GOES satellites. All models are trained and validated under consistent data splits and evaluation criteria, with the goal of assessing the strengths and limitations of transformer backbones across spatial and temporal representations of solar activity. We investigate multiple loss formulations (weighted BCE, focal, and score-oriented) and training balance strategies to mitigate class imbalance typical of flare datasets. Results show that while both SigLIP2 and VideoMAE achieve typical performance on image and video data (True Skill Statistic TSS~0.60-0.65), the time-series model Moirai2 reaches superior forecasting skill (TSS~0.74) using irradiance-based temporal evolution alone. These findings highlight the potential of pretrained transformer architectures and cross-modal learning for advancing operational space weather forecasting, paving the way toward unified multimodal models that integrate visual and temporal information.",
+      "authors": [
+        "S. Riggi",
+        "P. Romano",
+        "A. Pilzer",
+        "U. Becciani"
+      ],
+      "published": "2025-10-27T22:58:12+08:00",
+      "updated": "2025-10-27T22:58:12+08:00",
+      "arxiv_id": "2510.23400v1",
+      "url": "https://arxiv.org/pdf/2510.23400v1",
+      "categories": [
+        "astro-ph.IM",
+        "astro-ph.SR"
+      ],
+      "primary_category": "astro-ph.IM",
+      "matched_keywords": [
+        "Cross-Modal Model",
+        "Multimodal Foundation Model"
+      ]
+    },
+    {
+      "title": "DecoDINO: 3D Human-Scene Contact Prediction with Semantic Classification",
+      "abstract": "Accurate vertex-level contact prediction between humans and surrounding objects is a prerequisite for high fidelity human object interaction models used in robotics, AR/VR, and behavioral simulation. DECO was the first in the wild estimator for this task but is limited to binary contact maps and struggles with soft surfaces, occlusions, children, and false-positive foot contacts. We address these issues and introduce DecoDINO, a three-branch network based on DECO's framework. It uses two DINOv2 ViT-g/14 encoders, class-balanced loss weighting to reduce bias, and patch-level cross-attention for improved local reasoning. Vertex features are finally passed through a lightweight MLP with a softmax to assign semantic contact labels. We also tested a vision-language model (VLM) to integrate text features, but the simpler architecture performed better and was used instead. On the DAMON benchmark, DecoDINO (i) raises the binary-contact F1 score by 7$\\%$, (ii) halves the geodesic error, and (iii) augments predictions with object-level semantic labels. Ablation studies show that LoRA fine-tuning and the dual encoders are key to these improvements. DecoDINO outperformed the challenge baseline in both tasks of the DAMON Challenge. Our code is available at https://github.com/DavidePasero/deco/tree/main.",
+      "authors": [
+        "Lukas Bierling",
+        "Davide Pasero",
+        "Fleur Dolmans",
+        "Helia Ghasemi",
+        "Angelo Broere"
+      ],
+      "published": "2025-10-27T18:46:22+08:00",
+      "updated": "2025-10-27T18:46:22+08:00",
+      "arxiv_id": "2510.23203v1",
+      "url": "https://arxiv.org/pdf/2510.23203v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "MAP4TS: A Multi-Aspect Prompting Framework for Time-Series Forecasting with Large Language Models",
+      "abstract": "Recent advances have investigated the use of pretrained large language models (LLMs) for time-series forecasting by aligning numerical inputs with LLM embedding spaces. However, existing multimodal approaches often overlook the distinct statistical properties and temporal dependencies that are fundamental to time-series data. To bridge this gap, we propose MAP4TS, a novel Multi-Aspect Prompting Framework that explicitly incorporates classical time-series analysis into the prompt design. Our framework introduces four specialized prompt components: a Global Domain Prompt that conveys dataset-level context, a Local Domain Prompt that encodes recent trends and series-specific behaviors, and a pair of Statistical and Temporal Prompts that embed handcrafted insights derived from autocorrelation (ACF), partial autocorrelation (PACF), and Fourier analysis. Multi-Aspect Prompts are combined with raw time-series embeddings and passed through a cross-modality alignment module to produce unified representations, which are then processed by an LLM and projected for final forecasting. Extensive experiments across eight diverse datasets show that MAP4TS consistently outperforms state-of-the-art LLM-based methods. Our ablation studies further reveal that prompt-aware designs significantly enhance performance stability and that GPT-2 backbones, when paired with structured prompts, outperform larger models like LLaMA in long-term forecasting tasks.",
+      "authors": [
+        "Suchan Lee",
+        "Jihoon Choi",
+        "Sohyeon Lee",
+        "Minseok Song",
+        "Bong-Gyu Jang",
+        "Hwanjo Yu",
+        "Soyeon Caren Han"
+      ],
+      "published": "2025-10-27T15:51:54+08:00",
+      "updated": "2025-10-27T15:51:54+08:00",
+      "arxiv_id": "2510.23090v1",
+      "url": "https://arxiv.org/pdf/2510.23090v1",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "Multimodal Large Language Model",
+        "Multimodal Large Models",
+        "partial modality",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Capsule Network-Based Multimodal Fusion for Mortgage Risk Assessment from Unstructured Data Sources",
+      "abstract": "Mortgage risk assessment traditionally relies on structured financial data, which is often proprietary, confidential, and costly. In this study, we propose a novel multimodal deep learning framework that uses cost-free, publicly available, unstructured data sources, including textual information, images, and sentiment scores, to generate credit scores that approximate commercial scorecards. Our framework adopts a two-phase approach. In the unimodal phase, we identify the best-performing models for each modality, i.e. BERT for text, VGG for image data, and a multilayer perceptron for sentiment-based features. In the fusion phase, we introduce the capsule-based fusion network (FusionCapsNet), a novel fusion strategy inspired by capsule networks, but fundamentally redesigned for multimodal integration. Unlike standard capsule networks, our method adapts a specific mechanism in capsule networks to each modality and restructures the fusion process to preserve spatial, contextual, and modality-specific information. It also enables adaptive weighting so that stronger modalities dominate without ignoring complementary signals.\n  Our framework incorporates sentiment analysis across distinct news categories to capture borrower and market dynamics and employs GradCAM-based visualizations as an interpretability tool. These components are designed features of the framework, while our results later demonstrate that they effectively enrich contextual understanding and highlight the influential factors driving mortgage risk predictions. Our results show that our multimodal FusionCapsNet framework not only exceeds individual unimodal models but also outperforms benchmark fusion strategies such as addition, concatenation, and cross attention in terms of AUC, partial AUC, and F1 score, demonstrating clear gains in both predictive accuracy and interpretability for mortgage risk assessment.",
+      "authors": [
+        "Mahsa Tavakoli",
+        "Rohitash Chandra",
+        "Cristian Bravo"
+      ],
+      "published": "2025-10-27T12:11:35+08:00",
+      "updated": "2025-10-27T12:11:35+08:00",
+      "arxiv_id": "2510.22987v1",
+      "url": "https://arxiv.org/pdf/2510.22987v1",
+      "categories": [
+        "cs.CE"
+      ],
+      "primary_category": "cs.CE",
+      "matched_keywords": [
+        "partial modality"
+      ]
+    },
+    {
+      "title": "Adapting Speech Foundation Models with Large Language Models for Unified Speech Recognition",
+      "abstract": "Unified speech recognition aims to perform auditory, visual, and audiovisual speech recognition within a single model framework. While speech foundation models (SFMs) have demonstrated remarkable performance in auditory tasks, their adaptation to multimodal scenarios remains underexplored. This paper presents UASR-LLM, a novel framework that adapts frozen SFMs to unified VSR, ASR, and AVSR tasks by leveraging large language models (LLMs) as text decoders. Our approach introduces visual representations into multiple SFM layers through visual injection modules, enabling multimodal input processing and unified hidden representations. The augmented SFMs connect with decoder-only LLMs via a feed-forward adaptor, where concatenated representations and instruction prompts guide speech transcription. We implement a twostage training strategy: visual injection pretraining followed by speech recognition finetuning. SFM parameters remain frozen throughout training, with only visual injection modules optimized initially, and LLMs finetuned using LoRA parameters subsequently. Experimental results demonstrate superior performance over state-of-the-art baselines across VSR, ASR, and AVSR tasks under both clean and noisy conditions. Ablation studies confirm generalization across various SFMs and LLMs, validating the proposed training strategy.",
+      "authors": [
+        "Jing-Xuan Zhang",
+        "Genshun Wan",
+        "Jin Li",
+        "Jianqing Gao"
+      ],
+      "published": "2025-10-27T11:36:05+08:00",
+      "updated": "2025-10-27T11:36:05+08:00",
+      "arxiv_id": "2510.22961v1",
+      "url": "https://arxiv.org/pdf/2510.22961v1",
+      "categories": [
+        "eess.AS"
+      ],
+      "primary_category": "eess.AS",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Rethinking the Text-Vision Reasoning Imbalance in MLLMs through the Lens of Training Recipes",
+      "abstract": "Multimodal large language models (MLLMs) have demonstrated strong capabilities on vision-and-language tasks. However, recent findings reveal an imbalance in their reasoning capabilities across visual and textual modalities. Specifically, current MLLMs often over-rely on textual cues while under-attending to visual content, resulting in suboptimal performance on tasks that require genuine visual reasoning. We refer to this phenomenon as the \\textit{modality gap}, defined as the performance disparity between text-centric and vision-centric inputs. In this paper, we analyze the modality gap through the lens of training recipes. We first show that existing training recipes tend to amplify this gap. Then, we systematically explore strategies to bridge it from two complementary perspectives: data and loss design. Our findings provide insights into developing training recipes that mitigate the modality gap and promote more balanced multimodal reasoning. Our code is publicly available at https://github.com/UCSB-NLP-Chang/Bridging-Modality-Gap.",
+      "authors": [
+        "Guanyu Yao",
+        "Qiucheng Wu",
+        "Yang Zhang",
+        "Zhaowen Wang",
+        "Handong Zhao",
+        "Shiyu Chang"
+      ],
+      "published": "2025-10-27T05:06:13+08:00",
+      "updated": "2025-10-27T05:06:13+08:00",
+      "arxiv_id": "2510.22836v1",
+      "url": "https://arxiv.org/pdf/2510.22836v1",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "Multimodal Reasoning",
+        "Multimodal Large Language Model",
+        "Multimodal Large Models",
+        "MLLM",
+        "modality imbalance",
+        "MLLMs"
+      ]
+    },
+    {
+      "title": "LLM-based Fusion of Multi-modal Features for Commercial Memorability Prediction",
+      "abstract": "This paper addresses the prediction of commercial (brand) memorability as part of \"Subtask 2: Commercial/Ad Memorability\" within the \"Memorability: Predicting movie and commercial memorability\" task at the MediaEval 2025 workshop competition. We propose a multimodal fusion system with a Gemma-3 LLM backbone that integrates pre-computed visual (ViT) and textual (E5) features by multi-modal projections. The model is adapted using Low-Rank Adaptation (LoRA). A heavily-tuned ensemble of gradient boosted trees serves as a baseline. A key contribution is the use of LLM-generated rationale prompts, grounded in expert-derived aspects of memorability, to guide the fusion model. The results demonstrate that the LLM-based system exhibits greater robustness and generalization performance on the final test set, compared to the baseline.\n  The paper's codebase can be found at https://github.com/dsgt-arc/mediaeval-2025-memorability",
+      "authors": [
+        "Aleksandar Pramov"
+      ],
+      "published": "2025-10-27T04:51:52+08:00",
+      "updated": "2025-10-27T04:51:52+08:00",
+      "arxiv_id": "2510.22829v1",
+      "url": "https://arxiv.org/pdf/2510.22829v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.MM"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Multi-Modal Masked Autoencoders for Learning Image-Spectrum Associations for Galaxy Evolution and Cosmology",
+      "abstract": "Upcoming surveys will produce billions of galaxy images but comparatively few spectra, motivating models that learn cross-modal representations. We build a dataset of 134,533 galaxy images (HSC-PDR2) and spectra (DESI-DR1) and adapt a Multi-Modal Masked Autoencoder (MMAE) to embed both images and spectra in a shared representation. The MMAE is a transformer-based architecture, which we train by masking 75% of the data and reconstructing missing image and spectral tokens. We use this model to test three applications: spectral and image reconstruction from heavily masked data and redshift regression from images alone. It recovers key physical features, such as galaxy shapes, atomic emission line peaks, and broad continuum slopes, though it struggles with fine image details and line strengths. For redshift regression, the MMAE performs comparably or better than prior multi-modal models in terms of prediction scatter even when missing spectra in testing. These results highlight both the potential and limitations of masked autoencoders in astrophysics and motivate extensions to additional modalities, such as text, for foundation models.",
+      "authors": [
+        "Morgan Himes",
+        "Samiksha Krishnamurthy",
+        "Andrew Lizarraga",
+        "Srinath Saikrishnan",
+        "Vikram Seenivasan",
+        "Jonathan Soriano",
+        "Ying Nian Wu",
+        "Tuan Do"
+      ],
+      "published": "2025-10-26T12:29:13+08:00",
+      "updated": "2025-10-26T12:29:13+08:00",
+      "arxiv_id": "2510.22527v1",
+      "url": "https://arxiv.org/pdf/2510.22527v1",
+      "categories": [
+        "astro-ph.IM",
+        "astro-ph.GA",
+        "cs.LG"
+      ],
+      "primary_category": "astro-ph.IM",
+      "matched_keywords": [
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Synthetic-to-Real Transfer Learning for Chromatin-Sensitive PWS Microscopy",
+      "abstract": "Chromatin sensitive partial wave spectroscopic (csPWS) microscopy enables label free detection of nanoscale chromatin packing alterations that occur before visible cellular transformation. However, manual nuclear segmentation limits population scale analysis needed for biomarker discovery in early cancer detection. The lack of annotated csPWS imaging data prevents direct use of standard deep learning methods. We present CFU Net, a hierarchical segmentation architecture trained with a three stage curriculum on synthetic multimodal data. CFU Net achieves near perfect performance on held out synthetic test data that represent diverse spectroscopic imaging conditions without manual annotations (Dice 0.9879, IoU 0.9895). Our approach uses physics based rendering that incorporates empirically supported chromatin packing statistics, Mie scattering models, and modality specific noise, combined with a curriculum that progresses from adversarial RGB pretraining to spectroscopic fine tuning and histology validation. CFU Net integrates five architectural elements (ConvNeXt backbone, Feature Pyramid Network, UNet plus plus dense connections, dual attention, and deep supervision) that together improve Dice over a baseline UNet by 8.3 percent. We demonstrate deployment ready INT8 quantization with 74.9 percent compression and 0.15 second inference, giving a 240 times throughput gain over manual analysis. Applied to more than ten thousand automatically segmented nuclei from synthetic test data, the pipeline extracts chromatin biomarkers that distinguish normal from pre cancerous tissue with large effect sizes (Cohens d between 1.31 and 2.98), reaching 94 percent classification accuracy. This work provides a general framework for synthetic to real transfer learning in specialized microscopy and open resources for community validation on clinical specimens.",
+      "authors": [
+        "Jahidul Arafat",
+        "Sanjaya Poudel"
+      ],
+      "published": "2025-10-25T18:00:34+08:00",
+      "updated": "2025-10-25T18:00:34+08:00",
+      "arxiv_id": "2510.22239v1",
+      "url": "https://arxiv.org/pdf/2510.22239v1",
+      "categories": [
+        "eess.IV",
+        "cs.LG",
+        "q-bio.QM"
+      ],
+      "primary_category": "eess.IV",
+      "matched_keywords": [
+        "Multimodal Large Models",
+        "partial modality"
+      ]
+    },
+    {
+      "title": "Memory-Free Continual Learning with Null Space Adaptation for Zero-Shot Vision-Language Models",
+      "abstract": "Pre-trained vision-language models (VLMs), such as CLIP, have demonstrated remarkable zero-shot generalization, enabling deployment in a wide range of real-world tasks without additional task-specific training. However, in real deployment scenarios with evolving environments or emerging classes, these models inevitably face distributional shifts and novel tasks. In such contexts, static zero-shot capabilities are insufficient, and there is a growing need for continual learning methods that allow models to adapt over time while avoiding catastrophic forgetting. We introduce NuSA-CL (Null Space Adaptation for Continual Learning), a lightweight memory-free continual learning framework designed to address this challenge. NuSA-CL employs low-rank adaptation and constrains task-specific weight updates to lie within an approximate null space of the model's current parameters. This strategy minimizes interference with previously acquired knowledge, effectively preserving the zero-shot capabilities of the original model. Unlike methods relying on replay buffers or costly distillation, NuSA-CL imposes minimal computational and memory overhead, making it practical for deployment in resource-constrained, real-world continual learning environments. Experiments show that our framework not only effectively preserves zero-shot transfer capabilities but also achieves highly competitive performance on continual learning benchmarks. These results position NuSA-CL as a practical and scalable solution for continually evolving zero-shot VLMs in real-world applications.",
+      "authors": [
+        "Yujin Jo",
+        "Taesup Kim"
+      ],
+      "published": "2025-10-24T13:53:32+08:00",
+      "updated": "2025-10-24T13:53:32+08:00",
+      "arxiv_id": "2510.21175v1",
+      "url": "https://arxiv.org/pdf/2510.21175v1",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "task interference",
+        "Vision-Language Model",
+        "VLM"
+      ]
+    },
+    {
+      "title": "Unsupervised Domain Adaptation via Similarity-based Prototypes for Cross-Modality Segmentation",
+      "abstract": "Deep learning models have achieved great success on various vision challenges, but a well-trained model would face drastic performance degradation when applied to unseen data. Since the model is sensitive to domain shift, unsupervised domain adaptation attempts to reduce the domain gap and avoid costly annotation of unseen domains. This paper proposes a novel framework for cross-modality segmentation via similarity-based prototypes. In specific, we learn class-wise prototypes within an embedding space, then introduce a similarity constraint to make these prototypes representative for each semantic class while separable from different classes. Moreover, we use dictionaries to store prototypes extracted from different images, which prevents the class-missing problem and enables the contrastive learning of prototypes, and further improves performance. Extensive experiments show that our method achieves better results than other state-of-the-art methods.",
+      "authors": [
+        "Ziyu Ye",
+        "Chen Ju",
+        "Chaofan Ma",
+        "Xiaoyun Zhang"
+      ],
+      "published": "2025-10-23T22:24:12+08:00",
+      "updated": "2025-10-23T22:24:12+08:00",
+      "arxiv_id": "2510.20596v1",
+      "url": "https://arxiv.org/pdf/2510.20596v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "modality missing",
+        "missing modality",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "SheafAlign: A Sheaf-theoretic Framework for Decentralized Multimodal Alignment",
+      "abstract": "Conventional multimodal alignment methods assume mutual redundancy across all modalities, an assumption that fails in real-world distributed scenarios. We propose SheafAlign, a sheaf-theoretic framework for decentralized multimodal alignment that replaces single-space alignment with multiple comparison spaces. This approach models pairwise modality relations through sheaf structures and leverages decentralized contrastive learning-based objectives for training. SheafAlign overcomes the limitations of prior methods by not requiring mutual redundancy among all modalities, preserving both shared and unique information. Experiments on multimodal sensing datasets show superior zero-shot generalization, cross-modal alignment, and robustness to missing modalities, with 50\\% lower communication cost than state-of-the-art baselines.",
+      "authors": [
+        "Abdulmomen Ghalkha",
+        "Zhuojun Tian",
+        "Chaouki Ben Issaid",
+        "Mehdi Bennis"
+      ],
+      "published": "2025-10-23T21:27:24+08:00",
+      "updated": "2025-10-23T21:27:24+08:00",
+      "arxiv_id": "2510.20540v1",
+      "url": "https://arxiv.org/pdf/2510.20540v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "modality missing",
+        "missing modality",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Tri-Modal Severity Fused Diagnosis across Depression and Post-traumatic Stress Disorders",
+      "abstract": "Depression and post traumatic stress disorder (PTSD) often co-occur with connected symptoms, complicating automated assessment, which is often binary and disorder specific. Clinically useful diagnosis needs severity aware cross disorder estimates and decision support explanations. Our unified tri modal affective severity framework synchronizes and fuses interview text with sentence level transformer embeddings, audio with log Mel statistics with deltas, and facial signals with action units, gaze, head and pose descriptors to output graded severities for diagnosing both depression (PHQ-8; 5 classes) and PTSD (3 classes). Standardized features are fused via a calibrated late fusion classifier, yielding per disorder probabilities and feature-level attributions. This severity aware tri-modal affective fusion approach is demoed on multi disorder concurrent depression and PTSD assessment. Stratified cross validation on DAIC derived corpora outperforms unimodal/ablation baselines. The fused model matches the strongest unimodal baseline on accuracy and weighted F1, while improving decision curve utility and robustness under noisy or missing modalities. For PTSD specifically, fusion reduces regression error and improves class concordance. Errors cluster between adjacent severities; extreme classes are identified reliably. Ablations show text contributes most to depression severity, audio and facial cues are critical for PTSD, whereas attributions align with linguistic and behavioral markers. Our approach offers reproducible evaluation and clinician in the loop support for affective clinical decision making.",
+      "authors": [
+        "Filippo Cenacchi",
+        "Deborah Richards",
+        "Longbing Cao"
+      ],
+      "published": "2025-10-23T13:46:38+08:00",
+      "updated": "2025-10-23T13:46:38+08:00",
+      "arxiv_id": "2510.20239v1",
+      "url": "https://arxiv.org/pdf/2510.20239v1",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": []
+    },
+    {
+      "title": "FairGRPO: Fair Reinforcement Learning for Equitable Clinical Reasoning",
+      "abstract": "Medical artificial intelligence systems have achieved remarkable diagnostic capabilities, yet they consistently exhibit performance disparities across demographic groups, causing real-world harm to underrepresented populations. While recent multimodal reasoning foundation models have advanced clinical diagnosis through integrated analysis of diverse medical data, reasoning trainings via reinforcement learning inherit and often amplify biases present in training datasets dominated by majority populations. We introduce Fairness-aware Group Relative Policy Optimization (FairGRPO), a hierarchical reinforcement learning approach that promotes equitable learning across heterogeneous clinical populations. FairGRPO employs adaptive importance weighting of advantages based on representation, task difficulty, and data source. To address the common issue of missing demographic labels in the clinical domain, we further employ unsupervised clustering, which automatically discovers latent demographic groups when labels are unavailable. Through comprehensive experiments across 7 clinical diagnostic datasets spanning 5 clinical modalities across X-ray, CT scan, dermoscropy, mammography and ultrasound, we demonstrate that FairGRPO reduces predictive parity by 27.2% against all vanilla and bias mitigated RL baselines, while improving F1 score by 12.49%. Furthermore, training dynamics analysis reveals that FairGRPO progressively improves fairness throughout optimization, while baseline RL methods exhibit deteriorating fairness as training progresses. Based on FairGRPO, we release FairMedGemma-4B, a fairness-aware clinical VLLM that achieves state-of-the-art performance while demonstrating significantly reduced disparities across demographic groups.",
+      "authors": [
+        "Shiqi Dai",
+        "Wei Dai",
+        "Jiaee Cheong",
+        "Paul Pu Liang"
+      ],
+      "published": "2025-10-23T01:26:16+08:00",
+      "updated": "2025-10-23T01:26:16+08:00",
+      "arxiv_id": "2510.19893v1",
+      "url": "https://arxiv.org/pdf/2510.19893v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "Multimodal Reasoning",
+        "Multimodal Foundation Model"
+      ]
+    },
+    {
+      "title": "CoSense-LLM: Semantics at the Edge with Cost- and Uncertainty-Aware Cloud-Edge Cooperation",
+      "abstract": "We present CoSense-LLM, an edge-first framework that turns continuous multimodal sensor streams (for example Wi-Fi CSI, IMU, audio, RFID, and lightweight vision) into compact, verifiable semantic tokens and coordinates with large language models under explicit latency, energy, bandwidth, and privacy constraints. CoSense-LLM has four parts: (i) SenseFusion, a lightweight encoder that aligns sensor embeddings with language and compresses them into short discrete code sequences; (ii) Edge-RAG, a local hybrid retrieval layer that grounds generation in site specific policies and notes; (iii) PromptRouter, a cost and uncertainty aware policy that selects edge only generation, edge plus retrieval, or compact cloud escalation; and (iv) Secure Execution, an auditable redaction path that enforces data minimization so raw waveforms never leave the device. The system works with modern serving optimizations, including paged or streaming KV caches, FlashAttention style kernels, speculative decoding, and quantized LoRA adapters, and supports on device personalization and federated updates under non IID drift. Across home, office, and clinic deployments, CoSense-LLM delivers grounded explanations while meeting tight service level objectives: it sustains sub second (p95) end to end latency on edge dominant paths, reduces inter tier token and bandwidth costs by preferring local retrieval grounded responses, and preserves privacy by transmitting only discrete codes and redacted metadata. Ablations show that Edge-RAG improves factual consistency and reduces contradictions, calibrated uncertainty enables selective abstention and controlled escalations, and KV plus decoding accelerators lower energy per decision. The results support an edge first design that treats semantics, privacy, and predictable latency as co equal goals for large model deployments in interference prone environments.",
+      "authors": [
+        "Hasan Akgul",
+        "Mari Eplik",
+        "Javier Rojas",
+        "Aina Binti Abdullah",
+        "Pieter van der Merwe"
+      ],
+      "published": "2025-10-22T23:16:56+08:00",
+      "updated": "2025-11-18T14:18:28+08:00",
+      "arxiv_id": "2510.19670v3",
+      "url": "https://arxiv.org/pdf/2510.19670v3",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "FairNet: Dynamic Fairness Correction without Performance Loss via Contrastive Conditional LoRA",
+      "abstract": "Ensuring fairness in machine learning models is a critical challenge. Existing debiasing methods often compromise performance, rely on static correction strategies, and struggle with data sparsity, particularly within minority groups. Furthermore, their utilization of sensitive attributes is often suboptimal, either depending excessively on complete attribute labeling or disregarding these attributes entirely. To overcome these limitations, we propose FairNet, a novel framework for dynamic, instance-level fairness correction. FairNet integrates a bias detector with conditional low-rank adaptation (LoRA), which enables selective activation of the fairness correction mechanism exclusively for instances identified as biased, and thereby preserve performance on unbiased instances. A key contribution is a new contrastive loss function for training the LoRA module, specifically designed to minimize intra-class representation disparities across different sensitive groups and effectively address underfitting in minority groups. The FairNet framework can flexibly handle scenarios with complete, partial, or entirely absent sensitive attribute labels. Theoretical analysis confirms that, under moderate TPR/FPR for the bias detector, FairNet can enhance the performance of the worst group without diminishing overall model performance, and potentially yield slight performance improvements. Comprehensive empirical evaluations across diverse vision and language benchmarks validate the effectiveness of FairNet.",
+      "authors": [
+        "Songqi Zhou",
+        "Zeyuan Liu",
+        "Benben Jiang"
+      ],
+      "published": "2025-10-22T17:44:03+08:00",
+      "updated": "2025-10-22T17:44:03+08:00",
+      "arxiv_id": "2510.19421v1",
+      "url": "https://arxiv.org/pdf/2510.19421v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "lora"
+      ]
+    },
+    {
+      "title": "See, Think, Act: Online Shopper Behavior Simulation with VLM Agents",
+      "abstract": "LLMs have recently demonstrated strong potential in simulating online shopper behavior. Prior work has improved action prediction by applying SFT on action traces with LLM-generated rationales, and by leveraging RL to further enhance reasoning capabilities. Despite these advances, current approaches rely on text-based inputs and overlook the essential role of visual perception in shaping human decision-making during web GUI interactions. In this paper, we investigate the integration of visual information, specifically webpage screenshots, into behavior simulation via VLMs, leveraging OPeRA dataset. By grounding agent decision-making in both textual and visual modalities, we aim to narrow the gap between synthetic agents and real-world users, thereby enabling more cognitively aligned simulations of online shopping behavior. Specifically, we employ SFT for joint action prediction and rationale generation, conditioning on the full interaction context, which comprises action history, past HTML observations, and the current webpage screenshot. To further enhance reasoning capabilities, we integrate RL with a hierarchical reward structure, scaled by a difficulty-aware factor that prioritizes challenging decision points. Empirically, our studies show that incorporating visual grounding yields substantial gains: the combination of text and image inputs improves exact match accuracy by more than 6% over text-only inputs. These results indicate that multi-modal grounding not only boosts predictive accuracy but also enhances simulation fidelity in visually complex environments, which captures nuances of human attention and decision-making that text-only agents often miss. Finally, we revisit the design space of behavior simulation frameworks, identify key methodological limitations, and propose future research directions toward building efficient and effective human behavior simulators.",
+      "authors": [
+        "Yimeng Zhang",
+        "Jiri Gesi",
+        "Ran Xue",
+        "Tian Wang",
+        "Ziyi Wang",
+        "Yuxuan Lu",
+        "Sinong Zhan",
+        "Huimin Zeng",
+        "Qingjun Cui",
+        "Yufan Guo",
+        "Jing Huang",
+        "Mubarak Shah",
+        "Dakuo Wang"
+      ],
+      "published": "2025-10-22T13:07:14+08:00",
+      "updated": "2025-10-22T13:07:14+08:00",
+      "arxiv_id": "2510.19245v1",
+      "url": "https://arxiv.org/pdf/2510.19245v1",
+      "categories": [
+        "cs.CY",
+        "cs.AI",
+        "cs.HC",
+        "cs.LG",
+        "cs.MM"
+      ],
+      "primary_category": "cs.CY",
+      "matched_keywords": [
+        "VLM"
+      ]
+    },
+    {
+      "title": "A Flow Model with Low-Rank Transformers for Incomplete Multimodal Survival Analysis",
+      "abstract": "In recent years, multimodal medical data-based survival analysis has attracted much attention. However, real-world datasets often suffer from the problem of incomplete modality, where some patient modality information is missing due to acquisition limitations or system failures. Existing methods typically infer missing modalities directly from observed ones using deep neural networks, but they often ignore the distributional discrepancy across modalities, resulting in inconsistent and unreliable modality reconstruction. To address these challenges, we propose a novel framework that combines a low-rank Transformer with a flow-based generative model for robust and flexible multimodal survival prediction. Specifically, we first formulate the concerned problem as incomplete multimodal survival analysis using the multi-instance representation of whole slide images (WSIs) and genomic profiles. To realize incomplete multimodal survival analysis, we propose a class-specific flow for cross-modal distribution alignment. Under the condition of class labels, we model and transform the cross-modal distribution. By virtue of the reversible structure and accurate density modeling capabilities of the normalizing flow model, the model can effectively construct a distribution-consistent latent space of the missing modality, thereby improving the consistency between the reconstructed data and the true distribution. Finally, we design a lightweight Transformer architecture to model intra-modal dependencies while alleviating the overfitting problem in high-dimensional modality fusion by virtue of the low-rank Transformer. Extensive experiments have demonstrated that our method not only achieves state-of-the-art performance under complete modality settings, but also maintains robust and superior accuracy under the incomplete modalities scenario.",
+      "authors": [
+        "Yi Yin",
+        "Yuntao Shou",
+        "Zao Dai",
+        "Yun Peng",
+        "Tao Meng",
+        "Wei Ai",
+        "Keqin Li"
+      ],
+      "published": "2025-10-22T10:27:05+08:00",
+      "updated": "2025-10-22T10:27:05+08:00",
+      "arxiv_id": "2510.21829v1",
+      "url": "https://arxiv.org/pdf/2510.21829v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "modality missing",
+        "incomplete modality",
+        "missing modality",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Unifying Inductive, Cross-Domain, and Multimodal Learning for Robust and Generalizable Recommendation",
+      "abstract": "Recommender systems have long been built upon the modeling of interactions between users and items, while recent studies have sought to broaden this paradigm by generalizing to new users and items, incorporating diverse information sources, and transferring knowledge across domains. Nevertheless, these efforts have largely focused on individual aspects, hindering their ability to tackle the complex recommendation scenarios that arise in daily consumptions across diverse domains. In this paper, we present MICRec, a unified framework that fuses inductive modeling, multimodal guidance, and cross-domain transfer to capture user contexts and latent preferences in heterogeneous and incomplete real-world data. Moving beyond the inductive backbone of INMO, our model refines expressive representations through modality-based aggregation and alleviates data sparsity by leveraging overlapping users as anchors across domains, thereby enabling robust and generalizable recommendation. Experiments show that MICRec outperforms 12 baselines, with notable gains in domains with limited training data.",
+      "authors": [
+        "Chanyoung Chung",
+        "Kyeongryul Lee",
+        "Sunbin Park",
+        "Joyce Jiyoung Whang"
+      ],
+      "published": "2025-10-21T18:26:33+08:00",
+      "updated": "2025-10-21T18:26:33+08:00",
+      "arxiv_id": "2510.21812v1",
+      "url": "https://arxiv.org/pdf/2510.21812v1",
+      "categories": [
+        "cs.IR",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.IR",
+      "matched_keywords": [
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "ImageGem: In-the-wild Generative Image Interaction Dataset for Generative Model Personalization",
+      "abstract": "We introduce ImageGem, a dataset for studying generative models that understand fine-grained individual preferences. We posit that a key challenge hindering the development of such a generative model is the lack of in-the-wild and fine-grained user preference annotations. Our dataset features real-world interaction data from 57K users, who collectively have built 242K customized LoRAs, written 3M text prompts, and created 5M generated images. With user preference annotations from our dataset, we were able to train better preference alignment models. In addition, leveraging individual user preference, we investigated the performance of retrieval models and a vision-language model on personalized image retrieval and generative model recommendation. Finally, we propose an end-to-end framework for editing customized diffusion models in a latent weight space to align with individual user preferences. Our results demonstrate that the ImageGem dataset enables, for the first time, a new paradigm for generative model personalization.",
+      "authors": [
+        "Yuanhe Guo",
+        "Linxi Xie",
+        "Zhuoran Chen",
+        "Kangrui Yu",
+        "Ryan Po",
+        "Guandao Yang",
+        "Gordon Wetztein",
+        "Hongyi Wen"
+      ],
+      "published": "2025-10-21T17:08:01+08:00",
+      "updated": "2025-10-21T17:08:01+08:00",
+      "arxiv_id": "2510.18433v1",
+      "url": "https://arxiv.org/pdf/2510.18433v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.IR"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "VLSU: Mapping the Limits of Joint Multimodal Understanding for AI Safety",
+      "abstract": "Safety evaluation of multimodal foundation models often treats vision and language inputs separately, missing risks from joint interpretation where benign content becomes harmful in combination. Existing approaches also fail to distinguish clearly unsafe content from borderline cases, leading to problematic over-blocking or under-refusal of genuinely harmful content. We present Vision Language Safety Understanding (VLSU), a comprehensive framework to systematically evaluate multimodal safety through fine-grained severity classification and combinatorial analysis across 17 distinct safety patterns. Using a multi-stage pipeline with real-world images and human annotation, we construct a large-scale benchmark of 8,187 samples spanning 15 harm categories. Our evaluation of eleven state-of-the-art models reveals systematic joint understanding failures: while models achieve 90%-plus accuracy on clear unimodal safety signals, performance degrades substantially to 20-55% when joint image-text reasoning is required to determine the safety label. Most critically, 34% of errors in joint image-text safety classification occur despite correct classification of the individual modalities, further demonstrating absent compositional reasoning capabilities. Additionally, we find that models struggle to balance refusing unsafe content while still responding to borderline cases that deserve engagement. For example, we find that instruction framing can reduce the over-blocking rate on borderline content from 62.4% to 10.4% in Gemini-1.5, but only at the cost of under-refusing on unsafe content with refusal rate dropping from 90.8% to 53.9%. Overall, our framework exposes weaknesses in joint image-text understanding and alignment gaps in current models, and provides a critical test bed to enable the next milestones in research on robust vision-language safety.",
+      "authors": [
+        "Shruti Palaskar",
+        "Leon Gatys",
+        "Mona Abdelrahman",
+        "Mar Jacobo",
+        "Larry Lindsey",
+        "Rutika Moharir",
+        "Gunnar Lund",
+        "Yang Xu",
+        "Navid Shiee",
+        "Jeffrey Bigham",
+        "Charles Maalouf",
+        "Joseph Yitan Cheng"
+      ],
+      "published": "2025-10-21T09:30:31+08:00",
+      "updated": "2025-10-21T09:30:31+08:00",
+      "arxiv_id": "2510.18214v1",
+      "url": "https://arxiv.org/pdf/2510.18214v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Multimodal Reasoning",
+        "Multimodal Foundation Model",
+        "Multimodal Large Language Model",
+        "Multimodal Large Models",
+        "Vision-Language Model"
+      ]
+    },
+    {
+      "title": "Frugal Federated Learning for Violence Detection: A Comparison of LoRA-Tuned VLMs and Personalized CNNs",
+      "abstract": "We examine frugal federated learning approaches to violence detection by comparing two complementary strategies: (i) zero-shot and federated fine-tuning of vision-language models (VLMs), and (ii) personalized training of a compact 3D convolutional neural network (CNN3D). Using LLaVA-7B and a 65.8M parameter CNN3D as representative cases, we evaluate accuracy, calibration, and energy usage under realistic non-IID settings. Both approaches exceed 90% accuracy. CNN3D slightly outperforms Low-Rank Adaptation(LoRA)-tuned VLMs in ROC AUC and log loss, while using less energy. VLMs remain favorable for contextual reasoning and multimodal inference. We quantify energy and CO$_2$ emissions across training and inference, and analyze sustainability trade-offs for deployment. To our knowledge, this is the first comparative study of LoRA-tuned vision-language models and personalized CNNs for federated violence detection, with an emphasis on energy efficiency and environmental metrics. These findings support a hybrid model: lightweight CNNs for routine classification, with selective VLM activation for complex or descriptive scenarios. The resulting framework offers a reproducible baseline for responsible, resource-aware AI in video surveillance, with extensions toward real-time, multimodal, and lifecycle-aware systems.",
+      "authors": [
+        "Sébastien Thuau",
+        "Siba Haidar",
+        "Ayush Bajracharya",
+        "Rachid Chelouah"
+      ],
+      "published": "2025-10-20T23:26:43+08:00",
+      "updated": "2025-10-20T23:26:43+08:00",
+      "arxiv_id": "2510.17651v1",
+      "url": "https://arxiv.org/pdf/2510.17651v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "multimodal",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "Spectral Thresholds in Correlated Spiked Models and Fundamental Limits of Partial Least Squares",
+      "abstract": "We provide a rigorous random matrix theory analysis of spiked cross-covariance models where the signals across two high-dimensional data channels are partially aligned. These models are motivated by multi-modal learning and form the standard generative setting underlying Partial Least Squares (PLS), a widely used yet theoretically underdeveloped method. We show that the leading singular values of the sample cross-covariance matrix undergo a Baik-Ben Arous-Peche (BBP)-type phase transition, and we characterize the precise thresholds for the emergence of informative components. Our results yield the first sharp asymptotic description of the signal recovery capabilities of PLS in this setting, revealing a fundamental performance gap between PLS and the Bayes-optimal estimator. In particular, we identify the SNR and correlation regimes where PLS fails to recover any signal, despite detectability being possible in principle. These findings clarify the theoretical limits of PLS and provide guidance for the design of reliable multi-modal inference methods in high dimensions.",
+      "authors": [
+        "Pierre Mergny",
+        "Lenka Zdeborová"
+      ],
+      "published": "2025-10-20T22:08:58+08:00",
+      "updated": "2025-10-20T22:08:58+08:00",
+      "arxiv_id": "2510.17561v1",
+      "url": "https://arxiv.org/pdf/2510.17561v1",
+      "categories": [
+        "math.ST",
+        "cond-mat.dis-nn",
+        "cs.LG",
+        "stat.ML"
+      ],
+      "primary_category": "math.ST",
+      "matched_keywords": []
+    },
+    {
+      "title": "Exploring The Missing Semantics In Event Modality",
+      "abstract": "Event cameras offer distinct advantages such as low latency, high dynamic range, and efficient motion capture. However, event-to-video reconstruction (E2V), a fundamental event-based vision task, remains challenging, particularly for reconstructing and recovering semantic information. This is primarily due to the nature of the event camera, as it only captures intensity changes, ignoring static objects and backgrounds, resulting in a lack of semantic information in captured event modality. Further, semantic information plays a crucial role in video and frame reconstruction, yet is often overlooked by existing E2V approaches. To bridge this gap, we propose Semantic-E2VID, an E2V framework that explores the missing visual semantic knowledge in event modality and leverages it to enhance event-to-video reconstruction. Specifically, Semantic-E2VID introduces a cross-modal feature alignment (CFA) module to transfer the robust visual semantics from a frame-based vision foundation model, the Segment Anything Model (SAM), to the event encoder, while aligning the high-level features from distinct modalities. To better utilize the learned semantic feature, we further propose a semantic-aware feature fusion (SFF) block to integrate learned semantics in frame modality to form event representations with rich semantics that can be decoded by the event decoder. Further, to facilitate the reconstruction of semantic information, we propose a novel Semantic Perceptual E2V Supervision that helps the model to reconstruct semantic details by leveraging SAM-generated categorical labels. Extensive experiments demonstrate that Semantic-E2VID significantly enhances frame quality, outperforming state-of-the-art E2V methods across multiple benchmarks. The sample code is included in the supplementary material.",
+      "authors": [
+        "Jingqian Wu",
+        "Shengpeng Xu",
+        "Yunbo Jia",
+        "Edmund Y. Lam"
+      ],
+      "published": "2025-10-20T17:45:13+08:00",
+      "updated": "2025-10-20T17:45:13+08:00",
+      "arxiv_id": "2510.17347v1",
+      "url": "https://arxiv.org/pdf/2510.17347v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "modality missing",
+        "missing modality",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "LongInsightBench: A Comprehensive Benchmark for Evaluating Omni-Modal Models on Human-Centric Long-Video Understanding",
+      "abstract": "We introduce \\textbf{LongInsightBench}, the first benchmark designed to assess models' ability to understand long videos, with a focus on human language, viewpoints, actions, and other contextual elements, while integrating \\textbf{visual, audio, and text} modalities. Our benchmark excels in three key areas: \\textbf{a) Long-Duration, Information-Dense Videos:} We carefully select approximately 1,000 videos from open-source datasets FineVideo based on duration limit and the information density of both visual and audio modalities, focusing on content like lectures, interviews, and vlogs, which contain rich language elements. \\textbf{b) Diverse and Challenging Task Scenarios:} We have designed six challenging task scenarios, including both Intra-Event and Inter-Event Tasks. \\textbf{c) Rigorous and Comprehensive Quality Assurance Pipelines:} We have developed a three-step, semi-automated data quality assurance pipeline to ensure the difficulty and validity of the synthesized questions and answer options. Based on LongInsightBench, we designed a series of experiments. Experimental results shows that Omni-modal models(OLMs) still face challenge in tasks requiring precise temporal localization (T-Loc) and long-range causal inference (CE-Caus). Extended experiments reveal the information loss and processing bias in multi-modal fusion of OLMs. Our dataset and code is available at https://anonymous.4open.science/r/LongInsightBench-910F/.",
+      "authors": [
+        "ZhaoYang Han",
+        "Qihan Lin",
+        "Hao Liang",
+        "Bowen Chen",
+        "Zhou Liu",
+        "Wentao Zhang"
+      ],
+      "published": "2025-10-20T16:49:10+08:00",
+      "updated": "2025-10-21T18:16:53+08:00",
+      "arxiv_id": "2510.17305v2",
+      "url": "https://arxiv.org/pdf/2510.17305v2",
+      "categories": [
+        "cs.CV",
+        "cs.MM"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": []
+    },
+    {
+      "title": "Enrich and Detect: Video Temporal Grounding with Multimodal LLMs",
+      "abstract": "We introduce ED-VTG, a method for fine-grained video temporal grounding utilizing multi-modal large language models. Our approach harnesses the capabilities of multimodal LLMs to jointly process text and video, in order to effectively localize natural language queries in videos through a two-stage process. Rather than being directly grounded, language queries are initially transformed into enriched sentences that incorporate missing details and cues to aid in grounding. In the second stage, these enriched queries are grounded, using a lightweight decoder, which specializes at predicting accurate boundaries conditioned on contextualized representations of the enriched queries. To mitigate noise and reduce the impact of hallucinations, our model is trained with a multiple-instance-learning objective that dynamically selects the optimal version of the query for each training sample. We demonstrate state-of-the-art results across various benchmarks in temporal video grounding and paragraph grounding settings. Experiments reveal that our method significantly outperforms all previously proposed LLM-based temporal grounding approaches and is either superior or comparable to specialized models, while maintaining a clear advantage against them in zero-shot evaluation scenarios.",
+      "authors": [
+        "Shraman Pramanick",
+        "Effrosyni Mavroudi",
+        "Yale Song",
+        "Rama Chellappa",
+        "Lorenzo Torresani",
+        "Triantafyllos Afouras"
+      ],
+      "published": "2025-10-20T06:12:45+08:00",
+      "updated": "2025-10-20T06:12:45+08:00",
+      "arxiv_id": "2510.17023v1",
+      "url": "https://arxiv.org/pdf/2510.17023v1",
+      "categories": [
+        "cs.CV",
+        "cs.MM"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Multimodal Large Language Model",
+        "Multimodal Large Models"
+      ]
+    },
+    {
+      "title": "EMRRG: Efficient Fine-Tuning Pre-trained X-ray Mamba Networks for Radiology Report Generation",
+      "abstract": "X-ray image-based medical report generation (MRG) is a pivotal area in artificial intelligence that can significantly reduce diagnostic burdens for clinicians and patient wait times. Existing MRG models predominantly rely on Large Language Models (LLMs) to improve report generation, with limited exploration of pre-trained vision foundation models or advanced fine-tuning techniques. Mainstream frameworks either avoid fine-tuning or utilize simplistic methods like LoRA, often neglecting the potential of enhancing cross-attention mechanisms. Additionally, while Transformer-based models dominate vision-language tasks, non-Transformer architectures, such as the Mamba network, remain underexplored for medical report generation, presenting a promising avenue for future research. In this paper, we propose EMRRG, a novel X-ray report generation framework that fine-tunes pre-trained Mamba networks using parameter-efficient methods. Specifically, X-ray images are divided into patches, tokenized, and processed by an SSM-based vision backbone for feature extraction, with Partial LoRA yielding optimal performance. An LLM with a hybrid decoder generates the medical report, enabling end-to-end training and achieving strong results on benchmark datasets. Extensive experiments on three widely used benchmark datasets fully validated the effectiveness of our proposed strategies for the X-ray MRG. The source code of this paper will be released on https://github.com/Event-AHU/Medical_Image_Analysis.",
+      "authors": [
+        "Mingzheng Zhang",
+        "Jinfeng Gao",
+        "Dan Xu",
+        "Jiangrui Yu",
+        "Yuhan Qiao",
+        "Lan Chen",
+        "Jin Tang",
+        "Xiao Wang"
+      ],
+      "published": "2025-10-19T17:54:36+08:00",
+      "updated": "2025-10-19T17:54:36+08:00",
+      "arxiv_id": "2510.16776v1",
+      "url": "https://arxiv.org/pdf/2510.16776v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "ELMM: Efficient Lightweight Multimodal Large Language Models for Multimodal Knowledge Graph Completion",
+      "abstract": "Multimodal Knowledge Graphs (MKGs) extend traditional knowledge graphs by incorporating visual and textual modalities, enabling richer and more expressive entity representations. However, existing MKGs often suffer from incompleteness, which hinder their effectiveness in downstream tasks. Therefore, multimodal knowledge graph completion (MKGC) task is receiving increasing attention. While large language models (LLMs) have shown promise for knowledge graph completion (KGC), their application to the multimodal setting remains underexplored. Moreover, applying Multimodal Large Language Models (MLLMs) to the task of MKGC introduces significant challenges: (1) the large number of image tokens per entity leads to semantic noise and modality conflicts, and (2) the high computational cost of processing large token inputs. To address these issues, we propose Efficient Lightweight Multimodal Large Language Models (ELMM) for MKGC. ELMM proposes a Multi-view Visual Token Compressor (MVTC) based on multi-head attention mechanism, which adaptively compresses image tokens from both textual and visual views, thereby effectively reducing redundancy while retaining necessary information and avoiding modality conflicts. Additionally, we design an attention pruning strategy to remove redundant attention layers from MLLMs, thereby significantly reducing the inference cost. We further introduce a linear projection to compensate for the performance degradation caused by pruning. Extensive experiments on benchmark FB15k-237-IMG and WN18-IMG demonstrate that ELMM achieves state-of-the-art performance while substantially improving computational efficiency, establishing a new paradigm for multimodal knowledge graph completion.",
+      "authors": [
+        "Wei Huang",
+        "Peining Li",
+        "Meiyu Liang",
+        "Xu Hou",
+        "Junping Du",
+        "Yingxia Shao",
+        "Guanhua Ye",
+        "Wu Liu",
+        "Kangkang Lu",
+        "Yang Yu"
+      ],
+      "published": "2025-10-19T16:29:43+08:00",
+      "updated": "2025-10-19T16:29:43+08:00",
+      "arxiv_id": "2510.16753v1",
+      "url": "https://arxiv.org/pdf/2510.16753v1",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "MLLMs",
+        "Multimodal Large Language Model",
+        "Multimodal Large Models",
+        "MLLM",
+        "modality conflict",
+        "incomplete modality"
+      ]
+    },
+    {
+      "title": "SHIELD: Suppressing Hallucinations In LVLM Encoders via Bias and Vulnerability Defense",
+      "abstract": "Large Vision-Language Models (LVLMs) excel in diverse cross-modal tasks. However, object hallucination, where models produce plausible but inaccurate object descriptions, remains a significant challenge. In contrast to previous work focusing on LLM components, this paper is the first to trace LVLM hallucinations to visual encoders and identifies three key issues: statistical bias, inherent bias, and vulnerability. To address these challenges, we propose SHIELD, a training-free framework that mitigates hallucinations through three strategies: re-weighting visual tokens to reduce statistical bias, introducing noise-derived tokens to counter inherent bias, and applying adversarial attacks with contrastive decoding to address vulnerability. Experiments demonstrate that SHIELD effectively mitigates object hallucinations across diverse benchmarks and LVLM families. Moreover, SHIELD achieves strong performance on the general LVLM benchmark, highlighting its broad applicability. Code will be released.",
+      "authors": [
+        "Yiyang Huang",
+        "Liang Shi",
+        "Yitian Zhang",
+        "Yi Xu",
+        "Yun Fu"
+      ],
+      "published": "2025-10-19T01:49:43+08:00",
+      "updated": "2025-10-19T01:49:43+08:00",
+      "arxiv_id": "2510.16596v1",
+      "url": "https://arxiv.org/pdf/2510.16596v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Vision-Language Model",
+        "VLM",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "RefAtomNet++: Advancing Referring Atomic Video Action Recognition using Semantic Retrieval based Multi-Trajectory Mamba",
+      "abstract": "Referring Atomic Video Action Recognition (RAVAR) aims to recognize fine-grained, atomic-level actions of a specific person of interest conditioned on natural language descriptions. Distinct from conventional action recognition and detection tasks, RAVAR emphasizes precise language-guided action understanding, which is particularly critical for interactive human action analysis in complex multi-person scenarios. In this work, we extend our previously introduced RefAVA dataset to RefAVA++, which comprises >2.9 million frames and >75.1k annotated persons in total. We benchmark this dataset using baselines from multiple related domains, including atomic action localization, video question answering, and text-video retrieval, as well as our earlier model, RefAtomNet. Although RefAtomNet surpasses other baselines by incorporating agent attention to highlight salient features, its ability to align and retrieve cross-modal information remains limited, leading to suboptimal performance in localizing the target person and predicting fine-grained actions. To overcome the aforementioned limitations, we introduce RefAtomNet++, a novel framework that advances cross-modal token aggregation through a multi-hierarchical semantic-aligned cross-attention mechanism combined with multi-trajectory Mamba modeling at the partial-keyword, scene-attribute, and holistic-sentence levels. In particular, scanning trajectories are constructed by dynamically selecting the nearest visual spatial tokens at each timestep for both partial-keyword and scene-attribute levels. Moreover, we design a multi-hierarchical semantic-aligned cross-attention strategy, enabling more effective aggregation of spatial and temporal tokens across different semantic hierarchies. Experiments show that RefAtomNet++ establishes new state-of-the-art results. The dataset and code are released at https://github.com/KPeng9510/refAVA2.",
+      "authors": [
+        "Kunyu Peng",
+        "Di Wen",
+        "Jia Fu",
+        "Jiamin Wu",
+        "Kailun Yang",
+        "Junwei Zheng",
+        "Ruiping Liu",
+        "Yufan Chen",
+        "Yuqian Fu",
+        "Danda Pani Paudel",
+        "Luc Van Gool",
+        "Rainer Stiefelhagen"
+      ],
+      "published": "2025-10-18T18:41:19+08:00",
+      "updated": "2025-10-18T18:41:19+08:00",
+      "arxiv_id": "2510.16444v1",
+      "url": "https://arxiv.org/pdf/2510.16444v1",
+      "categories": [
+        "cs.CV",
+        "cs.MM",
+        "cs.RO",
+        "eess.IV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "MSAM: Multi-Semantic Adaptive Mining for Cross-Modal Drone Video-Text Retrieval",
+      "abstract": "With the advancement of drone technology, the volume of video data increases rapidly, creating an urgent need for efficient semantic retrieval. We are the first to systematically propose and study the drone video-text retrieval (DVTR) task. Drone videos feature overhead perspectives, strong structural homogeneity, and diverse semantic expressions of target combinations, which challenge existing cross-modal methods designed for ground-level views in effectively modeling their characteristics. Therefore, dedicated retrieval mechanisms tailored for drone scenarios are necessary. To address this issue, we propose a novel approach called Multi-Semantic Adaptive Mining (MSAM). MSAM introduces a multi-semantic adaptive learning mechanism, which incorporates dynamic changes between frames and extracts rich semantic information from specific scene regions, thereby enhancing the deep understanding and reasoning of drone video content. This method relies on fine-grained interactions between words and drone video frames, integrating an adaptive semantic construction module, a distribution-driven semantic learning term and a diversity semantic term to deepen the interaction between text and drone video modalities and improve the robustness of feature representation. To reduce the interference of complex backgrounds in drone videos, we introduce a cross-modal interactive feature fusion pooling mechanism that focuses on feature extraction and matching in target regions, minimizing noise effects. Extensive experiments on two self-constructed drone video-text datasets show that MSAM outperforms other existing methods in the drone video-text retrieval task. The source code and dataset will be made publicly available.",
+      "authors": [
+        "Jinghao Huang",
+        "Yaxiong Chen",
+        "Ganchao Liu"
+      ],
+      "published": "2025-10-17T17:26:28+08:00",
+      "updated": "2025-10-17T17:26:28+08:00",
+      "arxiv_id": "2510.15470v1",
+      "url": "https://arxiv.org/pdf/2510.15470v1",
+      "categories": [
+        "cs.CV",
+        "cs.IR"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "task interference",
+        "cross-modal interference",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Fine-Tuning MedGemma for Clinical Captioning to Enhance Multimodal RAG over Malaysia CPGs",
+      "abstract": "Retrieval-Augmented Generation systems are essential for providing fact-based guidance from Malaysian Clinical Practice Guidelines. However, their effectiveness with image-based queries is limited, as general Vision-Language Model captions often lack clinical specificity and factual grounding. This study proposes and validates a framework to specialize the MedGemma model for generating high-fidelity captions that serve as superior queries. To overcome data scarcity, we employ a knowledge distillation pipeline to create a synthetic dataset across dermatology, fundus, and chest radiography domains, and fine-tune MedGemma using the parameter-efficient QLoRA method. Performance was rigorously assessed through a dual framework measuring both classification accuracy and, via a novel application of the RAGAS framework, caption faithfulness, relevancy, and correctness. The fine-tuned model demonstrated substantial improvements in classification performance, while RAGAS evaluation confirmed significant gains in caption faithfulness and correctness, validating the models ability to produce reliable, factually grounded descriptions. This work establishes a robust pipeline for specializing medical VLMs and validates the resulting model as a high-quality query generator, laying the groundwork for enhancing multimodal RAG systems in evidence-based clinical decision support.",
+      "authors": [
+        "Lee Qi Zun",
+        "Mohamad Zulhilmi Bin Abdul Halim",
+        "Goh Man Fye"
+      ],
+      "published": "2025-10-17T16:11:54+08:00",
+      "updated": "2025-11-07T13:24:14+08:00",
+      "arxiv_id": "2510.15418v2",
+      "url": "https://arxiv.org/pdf/2510.15418v2",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "multimodal",
+        "qlora",
+        "lora",
+        "vision-language",
+        "vlm"
+      ]
+    },
+    {
+      "title": "CARDIUM: Congenital Anomaly Recognition with Diagnostic Images and Unified Medical records",
+      "abstract": "Prenatal diagnosis of Congenital Heart Diseases (CHDs) holds great potential for Artificial Intelligence (AI)-driven solutions. However, collecting high-quality diagnostic data remains difficult due to the rarity of these conditions, resulting in imbalanced and low-quality datasets that hinder model performance. Moreover, no public efforts have been made to integrate multiple sources of information, such as imaging and clinical data, further limiting the ability of AI models to support and enhance clinical decision-making. To overcome these challenges, we introduce the Congenital Anomaly Recognition with Diagnostic Images and Unified Medical records (CARDIUM) dataset, the first publicly available multimodal dataset consolidating fetal ultrasound and echocardiographic images along with maternal clinical records for prenatal CHD detection. Furthermore, we propose a robust multimodal transformer architecture that incorporates a cross-attention mechanism to fuse feature representations from image and tabular data, improving CHD detection by 11% and 50% over image and tabular single-modality approaches, respectively, and achieving an F1 score of 79.8 $\\pm$ 4.8% in the CARDIUM dataset. We will publicly release our dataset and code to encourage further research on this unexplored field. Our dataset and code are available at https://github.com/BCV-Uniandes/Cardium, and at the project website https://bcv-uniandes.github.io/CardiumPage/",
+      "authors": [
+        "Daniela Vega",
+        "Hannah V. Ceballos",
+        "Javier S. Vera",
+        "Santiago Rodriguez",
+        "Alejandra Perez",
+        "Angela Castillo",
+        "Maria Escobar",
+        "Dario Londoño",
+        "Luis A. Sarmiento",
+        "Camila I. Castro",
+        "Nadiezhda Rodriguez",
+        "Juan C. Briceño",
+        "Pablo Arbeláez"
+      ],
+      "published": "2025-10-17T08:30:19+08:00",
+      "updated": "2025-10-20T09:19:34+08:00",
+      "arxiv_id": "2510.15208v2",
+      "url": "https://arxiv.org/pdf/2510.15208v2",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "imbalanced modality",
+        "modality imbalance"
+      ]
+    },
+    {
+      "title": "XModBench: Benchmarking Cross-Modal Capabilities and Consistency in Omni-Language Models",
+      "abstract": "Omni-modal large language models (OLLMs) aim to unify audio, vision, and text understanding within a single framework. While existing benchmarks primarily evaluate general cross-modal question-answering ability, it remains unclear whether OLLMs achieve modality-invariant reasoning or exhibit modality-specific biases. We introduce XModBench, a large-scale tri-modal benchmark explicitly designed to measure cross-modal consistency. XModBench comprises 60,828 multiple-choice questions spanning five task families and systematically covers all six modality compositions in question-answer pairs, enabling fine-grained diagnosis of an OLLM's modality-invariant reasoning, modality disparity, and directional imbalance. Experiments show that even the strongest model, Gemini 2.5 Pro, (i) struggles with spatial and temporal reasoning, achieving less than 60% accuracy, (ii) reveals persistent modality disparities, with performance dropping substantially when the same semantic content is conveyed through audio rather than text, and (iii) shows systematic directional imbalance, exhibiting lower consistency when vision serves as context compared to text. These findings indicate that current OLLMs remain far from truly modality-invariant reasoning and position XModBench as a fundamental diagnostic tool for evaluating and improving cross-modal competence. All data and evaluation tools will be available at https://xingruiwang.github.io/projects/XModBench/.",
+      "authors": [
+        "Xingrui Wang",
+        "Jiang Liu",
+        "Chao Huang",
+        "Xiaodong Yu",
+        "Ze Wang",
+        "Ximeng Sun",
+        "Jialian Wu",
+        "Alan Yuille",
+        "Emad Barsoum",
+        "Zicheng Liu"
+      ],
+      "published": "2025-10-17T05:10:22+08:00",
+      "updated": "2025-10-17T05:10:22+08:00",
+      "arxiv_id": "2510.15148v1",
+      "url": "https://arxiv.org/pdf/2510.15148v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "modality imbalance",
+        "modality bias",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "From Pixels to Words -- Towards Native Vision-Language Primitives at Scale",
+      "abstract": "The edifice of native Vision-Language Models (VLMs) has emerged as a rising contender to typical modular VLMs, shaped by evolving model architectures and training paradigms. Yet, two lingering clouds cast shadows over its widespread exploration and promotion: (-) What fundamental constraints set native VLMs apart from modular ones, and to what extent can these barriers be overcome? (-) How to make research in native VLMs more accessible and democratized, thereby accelerating progress in the field. In this paper, we clarify these challenges and outline guiding principles for constructing native VLMs. Specifically, one native VLM primitive should: (i) effectively align pixel and word representations within a shared semantic space; (ii) seamlessly integrate the strengths of formerly separate vision and language modules; (iii) inherently embody various cross-modal properties that support unified vision-language encoding, aligning, and reasoning. Hence, we launch NEO, a novel family of native VLMs built from first principles, capable of rivaling top-tier modular counterparts across diverse real-world scenarios. With only 390M image-text examples, NEO efficiently develops visual perception from scratch while mitigating vision-language conflicts inside a dense and monolithic model crafted from our elaborate primitives. We position NEO as a cornerstone for scalable and powerful native VLMs, paired with a rich set of reusable components that foster a cost-effective and extensible ecosystem. Our code and models are publicly available at: https://github.com/EvolvingLMMs-Lab/NEO.",
+      "authors": [
+        "Haiwen Diao",
+        "Mingxuan Li",
+        "Silei Wu",
+        "Linjun Dai",
+        "Xiaohua Wang",
+        "Hanming Deng",
+        "Lewei Lu",
+        "Dahua Lin",
+        "Ziwei Liu"
+      ],
+      "published": "2025-10-17T01:59:58+08:00",
+      "updated": "2025-10-17T01:59:58+08:00",
+      "arxiv_id": "2510.14979v1",
+      "url": "https://arxiv.org/pdf/2510.14979v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Vision-Language Model",
+        "VLM",
+        "cross-modal conflict",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Exploring Cross-Modal Flows for Few-Shot Learning",
+      "abstract": "Aligning features from different modalities, is one of the most fundamental challenges for cross-modal tasks. Although pre-trained vision-language models can achieve a general alignment between image and text, they often require parameter-efficient fine-tuning (PEFT) for further adjustment. Today's PEFT methods (e.g., prompt tuning, LoRA-based, or adapter-based) always selectively fine-tune a subset of parameters, which can slightly adjust either visual or textual features, and avoid overfitting. In this paper, we are the first to highlight that all existing PEFT methods perform one-step adjustment. It is insufficient for complex (or difficult) datasets, where features of different modalities are highly entangled. To this end, we propose the first model-agnostic multi-step adjustment approach by learning a cross-modal velocity field: Flow Matching Alignment (FMA). Specifically, to ensure the correspondence between categories during training, we first utilize a fixed coupling strategy. Then, we propose a noise augmentation strategy to alleviate the data scarcity issue. Finally, we design an early-stopping solver, which terminates the transformation process earlier, improving both efficiency and accuracy. Compared with one-step PEFT methods, FMA has the multi-step rectification ability to achieve more precise and robust alignment. Extensive results have demonstrated that FMA can consistently yield significant performance gains across various benchmarks and backbones, particularly on challenging datasets.",
+      "authors": [
+        "Ziqi Jiang",
+        "Yanghao Wang",
+        "Long Chen"
+      ],
+      "published": "2025-10-16T18:32:48+08:00",
+      "updated": "2025-10-21T13:40:11+08:00",
+      "arxiv_id": "2510.14543v2",
+      "url": "https://arxiv.org/pdf/2510.14543v2",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vision-language",
+        "lora",
+        "cross-modal"
+      ]
+    },
+    {
+      "title": "What \"Not\" to Detect: Negation-Aware VLMs via Structured Reasoning and Token Merging",
+      "abstract": "State-of-the-art vision-language models (VLMs) suffer from a critical failure in understanding negation, often referred to as affirmative bias. This limitation is particularly severe in described object detection (DOD) tasks. To address this, we propose two primary contributions: (1) a new dataset pipeline and (2) a novel, lightweight adaptation recipe. First, we introduce CoVAND, a dataset constructed with a systematic chain-of-thought (CoT) and VQA-based pipeline to generate high-quality, instance-grounded negation data. Second, we propose NegToMe, a novel text token merging module that directly tackles the architectural cause of affirmative bias. NegToMe fundamentally addresses the structural loss of negation cues in tokenization, grouping them with attributes into coherent semantic phrases. It maintains correct polarity at the input level, enabling robust negation understanding even with limited data. For instance, to prevent a model from treating the fragmented tokens \"not\" and \"girl\" as simply \"girl\", NegToMe binds them into a single token whose meaning is correctly distinguished from that of \"girl\" alone. This module is integrated with a parameter-efficient and strategic LoRA fine-tuning approach. Our method significantly improves performance on challenging negation benchmarks with a lowered false positive rate, boosting NMS-AP by up to +10.8 points on OVDEval and demonstrating generalization to SoTA VLMs. This work marks a crucial step forward in addressing negation understanding for real-world detection applications.",
+      "authors": [
+        "Inha Kang",
+        "Youngsun Lim",
+        "Seonho Lee",
+        "Jiho Choi",
+        "Junsuk Choe",
+        "Hyunjung Shim"
+      ],
+      "published": "2025-10-15T15:36:38+08:00",
+      "updated": "2025-10-15T15:36:38+08:00",
+      "arxiv_id": "2510.13232v1",
+      "url": "https://arxiv.org/pdf/2510.13232v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "OS-HGAdapter: Open Semantic Hypergraph Adapter for Large Language Models Assisted Entropy-Enhanced Image-Text Alignment",
+      "abstract": "Text-image alignment constitutes a foundational challenge in multimedia content understanding, where effective modeling of cross-modal semantic correspondences critically enhances retrieval system performance through joint embedding space optimization. Given the inherent difference in information entropy between texts and images, conventional approaches often show an imbalance in the mutual retrieval of these two modalities. To address this particular challenge, we propose to use the open semantic knowledge of Large Language Model (LLM) to fill for the entropy gap and reproduce the alignment ability of humans in these tasks. Our entropy-enhancing alignment is achieved through a two-step process: 1) a new prompt template that does not rely on explicit knowledge in the task domain is designed to use LLM to enhance the polysemy description of the text modality. By analogy, the information entropy of the text modality relative to the visual modality is increased; 2) A hypergraph adapter is used to construct multilateral connections between the text and image modalities, which can correct the positive and negative matching errors for synonymous semantics in the same fixed embedding space, whilst reducing the noise caused by open semantic entropy by mapping the reduced dimensions back to the original dimensions. Comprehensive evaluations on the Flickr30K and MS-COCO benchmarks validate the superiority of our Open Semantic Hypergraph Adapter (OS-HGAdapter), showcasing 16.8\\% (text-to-image) and 40.1\\% (image-to-text) cross-modal retrieval gains over existing methods while establishing new state-of-the-art performance in semantic alignment tasks.",
+      "authors": [
+        "Rongjun Chen",
+        "Chengsi Yao",
+        "Jinchang Ren",
+        "Xianxian Zeng",
+        "Peixian Wang",
+        "Jun Yuan",
+        "Jiawen Li",
+        "Huimin Zhao",
+        "Xu Lu"
+      ],
+      "published": "2025-10-15T12:09:00+08:00",
+      "updated": "2025-10-15T12:09:00+08:00",
+      "arxiv_id": "2510.13131v1",
+      "url": "https://arxiv.org/pdf/2510.13131v1",
+      "categories": [
+        "cs.CV",
+        "cs.MM"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "modality imbalance",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Artificial Intelligence Virtual Cells: From Measurements to Decisions across Modality, Scale, Dynamics, and Evaluation",
+      "abstract": "Artificial Intelligence Virtual Cells (AIVCs) aim to learn executable, decision-relevant models of cell state from multimodal, multiscale measurements. Recent studies have introduced single-cell and spatial foundation models, improved cross-modality alignment, scaled perturbation atlases, and explored pathway-level readouts. Nevertheless, although held-out validation is standard practice, evaluations remain predominantly within single datasets and settings; evidence indicates that transport across laboratories and platforms is often limited, that some data splits are vulnerable to leakage and coverage bias, and that dose, time and combination effects are not yet systematically handled. Cross-scale coupling also remains constrained, as anchors linking molecular, cellular and tissue levels are sparse, and alignment to scientific or clinical readouts varies across studies. We propose a model-agnostic Cell-State Latent (CSL) perspective that organizes learning via an operator grammar: measurement, lift/project for cross-scale coupling, and intervention for dosing and scheduling. This view motivates a decision-aligned evaluation blueprint across modality, scale, context and intervention, and emphasizes function-space readouts such as pathway activity, spatial neighborhoods and clinically relevant endpoints. We recommend operator-aware data design, leakage-resistant partitions, and transparent calibration and reporting to enable reproducible, like-for-like comparisons.",
+      "authors": [
+        "Chengpeng Hu",
+        "Calvin Yu-Chian Chen"
+      ],
+      "published": "2025-10-14T21:31:40+08:00",
+      "updated": "2025-10-14T21:31:40+08:00",
+      "arxiv_id": "2510.12498v1",
+      "url": "https://arxiv.org/pdf/2510.12498v1",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "modality bias",
+        "Cross-Modal Model",
+        "Multimodal Foundation Model"
+      ]
+    },
+    {
+      "title": "Ivan-ISTD: Rethinking Cross-domain Heteroscedastic Noise Perturbations in Infrared Small Target Detection",
+      "abstract": "In the multimedia domain, Infrared Small Target Detection (ISTD) plays a important role in drone-based multi-modality sensing. To address the dual challenges of cross-domain shift and heteroscedastic noise perturbations in ISTD, we propose a doubly wavelet-guided Invariance learning framework(Ivan-ISTD). In the first stage, we generate training samples aligned with the target domain using Wavelet-guided Cross-domain Synthesis. This wavelet-guided alignment machine accurately separates the target background through multi-frequency wavelet filtering. In the second stage, we introduce Real-domain Noise Invariance Learning, which extracts real noise characteristics from the target domain to build a dynamic noise library. The model learns noise invariance through self-supervised loss, thereby overcoming the limitations of distribution bias in traditional artificial noise modeling. Finally, we create the Dynamic-ISTD Benchmark, a cross-domain dynamic degradation dataset that simulates the distribution shifts encountered in real-world applications. Additionally, we validate the versatility of our method using other real-world datasets. Experimental results demonstrate that our approach outperforms existing state-of-the-art methods in terms of many quantitative metrics. In particular, Ivan-ISTD demonstrates excellent robustness in cross-domain scenarios. The code for this work can be found at: https://github.com/nanjin1/Ivan-ISTD.",
+      "authors": [
+        "Yuehui Li",
+        "Yahao Lu",
+        "Haoyuan Wu",
+        "Sen Zhang",
+        "Liang Lin",
+        "Yukai Shi"
+      ],
+      "published": "2025-10-14T15:48:31+08:00",
+      "updated": "2025-10-14T15:48:31+08:00",
+      "arxiv_id": "2510.12241v1",
+      "url": "https://arxiv.org/pdf/2510.12241v1",
+      "categories": [
+        "cs.CV",
+        "eess.IV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "modality bias"
+      ]
+    },
+    {
+      "title": "Evolution of meta's llama models and parameter-efficient fine-tuning of large language models: a survey",
+      "abstract": "This review surveys the rapid evolution of Meta AI's LLaMA (Large Language Model Meta AI) series - from LLaMA 1 through LLaMA 4 and the specialized parameter-efficient fine-tuning (PEFT) methods developed for these models. We first describe the LLaMA family of foundation models (7B-65B to 288B parameters), their architectures (including native multimodal and Mixtureof-Experts variants), and key performance characteristics. We then describe and discuss the concept of PEFT, which adapts large pre-trained models by updating only a small subset of parameters, and review five PEFT methods that have been applied to LLaMA: LoRA (Low-Rank Adaptation), LLaMA-Adapter V1 and V2, LLaMA-Excitor, and QLoRA (Quantized LoRA). We discuss each method's mechanism, parameter savings, and example application to LLaMA (e.g., instruction tuning, multimodal tasks). We provide structured discussion and analysis of model and adapter architectures, parameter counts, and benchmark results (including examples where fine-tuned LLaMA models outperform larger baselines). Finally, we examine real-world use cases where LLaMA-based models and PEFT have been successfully applied (e.g., legal and medical domains), and we discuss ongoing challenges and future research directions (such as scaling to even larger contexts and improving robustness). This survey paper provides a one-stop resource for ML researchers and practitioners interested in LLaMA models and efficient fine-tuning strategies.",
+      "authors": [
+        "Abdulhady Abas Abdullah",
+        "Arkaitz Zubiaga",
+        "Seyedali Mirjalili",
+        "Amir H. Gandomi",
+        "Fatemeh Daneshfar",
+        "Mohammadsadra Amini",
+        "Alan Salam Mohammed",
+        "Hadi Veisi"
+      ],
+      "published": "2025-10-14T14:12:44+08:00",
+      "updated": "2025-10-14T14:12:44+08:00",
+      "arxiv_id": "2510.12178v1",
+      "url": "https://arxiv.org/pdf/2510.12178v1",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "qlora",
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Chimera: State Space Models Beyond Sequences",
+      "abstract": "Transformer-based deep learning methods have become the standard approach for modeling diverse data such as sequences, images, and graphs. These methods rely on self-attention, which treats data as an unordered set of elements. This ignores the neighborhood structure or graph topology of the data and requires inductive biases--such as position embeddings in sequences and images, or random walks in graphs--to incorporate topology. However, designing such task-specific biases requires significant effort and can introduce side effects that hinder generalization. We introduce Chimera, a unified model that directly incorporates data topology in a principled way, removing the need for domain-specific biases. The key idea is that state space models--which naturally do not require position embeddings--can be generalized to capture any graph topology. Our experiments show that Chimera achieves strong performance across language, vision, and graph domains, outperforming BERT on GLUE by 0.7 points, ViT on ImageNet-1k by 2.6%, and all baselines on the Long Range Graph Benchmark. We further propose algorithmic optimizations to improve Chimera's efficiency: (1) for Directed Acyclic Graphs, Chimera can be implemented as a linear-time recurrence; (2) for general graphs, a simple mathematical relaxation achieves Transformer's quadratic complexity without domain-specific heuristics. These results validate Chimera's core contribution and support the idea that data topology is a powerful inductive bias across modalities.",
+      "authors": [
+        "Aakash Lahoti",
+        "Tanya Marwah",
+        "Ratish Puduppully",
+        "Albert Gu"
+      ],
+      "published": "2025-10-14T11:27:57+08:00",
+      "updated": "2025-10-14T11:27:57+08:00",
+      "arxiv_id": "2510.12111v1",
+      "url": "https://arxiv.org/pdf/2510.12111v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": []
+    },
+    {
+      "title": "AndesVL Technical Report: An Efficient Mobile-side Multimodal Large Language Model",
+      "abstract": "In recent years, while cloud-based MLLMs such as QwenVL, InternVL, GPT-4o, Gemini, and Claude Sonnet have demonstrated outstanding performance with enormous model sizes reaching hundreds of billions of parameters, they significantly surpass the limitations in memory, power consumption, and computing capacity of edge devices such as mobile phones. This paper introduces AndesVL, a suite of mobile-side MLLMs with 0.6B to 4B parameters based on Qwen3's LLM and various visual encoders. We comprehensively outline the model architectures, training pipeline, and training data of AndesVL, which achieves first-tier performance across a wide range of open-source benchmarks, including fields such as text-rich image understanding, reasoning and math, multi-image comprehension, general VQA, hallucination mitigation, multilingual understanding, and GUI-related tasks when compared with state-of-the-art models of a similar scale. Furthermore, we introduce a 1+N LoRA architecture alongside a Quantization-Aware LoRA Fine-Tuning (QALFT) framework to facilitate efficient task adaptation and model compression during mobile-side deployment of AndesVL. Moreover, utilizing our cache eviction algorithm -- OKV -- along with customized speculative decoding and compression strategies, we achieve a 6.7x peak decoding speedup ratio, up to 30.9% memory reduction, and 1.8 bits-per-weight when deploying AndesVL-4B on MediaTek Dimensity 9500 chips. We release all models on https://huggingface.co/OPPOer.",
+      "authors": [
+        "Zhiwei Jin",
+        "Xiaohui Song",
+        "Nan Wang",
+        "Yafei Liu",
+        "Chao Li",
+        "Xin Li",
+        "Ruichen Wang",
+        "Zhihao Li",
+        "Qi Qi",
+        "Long Cheng",
+        "Dongze Hao",
+        "Quanlong Zheng",
+        "Yanhao Zhang",
+        "Haobo Ji",
+        "Jian Ma",
+        "Zhitong Zheng",
+        "Zhenyi Lin",
+        "Haolin Deng",
+        "Xin Zou",
+        "Xiaojie Yin",
+        "Ruilin Wang",
+        "Liankai Cai",
+        "Haijing Liu",
+        "Yuqing Qiu",
+        "Ke Chen",
+        "Zixian Li",
+        "Chi Xie",
+        "Huafei Li",
+        "Chenxing Li",
+        "Chuangchuang Wang",
+        "Kai Tang",
+        "Zhiguang Zhu",
+        "Kai Tang",
+        "Wenmei Gao",
+        "Rui Wang",
+        "Jun Wu",
+        "Chao Liu",
+        "Qin Xie",
+        "Chen Chen",
+        "Haonan Lu"
+      ],
+      "published": "2025-10-13T23:04:38+08:00",
+      "updated": "2025-10-14T13:05:14+08:00",
+      "arxiv_id": "2510.11496v2",
+      "url": "https://arxiv.org/pdf/2510.11496v2",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Reliable Cross-modal Alignment via Prototype Iterative Construction",
+      "abstract": "Cross-modal alignment is an important multi-modal task, aiming to bridge the semantic gap between different modalities. The most reliable fundamention for achieving this objective lies in the semantic consistency between matched pairs. Conventional methods implicitly assume embeddings contain solely semantic information, ignoring the impact of non-semantic information during alignment, which inevitably leads to information bias or even loss. These non-semantic information primarily manifest as stylistic variations in the data, which we formally define as style information. An intuitive approach is to separate style from semantics, aligning only the semantic information. However, most existing methods distinguish them based on feature columns, which cannot represent the complex coupling relationship between semantic and style information. In this paper, we propose PICO, a novel framework for suppressing style interference during embedding interaction. Specifically, we quantify the probability of each feature column representing semantic information, and regard it as the weight during the embedding interaction. To ensure the reliability of the semantic probability, we propose a prototype iterative construction method. The key operation of this method is a performance feedback-based weighting function, and we have theoretically proven that the function can assign higher weight to prototypes that bring higher performance improvements. Extensive experiments on various benchmarks and model backbones demonstrate the superiority of PICO, outperforming state-of-the-art methods by 5.2\\%-14.1\\%.",
+      "authors": [
+        "Xiang Ma",
+        "Litian Xu",
+        "Lexin Fang",
+        "Caiming Zhang",
+        "Lizhen Cui"
+      ],
+      "published": "2025-10-13T17:08:27+08:00",
+      "updated": "2025-10-13T17:08:27+08:00",
+      "arxiv_id": "2510.11175v1",
+      "url": "https://arxiv.org/pdf/2510.11175v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "task interference",
+        "cross-modal interference",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "MARS-Sep: Multimodal-Aligned Reinforced Sound Separation",
+      "abstract": "Universal sound separation faces a fundamental misalignment: models optimized for low-level signal metrics often produce semantically contaminated outputs, failing to suppress perceptually salient interference from acoustically similar sources. To bridge this gap, we introduce MARS-Sep, a reinforcement learning framework that reformulates separation as decision making. Instead of simply regressing ground-truth masks, MARS-Sep learns a factorized Beta mask policy that is optimized by a clipped trust-region surrogate with entropy regularization and group-relative advantage normalization. Concretely, we sample masks from a frozen old policy, reconstruct waveforms, and update the current policy using clipped importance ratios-yielding substantially more stable and sample-efficient learning. Multimodal rewards, derived from an audio-text-vision encoder, directly incentivize semantic consistency with query prompts. We further propose a progressive alignment scheme to fine-tune this encoder, boosting its cross-modal discriminability and improving reward faithfulness. Extensive experiments on multiple benchmarks demonstrate consistent gains in Text-, Audio-, and Image-Queried separation, with notable improvements in signal metrics and semantic quality. Our code is available at https://anonymous.4open.science/r/MARS-Sep. Sound separation samples are available at https://mars-sep.github.io/.",
+      "authors": [
+        "Zihan Zhang",
+        "Xize Cheng",
+        "Zhennan Jiang",
+        "Dongjie Fu",
+        "Jingyuan Chen",
+        "Zhou Zhao",
+        "Tao Jin"
+      ],
+      "published": "2025-10-12T17:05:28+08:00",
+      "updated": "2025-10-12T17:05:28+08:00",
+      "arxiv_id": "2510.10509v1",
+      "url": "https://arxiv.org/pdf/2510.10509v1",
+      "categories": [
+        "cs.SD",
+        "cs.AI"
+      ],
+      "primary_category": "cs.SD",
+      "matched_keywords": [
+        "cross-modal interference",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "When Images Speak Louder: Mitigating Language Bias-induced Hallucinations in VLMs through Cross-Modal Guidance",
+      "abstract": "Vision-Language Models (VLMs) have shown solid ability for multimodal understanding of both visual and language contexts. However, existing VLMs often face severe challenges of hallucinations, meaning that VLMs tend to generate responses that are only fluent in the language but irrelevant to images in previous contexts. To address this issue, we analyze how language bias contributes to hallucinations and then introduce Cross-Modal Guidance(CMG), a training-free decoding method that addresses the hallucinations by leveraging the difference between the output distributions of the original model and the one with degraded visual-language attention. In practice, we adaptively mask the attention weight of the most influential image tokens in selected transformer layers to corrupt the visual-language perception as a concrete type of degradation. Such a degradation-induced decoding emphasizes the perception of visual contexts and therefore significantly reduces language bias without harming the ability of VLMs. In experiment sections, we conduct comprehensive studies. All results demonstrate the superior advantages of CMG with neither additional conditions nor training costs. We also quantitatively show CMG can improve different VLM's performance on hallucination-specific benchmarks and generalize effectively.",
+      "authors": [
+        "Jinjin Cao",
+        "Zhiyang Chen",
+        "Zijun Wang",
+        "Liyuan Ma",
+        "Weijian Luo",
+        "Guojun Qi"
+      ],
+      "published": "2025-10-12T14:17:13+08:00",
+      "updated": "2025-10-12T14:17:13+08:00",
+      "arxiv_id": "2510.10466v1",
+      "url": "https://arxiv.org/pdf/2510.10466v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Vision-Language Model",
+        "VLM",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Post-TIPS Prediction via Multimodal Interaction: A Multi-Center Dataset and Framework for Survival, Complication, and Portal Pressure Assessment",
+      "abstract": "Transjugular intrahepatic portosystemic shunt (TIPS) is an established procedure for portal hypertension, but provides variable survival outcomes and frequent overt hepatic encephalopathy (OHE), indicating the necessity of accurate preoperative prognostic modeling. Current studies typically build machine learning models from preoperative CT images or clinical characteristics, but face three key challenges: (1) labor-intensive region-of-interest (ROI) annotation, (2) poor reliability and generalizability of unimodal methods, and (3) incomplete assessment from single-endpoint prediction. Moreover, the lack of publicly accessible datasets constrains research in this field. Therefore, we present MultiTIPS, the first public multi-center dataset for TIPS prognosis, and propose a novel multimodal prognostic framework based on it. The framework comprises three core modules: (1) dual-option segmentation, which integrates semi-supervised and foundation model-based pipelines to achieve robust ROI segmentation with limited annotations and facilitate subsequent feature extraction; (2) multimodal interaction, where three techniques, multi-grained radiomics attention (MGRA), progressive orthogonal disentanglement (POD), and clinically guided prognostic enhancement (CGPE), are introduced to enable cross-modal feature interaction and complementary representation integration, thus improving model accuracy and robustness; and (3) multi-task prediction, where a staged training strategy is used to perform stable optimization of survival, portal pressure gradient (PPG), and OHE prediction for comprehensive prognostic assessment. Extensive experiments on MultiTIPS demonstrate the superiority of the proposed method over state-of-the-art approaches, along with strong cross-domain generalization and interpretability, indicating its promise for clinical application. The dataset and code are available.",
+      "authors": [
+        "Junhao Dong",
+        "Dejia Liu",
+        "Ruiqi Ding",
+        "Zongxing Chen",
+        "Yingjie Huang",
+        "Zhu Meng",
+        "Jianbo Zhao",
+        "Zhicheng Zhao",
+        "Fei Su"
+      ],
+      "published": "2025-10-12T14:11:59+08:00",
+      "updated": "2025-10-12T14:11:59+08:00",
+      "arxiv_id": "2510.10464v1",
+      "url": "https://arxiv.org/pdf/2510.10464v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Cross-Modal Model",
+        "Multimodal Foundation Model"
+      ]
+    },
+    {
+      "title": "Mitigating Hallucination in Multimodal Reasoning via Functional Attention Control",
+      "abstract": "Multimodal large reasoning models (MLRMs) are rapidly advancing vision-language reasoning and are emerging as a foundation for cross-modal intelligence. Hallucination remains a persistent failure mode, manifesting itself as erroneous reasoning chains and misinterpretation of visual content. In this study, we observe that attention heads exhibit a staged division: shallow heads predominantly serve perception, while deeper heads shift toward symbolic reasoning, revealing two major causes of hallucination, namely perceptual bias and reasoning drift. To address these issues, we propose a lightweight and interpretable two-step plugin, Functional Head Identification and Class-conditioned Rescaling, which locates perception- and reasoning-oriented heads and regulates their contributions without retraining. Evaluations on three real-world MLRMs (Kimi-VL, Ocean-R1, R1-Onevision), six benchmarks across three domains, and four baselines show that our plugin achieves an average improvement of 5% and up to 15%, with only <1% additional computation and 9% of baseline latency. Our approach is completely model-agnostic and significantly enhances both the reliability and interpretability of the off-the-shelf MLRMs, thereby enabling their safe deployment in high-stakes applications. Our code is available at https://anonymous.4open.science/r/Functional-Attention-Control.",
+      "authors": [
+        "Haolang Lu",
+        "Bolun Chu",
+        "WeiYe Fu",
+        "Guoshun Nan",
+        "Junning Liu",
+        "Minghui Pan",
+        "Qiankun Li",
+        "Yi Yu",
+        "Hua Wang",
+        "Kun Wang"
+      ],
+      "published": "2025-10-12T00:54:41+08:00",
+      "updated": "2025-10-12T00:54:41+08:00",
+      "arxiv_id": "2510.10285v1",
+      "url": "https://arxiv.org/pdf/2510.10285v1",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "Multimodal Reasoning",
+        "Multimodal Foundation Model",
+        "Multimodal Large Language Model",
+        "Multimodal Large Models",
+        "Vision-Language Model",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Constructive Distortion: Improving MLLMs with Attention-Guided Image Warping",
+      "abstract": "Multimodal large language models (MLLMs) often miss small details and spatial relations in cluttered scenes, leading to errors in fine-grained perceptual grounding. We introduce AttWarp, a lightweight method that allocates more resolution to query-relevant content while compressing less informative areas, all while preserving global context. At test time, the approach uses an MLLM's cross-modal attention to perform rectilinear warping of the input image, reallocating spatial resolution toward regions the model deems important, without changing model weights or architecture. This attention-guided warping preserves all original image information but redistributes it non-uniformly, so small objects and subtle relationships become easier for the same model to read while the global layout remains intact. Across five benchmarks (TextVQA, GQA, DocVQA, POPE, MMMU) and four MLLMs (LLaVA, Qwen-VL, InternVL, and InstructBLIP), AttWarp consistently improves accuracy, strengthens compositional reasoning, and reduces hallucinations, outperforming four competitive baselines that manipulate raw images at test time. Together, these results show that attention-guided warping prioritizes information relevant to the query while preserving context, and that the same MLLMs perform better when given such warped inputs.",
+      "authors": [
+        "Dwip Dalal",
+        "Gautam Vashishtha",
+        "Utkarsh Mishra",
+        "Jeonghwan Kim",
+        "Madhav Kanda",
+        "Hyeonjeong Ha",
+        "Svetlana Lazebnik",
+        "Heng Ji",
+        "Unnat Jain"
+      ],
+      "published": "2025-10-11T01:57:06+08:00",
+      "updated": "2025-10-11T01:57:06+08:00",
+      "arxiv_id": "2510.09741v1",
+      "url": "https://arxiv.org/pdf/2510.09741v1",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Multimodal Reasoning",
+        "Multimodal Large Language Model",
+        "Multimodal Large Models",
+        "MLLM",
+        "Cross-Modal Model",
+        "MLLMs"
+      ]
+    },
+    {
+      "title": "Vision Language Models: A Survey of 26K Papers",
+      "abstract": "We present a transparent, reproducible measurement of research trends across 26,104 accepted papers from CVPR, ICLR, and NeurIPS spanning 2023-2025. Titles and abstracts are normalized, phrase-protected, and matched against a hand-crafted lexicon to assign up to 35 topical labels and mine fine-grained cues about tasks, architectures, training regimes, objectives, datasets, and co-mentioned modalities. The analysis quantifies three macro shifts: (1) a sharp rise of multimodal vision-language-LLM work, which increasingly reframes classic perception as instruction following and multi-step reasoning; (2) steady expansion of generative methods, with diffusion research consolidating around controllability, distillation, and speed; and (3) resilient 3D and video activity, with composition moving from NeRFs to Gaussian splatting and a growing emphasis on human- and agent-centric understanding. Within VLMs, parameter-efficient adaptation like prompting/adapters/LoRA and lightweight vision-language bridges dominate; training practice shifts from building encoders from scratch to instruction tuning and finetuning strong backbones; contrastive objectives recede relative to cross-entropy/ranking and distillation. Cross-venue comparisons show CVPR has a stronger 3D footprint and ICLR the highest VLM share, while reliability themes such as efficiency or robustness diffuse across areas. We release the lexicon and methodology to enable auditing and extension. Limitations include lexicon recall and abstract-only scope, but the longitudinal signals are consistent across venues and years.",
+      "authors": [
+        "Fengming Lin"
+      ],
+      "published": "2025-10-11T01:43:17+08:00",
+      "updated": "2025-10-11T01:43:17+08:00",
+      "arxiv_id": "2510.09586v1",
+      "url": "https://arxiv.org/pdf/2510.09586v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "multimodal",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "MRMR: A Realistic and Expert-Level Multidisciplinary Benchmark for Reasoning-Intensive Multimodal Retrieval",
+      "abstract": "We introduce MRMR, the first expert-level multidisciplinary multimodal retrieval benchmark requiring intensive reasoning. MRMR contains 1,502 queries spanning 23 domains, with positive documents carefully verified by human experts. Compared to prior benchmarks, MRMR introduces three key advancements. First, it challenges retrieval systems across diverse areas of expertise, enabling fine-grained model comparison across domains. Second, queries are reasoning-intensive, with images requiring deeper interpretation such as diagnosing microscopic slides. We further introduce Contradiction Retrieval, a novel task requiring models to identify conflicting concepts. Finally, queries and documents are constructed as image-text interleaved sequences. Unlike earlier benchmarks restricted to single images or unimodal documents, MRMR offers a realistic setting with multi-image queries and mixed-modality corpus documents. We conduct an extensive evaluation of 4 categories of multimodal retrieval systems and 14 frontier models on MRMR. The text embedding model Qwen3-Embedding with LLM-generated image captions achieves the highest performance, highlighting substantial room for improving multimodal retrieval models. Although latest multimodal models such as Ops-MM-Embedding perform competitively on expert-domain queries, they fall short on reasoning-intensive tasks. We believe that MRMR paves the way for advancing multimodal retrieval in more realistic and challenging scenarios.",
+      "authors": [
+        "Siyue Zhang",
+        "Yuan Gao",
+        "Xiao Zhou",
+        "Yilun Zhao",
+        "Tingyu Song",
+        "Arman Cohan",
+        "Anh Tuan Luu",
+        "Chen Zhao"
+      ],
+      "published": "2025-10-11T00:14:56+08:00",
+      "updated": "2025-10-11T00:14:56+08:00",
+      "arxiv_id": "2510.09510v1",
+      "url": "https://arxiv.org/pdf/2510.09510v1",
+      "categories": [
+        "cs.IR"
+      ],
+      "primary_category": "cs.IR",
+      "matched_keywords": [
+        "modality conflict",
+        "Multimodal Reasoning"
+      ]
+    },
+    {
+      "title": "InterCorpRel-LLM: Enhancing Financial Relational Understanding with Graph-Language Models",
+      "abstract": "Identifying inter-firm relationships such as supply and competitive ties is critical for financial analysis and corporate governance, yet remains challenging due to the scale, sparsity, and contextual dependence of corporate data. Graph-based methods capture structure but miss semantic depth, while large language models (LLMs) excel at text but remain limited in their ability to represent relational dependencies. To address this, we propose InterCorpRel-LLM, a cross-modal framework that integrates GNNs with LLMs, supported by a proprietary dataset derived from FactSet supply chain records and three tailored training tasks: company graph matching, industry classification, and supply relation prediction. This design enables effective joint modeling of structure and semantics. Experiments show that InterCorpRel-LLM substantially outperforms strong baselines, including GPT-5, on a supply relation identification task, achieving an F-score of 0.8543 vs. 0.2287 with only a 7B-parameter backbone and lightweight training. The model also generalizes to zero-shot competitor identification, underscoring its ability to capture nuanced inter-firm dynamics. Our framework thus provides analysts and strategists with a robust tool for mapping and reasoning about complex corporate networks, enhancing decision-making and risk management in dynamic markets.",
+      "authors": [
+        "Qianyou Sun",
+        "Jiexin Zheng",
+        "Bohan Jin",
+        "Lihua Chen",
+        "Yijie Peng"
+      ],
+      "published": "2025-10-10T22:18:18+08:00",
+      "updated": "2025-10-10T22:18:18+08:00",
+      "arxiv_id": "2510.09735v1",
+      "url": "https://arxiv.org/pdf/2510.09735v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Auto-scaling Continuous Memory for GUI Agent",
+      "abstract": "We study how to endow GUI agents with scalable memory that help generalize across unfamiliar interfaces and long-horizon tasks. Prior GUI agents compress past trajectories into text tokens, which balloons context length and misses decisive visual cues (e.g., exact widget size and position). We propose a continuous memory that encodes each GUI trajectory into a fixed-length sequence of continuous embeddings using the VLM itself as an encoder; these embeddings are plugged directly into the backbone's input layer, sharply reducing context cost while preserving fine-grained visual information. As memory size and retrieval depth increase, performance improves monotonically, unlike text memories that degrade with long prompts. To grow memory at low cost, we introduce an auto-scaling data flywheel that (i) discovers new environments via search, (ii) synthesizes tasks with an open-source VLM, (iii) rolls out trajectories with the agent, and (iv) verifies success with the same VLM. Using this pipeline, we collect 100k+ trajectories for about \\$4000 and fine-tune only the memory encoder (LoRA on a Q-Former, 1.2\\% parameters) with 1,500 samples. On real-world GUI benchmarks, our memory-augmented agent consistently improves success rates under long horizons and distribution shifts. Notably, Qwen-2.5-VL-7B + continuous memory achieves performance comparable to state-of-the-art closed-source models (e.g., GPT-4o, Claude-4).",
+      "authors": [
+        "Wenyi Wu",
+        "Kun Zhou",
+        "Ruoxin Yuan",
+        "Vivian Yu",
+        "Stephen Wang",
+        "Zhiting Hu",
+        "Biwei Huang"
+      ],
+      "published": "2025-10-10T14:16:45+08:00",
+      "updated": "2025-10-10T14:16:45+08:00",
+      "arxiv_id": "2510.09038v1",
+      "url": "https://arxiv.org/pdf/2510.09038v1",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.CV",
+        "cs.CY",
+        "cs.LG"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "vlm",
+        "lora"
+      ]
+    },
+    {
+      "title": "Edu-EmotionNet: Cross-Modality Attention Alignment with Temporal Feedback Loops",
+      "abstract": "Understanding learner emotions in online education is critical for improving engagement and personalized instruction. While prior work in emotion recognition has explored multimodal fusion and temporal modeling, existing methods often rely on static fusion strategies and assume that modality inputs are consistently reliable, which is rarely the case in real-world learning environments. We introduce Edu-EmotionNet, a novel framework that jointly models temporal emotion evolution and modality reliability for robust affect recognition. Our model incorporates three key components: a Cross-Modality Attention Alignment (CMAA) module for dynamic cross-modal context sharing, a Modality Importance Estimator (MIE) that assigns confidence-based weights to each modality at every time step, and a Temporal Feedback Loop (TFL) that leverages previous predictions to enforce temporal consistency. Evaluated on educational subsets of IEMOCAP and MOSEI, re-annotated for confusion, curiosity, boredom, and frustration, Edu-EmotionNet achieves state-of-the-art performance and demonstrates strong robustness to missing or noisy modalities. Visualizations confirm its ability to capture emotional transitions and adaptively prioritize reliable signals, making it well suited for deployment in real-time learning systems",
+      "authors": [
+        "S M Rafiuddin"
+      ],
+      "published": "2025-10-10T04:33:52+08:00",
+      "updated": "2025-10-10T04:33:52+08:00",
+      "arxiv_id": "2510.08802v1",
+      "url": "https://arxiv.org/pdf/2510.08802v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "modality missing",
+        "missing modality",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Multi-modal Foundation Model for Cosmological Simulation Data",
+      "abstract": "We present a multi-modal foundation model for astrophysical galaxy data, designed to map between simulation- and observation-based galactic features. Our encoder-only transformer flexibly ingests scalar quantities (e.g., redshifts, galaxy masses) and vectors (e.g., star formation histories, spectra), supporting multi-task training that includes within-modality reconstruction and cross-modality prediction. With a dynamic masking strategy, the model can query arbitrary galaxy properties from partial inputs -- including predicting spectra from redshift and mass, or estimating photometric redshifts from broadband magnitudes -- while also recovering missing segments within a modality. Trained on 185,000 simulated galaxies from a gigaparsec-scale Cosmology simulation, the model yields a 50% improvement in redshift estimation when combining LSST and SPHEREx photometry over LSST photometry alone, and a 63% improvement in stellar mass inference when combining late-time SFH with LSST photometry over early-time SFH with LSST photometry. The model demonstrates strong generalization across multi-modal tasks and lays the groundwork for future integration of higher-dimensional and structured data such as images, merger trees, and 3D fields. This approach provides a unified framework for connecting simulations and observations, advancing the development of generalizable astrophysical foundation models.",
+      "authors": [
+        "Bin Xia",
+        "Nesar Ramachandra",
+        "Azton I. Wells",
+        "Salman Habib",
+        "John Wise"
+      ],
+      "published": "2025-10-09T10:16:35+08:00",
+      "updated": "2025-10-09T10:16:35+08:00",
+      "arxiv_id": "2510.07684v1",
+      "url": "https://arxiv.org/pdf/2510.07684v1",
+      "categories": [
+        "astro-ph.GA"
+      ],
+      "primary_category": "astro-ph.GA",
+      "matched_keywords": [
+        "modality missing",
+        "Cross-Modal Model",
+        "missing modality",
+        "partial modality"
+      ]
+    },
+    {
+      "title": "Unified Molecule Pre-training with Flexible 2D and 3D Modalities: Single and Paired Modality Integration",
+      "abstract": "Molecular representation learning plays a crucial role in advancing applications such as drug discovery and material design. Existing work leverages 2D and 3D modalities of molecular information for pre-training, aiming to capture comprehensive structural and geometric insights. However, these methods require paired 2D and 3D molecular data to train the model effectively and prevent it from collapsing into a single modality, posing limitations in scenarios where a certain modality is unavailable or computationally expensive to generate. To overcome this limitation, we propose FlexMol, a flexible molecule pre-training framework that learns unified molecular representations while supporting single-modality input. Specifically, inspired by the unified structure in vision-language models, our approach employs separate models for 2D and 3D molecular data, leverages parameter sharing to improve computational efficiency, and utilizes a decoder to generate features for the missing modality. This enables a multistage continuous learning process where both modalities contribute collaboratively during training, while ensuring robustness when only one modality is available during inference. Extensive experiments demonstrate that FlexMol achieves superior performance across a wide range of molecular property prediction tasks, and we also empirically demonstrate its effectiveness with incomplete data. Our code and data are available at https://github.com/tewiSong/FlexMol.",
+      "authors": [
+        "Tengwei Song",
+        "Min Wu",
+        "Yuan Fang"
+      ],
+      "published": "2025-10-08T22:02:51+08:00",
+      "updated": "2025-10-08T22:02:51+08:00",
+      "arxiv_id": "2510.07035v1",
+      "url": "https://arxiv.org/pdf/2510.07035v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "modality missing",
+        "Vision-Language Model",
+        "incomplete modality",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Implicit-Knowledge Visual Question Answering with Structured Reasoning Traces",
+      "abstract": "Knowledge-based Visual Question Answering (KVQA) requires models to ground entities in images and reason over factual knowledge. Recent work has introduced its implicit-knowledge variant, IK-KVQA, where a multimodal large language model (MLLM) is the sole knowledge source and answers are produced without external retrieval. Existing IK-KVQA approaches, however, are typically trained with answer-only supervision: reasoning remains implicit, justifications are often weak or inconsistent, and generalization after standard supervised fine-tuning (SFT) can be brittle. We propose MODELNAME, a framework that equips IK-KVQA with dual-path structured reasoning traces (symbolic relation paths over text and vision together with path-grounded natural-language explanations) to provide a stronger inductive bias than generic answer-only supervision. These traces act as modality-aware scaffolds that guide the model toward relevant entities and attributes, offering more structure than generic chain-of-thought supervision while not constraining reasoning to any single fixed path. Using a single open-source MLLM, MODELNAME constructs and selects traces to build an offline trace-enriched dataset and then performs structure-aware self-distillation; no external retrievers, verifiers, or curated knowledge bases are used, and inference is a single autoregressive pass. Across benchmarks, MODELNAME consistently improves both answer accuracy and the transparency of intermediate reasoning, achieving up to 11.3% higher answer accuracy on OK-VQA over the strongest baseline.",
+      "authors": [
+        "Zhihao Wen",
+        "Wenkang Wei",
+        "Yuan Fang",
+        "Xingtong Yu",
+        "Hui Zhang",
+        "Weicheng Zhu",
+        "Xin Zhang"
+      ],
+      "published": "2025-10-08T12:37:53+08:00",
+      "updated": "2025-11-15T17:26:12+08:00",
+      "arxiv_id": "2510.06638v2",
+      "url": "https://arxiv.org/pdf/2510.06638v2",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Multimodal Reasoning",
+        "Multimodal Large Language Model",
+        "Multimodal Large Models",
+        "MLLM",
+        "modality bias"
+      ]
+    },
+    {
+      "title": "A Bridge from Audio to Video: Phoneme-Viseme Alignment Allows Every Face to Speak Multiple Languages",
+      "abstract": "Speech-driven talking face synthesis (TFS) focuses on generating lifelike facial animations from audio input. Current TFS models perform well in English but unsatisfactorily in non-English languages, producing wrong mouth shapes and rigid facial expressions. The terrible performance is caused by the English-dominated training datasets and the lack of cross-language generalization abilities. Thus, we propose Multilingual Experts (MuEx), a novel framework featuring a Phoneme-Guided Mixture-of-Experts (PG-MoE) architecture that employs phonemes and visemes as universal intermediaries to bridge audio and video modalities, achieving lifelike multilingual TFS. To alleviate the influence of linguistic differences and dataset bias, we extract audio and video features as phonemes and visemes respectively, which are the basic units of speech sounds and mouth movements. To address audiovisual synchronization issues, we introduce the Phoneme-Viseme Alignment Mechanism (PV-Align), which establishes robust cross-modal correspondences between phonemes and visemes. In addition, we build a Multilingual Talking Face Benchmark (MTFB) comprising 12 diverse languages with 95.04 hours of high-quality videos for training and evaluating multilingual TFS performance. Extensive experiments demonstrate that MuEx achieves superior performance across all languages in MTFB and exhibits effective zero-shot generalization to unseen languages without additional training.",
+      "authors": [
+        "Zibo Su",
+        "Kun Wei",
+        "Jiahua Li",
+        "Xu Yang",
+        "Cheng Deng"
+      ],
+      "published": "2025-10-08T11:46:39+08:00",
+      "updated": "2025-10-08T11:46:39+08:00",
+      "arxiv_id": "2510.06612v1",
+      "url": "https://arxiv.org/pdf/2510.06612v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Multimodal Feature Prototype Learning for Interpretable and Discriminative Cancer Survival Prediction",
+      "abstract": "Survival analysis plays a vital role in making clinical decisions. However, the models currently in use are often difficult to interpret, which reduces their usefulness in clinical settings. Prototype learning presents a potential solution, yet traditional methods focus on local similarities and static matching, neglecting the broader tumor context and lacking strong semantic alignment with genomic data. To overcome these issues, we introduce an innovative prototype-based multimodal framework, FeatProto, aimed at enhancing cancer survival prediction by addressing significant limitations in current prototype learning methodologies within pathology. Our framework establishes a unified feature prototype space that integrates both global and local features of whole slide images (WSI) with genomic profiles. This integration facilitates traceable and interpretable decision-making processes. Our approach includes three main innovations: (1) A robust phenotype representation that merges critical patches with global context, harmonized with genomic data to minimize local bias. (2) An Exponential Prototype Update Strategy (EMA ProtoUp) that sustains stable cross-modal associations and employs a wandering mechanism to adapt prototypes flexibly to tumor heterogeneity. (3) A hierarchical prototype matching scheme designed to capture global centrality, local typicality, and cohort-level trends, thereby refining prototype inference. Comprehensive evaluations on four publicly available cancer datasets indicate that our method surpasses current leading unimodal and multimodal survival prediction techniques in both accuracy and interoperability, providing a new perspective on prototype learning for critical medical applications. Our source code is available at https://github.com/JSLiam94/FeatProto.",
+      "authors": [
+        "Shuo Jiang",
+        "Zhuwen Chen",
+        "Liaoman Xu",
+        "Yanming Zhu",
+        "Changmiao Wang",
+        "Jiong Zhang",
+        "Feiwei Qin",
+        "Yifei Chen",
+        "Zhu Zhu"
+      ],
+      "published": "2025-10-08T00:49:52+08:00",
+      "updated": "2025-10-08T00:49:52+08:00",
+      "arxiv_id": "2510.06113v1",
+      "url": "https://arxiv.org/pdf/2510.06113v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "VideoMiner: Iteratively Grounding Key Frames of Hour-Long Videos via Tree-based Group Relative Policy Optimization",
+      "abstract": "Understanding hour-long videos with multi-modal large language models (MM-LLMs) enriches the landscape of human-centered AI applications. However, for end-to-end video understanding with LLMs, uniformly sampling video frames results in LLMs being overwhelmed by a vast amount of irrelevant information as video length increases. Existing hierarchical key frame extraction methods improve the accuracy of video understanding but still face two critical challenges. 1) How can the interference of extensive redundant information in long videos be mitigated? 2) How can a model dynamically adapt to complex hierarchical structures while accurately identifying key frames? To address these issues, we propose VideoMiner, which iteratively segments, captions, and clusters long videos, forming a hierarchical tree structure. The proposed VideoMiner progresses from long videos to events to frames while preserving temporal coherence, effectively addressing the first challenge. To precisely locate key frames, we introduce T-GRPO, a tree-based group relative policy optimization in reinforcement learning method that guides the exploration of the VideoMiner. The proposed T-GRPO is specifically designed for tree structures, integrating spatiotemporal information at the event level while being guided by the question, thus solving the second challenge. We achieve superior performance in all long-video understanding tasks and uncover several interesting insights. Our proposed T-GRPO surprisingly incentivizes the model to spontaneously generate a reasoning chain. Additionally, the designed tree growth auxin dynamically adjusts the expansion depth, obtaining accuracy and efficiency gains. The code is publicly available at https://github.com/caoxinye/VideoMiner.",
+      "authors": [
+        "Xinye Cao",
+        "Hongcan Guo",
+        "Jiawen Qian",
+        "Guoshun Nan",
+        "Chao Wang",
+        "Yuqi Pan",
+        "Tianhao Hou",
+        "Xiaojuan Wang",
+        "Yutong Gao"
+      ],
+      "published": "2025-10-07T23:34:46+08:00",
+      "updated": "2025-10-07T23:34:46+08:00",
+      "arxiv_id": "2510.06040v1",
+      "url": "https://arxiv.org/pdf/2510.06040v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "task interference"
+      ]
+    },
+    {
+      "title": "Towards Robust and Realible Multimodal Misinformation Recognition with Incomplete Modality",
+      "abstract": "Multimodal Misinformation Recognition has become an urgent task with the emergence of huge multimodal fake content on social media platforms. Previous studies mainly focus on complex feature extraction and fusion to learn discriminative information from multimodal content. However, in real-world applications, multimedia news may naturally lose some information during dissemination, resulting in modality incompleteness, which is detrimental to the generalization and robustness of existing models. To this end, we propose a novel generic and robust multimodal fusion strategy, termed Multi-expert Modality-incomplete Learning Network (MMLNet), which is simple yet effective. It consists of three key steps: (1) Multi-Expert Collaborative Reasoning to compensate for missing modalities by dynamically leveraging complementary information through multiple experts. (2) Incomplete Modality Adapters compensates for the missing information by leveraging the new feature distribution. (3) Modality Missing Learning leveraging an label-aware adaptive weighting strategy to learn a robust representation with contrastive learning. We evaluate MMLNet on three real-world benchmarks across two languages, demonstrating superior performance compared to state-of-the-art methods while maintaining relative simplicity. By ensuring the accuracy of misinformation recognition in incomplete modality scenarios caused by information propagation, MMLNet effectively curbs the spread of malicious misinformation. Code is publicly available at https://github.com/zhyhome/MMLNet.",
+      "authors": [
+        "Hengyang Zhou",
+        "Yiwei Wei",
+        "Jian Yang",
+        "Zhenyu Zhang"
+      ],
+      "published": "2025-10-07T20:03:17+08:00",
+      "updated": "2025-10-14T10:45:02+08:00",
+      "arxiv_id": "2510.05839v3",
+      "url": "https://arxiv.org/pdf/2510.05839v3",
+      "categories": [
+        "cs.MM",
+        "cs.CV"
+      ],
+      "primary_category": "cs.MM",
+      "matched_keywords": [
+        "modality missing",
+        "incomplete modality",
+        "Multimodal Reasoning",
+        "missing modality"
+      ]
+    },
+    {
+      "title": "Decoding Partial Differential Equations: Cross-Modal Adaptation of Decoder-only Models to PDEs",
+      "abstract": "Large language models have shown great success on natural language tasks in recent years, but they have also shown great promise when adapted to new modalities, e.g., for scientific machine learning tasks. Even though decoder-only models are more popular within NLP and scale exceedingly well at generating natural language, most proposed approaches for cross-modal adaptation focus on encoder-only models, raising the question of how model architecture affects these approaches. In this paper, we therefore perform a series of ablation studies to answer this question, systematically comparing encoder-only and decoder-only models on cross-modal adaptation for time-dependent simulation tasks based on partial differential equations (PDEs). We find that decoder-only models are far worse than encoder-only models, when existing approaches are applied unmodified. In contrast to several other domains, scaling decoder-only models also does not help. To harness the potential of decoder-only models in this context, we introduce two novel approaches, Parallel Flipping and Sequence Doubling, attempting to mimic bidirectionality in autoregressive models. Both our methods improve overall performance using decoder-only models for all tasks and all cross-model adaptation methods, closing the gap to encoder-only model performance. We hope that our findings broaden the spectrum of models used on cross-modal adaptation tasks to further scientific ML.",
+      "authors": [
+        "Paloma García-de-Herreros",
+        "Philipp Slusallek",
+        "Dietrich Klakow",
+        "Vagrant Gautam"
+      ],
+      "published": "2025-10-07T02:46:50+08:00",
+      "updated": "2025-10-07T02:46:50+08:00",
+      "arxiv_id": "2510.05278v1",
+      "url": "https://arxiv.org/pdf/2510.05278v1",
+      "categories": [
+        "cs.LG",
+        "cs.CL"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Human Behavior Atlas: Benchmarking Unified Psychological and Social Behavior Understanding",
+      "abstract": "Using intelligent systems to perceive psychological and social behaviors, that is, the underlying affective, cognitive, and pathological states that are manifested through observable behaviors and social interactions, remains a challenge due to their complex, multifaceted, and personalized nature. Existing work tackling these dimensions through specialized datasets and single-task systems often miss opportunities for scalability, cross-task transfer, and broader generalization. To address this gap, we curate Human Behavior Atlas, a unified benchmark of diverse behavioral tasks designed to support the development of unified models for understanding psychological and social behaviors. Human Behavior Atlas comprises over 100,000 samples spanning text, audio, and visual modalities, covering tasks on affective states, cognitive states, pathologies, and social processes. Our unification efforts can reduce redundancy and cost, enable training to scale efficiently across tasks, and enhance generalization of behavioral features across domains. On Human Behavior Atlas, we train three models: OmniSapiens-7B SFT, OmniSapiens-7B BAM, and OmniSapiens-7B RL. We show that training on Human Behavior Atlas enables models to consistently outperform existing multimodal LLMs across diverse behavioral tasks. Pretraining on Human Behavior Atlas also improves transfer to novel behavioral datasets; with the targeted use of behavioral descriptors yielding meaningful performance gains.",
+      "authors": [
+        "Keane Ong",
+        "Wei Dai",
+        "Carol Li",
+        "Dewei Feng",
+        "Hengzhi Li",
+        "Jingyao Wu",
+        "Jiaee Cheong",
+        "Rui Mao",
+        "Gianmarco Mengaldo",
+        "Erik Cambria",
+        "Paul Pu Liang"
+      ],
+      "published": "2025-10-06T23:16:45+08:00",
+      "updated": "2025-10-06T23:16:45+08:00",
+      "arxiv_id": "2510.04899v1",
+      "url": "https://arxiv.org/pdf/2510.04899v1",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": []
+    },
+    {
+      "title": "Label-Efficient Cross-Modality Generalization for Liver Segmentation in Multi-Phase MRI",
+      "abstract": "Accurate liver segmentation in multi-phase MRI is vital for liver fibrosis assessment, yet labeled data is often scarce and unevenly distributed across imaging modalities and vendor systems. We propose a label-efficient segmentation approach that promotes cross-modality generalization under real-world conditions, where GED4 hepatobiliary-phase annotations are limited, non-contrast sequences (T1WI, T2WI, DWI) are unlabeled, and spatial misalignment and missing phases are common. Our method integrates a foundation-scale 3D segmentation backbone adapted via fine-tuning, co-training with cross pseudo supervision to leverage unlabeled volumes, and a standardized preprocessing pipeline. Without requiring spatial registration, the model learns to generalize across MRI phases and vendors, demonstrating robust segmentation performance in both labeled and unlabeled domains. Our results exhibit the effectiveness of our proposed label-efficient baseline for liver segmentation in multi-phase, multi-vendor MRI and highlight the potential of combining foundation model adaptation with co-training for real-world clinical imaging tasks.",
+      "authors": [
+        "Quang-Khai Bui-Tran",
+        "Minh-Toan Dinh",
+        "Thanh-Huy Nguyen",
+        "Ba-Thinh Lam",
+        "Mai-Anh Vu",
+        "Ulas Bagci"
+      ],
+      "published": "2025-10-06T19:19:05+08:00",
+      "updated": "2025-10-06T19:19:05+08:00",
+      "arxiv_id": "2510.04705v1",
+      "url": "https://arxiv.org/pdf/2510.04705v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "modality missing",
+        "missing modality",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Partial Information Decomposition via Normalizing Flows in Latent Gaussian Distributions",
+      "abstract": "The study of multimodality has garnered significant interest in fields where the analysis of interactions among multiple information sources can enhance predictive modeling, data fusion, and interpretability. Partial information decomposition (PID) has emerged as a useful information-theoretic framework to quantify the degree to which individual modalities independently, redundantly, or synergistically convey information about a target variable. However, existing PID methods depend on optimizing over a joint distribution constrained by estimated pairwise probability distributions, which are costly and inaccurate for continuous and high-dimensional modalities. Our first key insight is that the problem can be solved efficiently when the pairwise distributions are multivariate Gaussians, and we refer to this problem as Gaussian PID (GPID). We propose a new gradient-based algorithm that substantially improves the computational efficiency of GPID based on an alternative formulation of the underlying optimization problem. To generalize the applicability to non-Gaussian data, we learn information-preserving encoders to transform random variables of arbitrary input distributions into pairwise Gaussian random variables. Along the way, we resolved an open problem regarding the optimality of joint Gaussian solutions for GPID. Empirical validation in diverse synthetic examples demonstrates that our proposed method provides more accurate and efficient PID estimates than existing baselines. We further evaluate a series of large-scale multimodal benchmarks to show its utility in real-world applications of quantifying PID in multimodal datasets and selecting high-performing models.",
+      "authors": [
+        "Wenyuan Zhao",
+        "Adithya Balachandran",
+        "Chao Tian",
+        "Paul Pu Liang"
+      ],
+      "published": "2025-10-06T09:08:34+08:00",
+      "updated": "2025-10-06T09:08:34+08:00",
+      "arxiv_id": "2510.04417v1",
+      "url": "https://arxiv.org/pdf/2510.04417v1",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CL",
+        "cs.CV",
+        "cs.IT"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "Multimodal Large Models",
+        "partial modality"
+      ]
+    },
+    {
+      "title": "Your Vision-Language Model Can't Even Count to 20: Exposing the Failures of VLMs in Compositional Counting",
+      "abstract": "Vision-Language Models (VLMs) have become a central focus of today's AI community, owing to their impressive abilities gained from training on large-scale vision-language data from the Web. These models have demonstrated strong performance across diverse tasks, including image understanding, video understanding, complex visual reasoning, and embodied AI. Despite these noteworthy successes, a fundamental question remains: Can VLMs count objects correctly? In this paper, we introduce a simple yet effective benchmark, VLMCountBench, designed under a minimalist setting with only basic geometric shapes (e.g., triangles, circles) and their compositions, focusing exclusively on counting tasks without interference from other factors. We adopt strict independent variable control and systematically study the effects of simple properties such as color, size, and prompt refinement in a controlled ablation. Our empirical results reveal that while VLMs can count reliably when only one shape type is present, they exhibit substantial failures when multiple shape types are combined (i.e., compositional counting). This highlights a fundamental empirical limitation of current VLMs and motivates important directions for future research.",
+      "authors": [
+        "Xuyang Guo",
+        "Zekai Huang",
+        "Zhenmei Shi",
+        "Zhao Song",
+        "Jiahao Zhang"
+      ],
+      "published": "2025-10-06T08:11:24+08:00",
+      "updated": "2025-10-06T08:11:24+08:00",
+      "arxiv_id": "2510.04401v1",
+      "url": "https://arxiv.org/pdf/2510.04401v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "task interference",
+        "Vision-Language Model",
+        "VLM"
+      ]
+    },
+    {
+      "title": "DoRAN: Stabilizing Weight-Decomposed Low-Rank Adaptation via Noise Injection and Auxiliary Networks",
+      "abstract": "Parameter-efficient fine-tuning (PEFT) methods have become the standard paradigm for adapting large-scale models. Among these techniques, Weight-Decomposed Low-Rank Adaptation (DoRA) has been shown to improve both the learning capacity and training stability of the vanilla Low-Rank Adaptation (LoRA) method by explicitly decomposing pre-trained weights into magnitude and directional components. In this work, we propose DoRAN, a new variant of DoRA designed to further stabilize training and boost the sample efficiency of DoRA. Our approach includes two key stages: (i) injecting noise into the denominator of DoRA's weight decomposition, which serves as an adaptive regularizer to mitigate instabilities; and (ii) replacing static low-rank matrices with auxiliary networks that generate them dynamically, enabling parameter coupling across layers and yielding better sample efficiency in both theory and practice. Comprehensive experiments on vision and language benchmarks show that DoRAN consistently outperforms LoRA, DoRA, and other PEFT baselines. These results underscore the effectiveness of combining stabilization through noise-based regularization with network-based parameter generation, offering a promising direction for robust and efficient fine-tuning of foundation models.",
+      "authors": [
+        "Nghiem T. Diep",
+        "Hien Dang",
+        "Tuan Truong",
+        "Tan Dinh",
+        "Huy Nguyen",
+        "Nhat Ho"
+      ],
+      "published": "2025-10-06T03:27:48+08:00",
+      "updated": "2025-10-06T03:27:48+08:00",
+      "arxiv_id": "2510.04331v1",
+      "url": "https://arxiv.org/pdf/2510.04331v1",
+      "categories": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "lora"
+      ]
+    },
+    {
+      "title": "HoRA: Cross-Head Low-Rank Adaptation with Joint Hypernetworks",
+      "abstract": "Low-Rank Adaptation (LoRA) is a parameter-efficient fine-tuning (PEFT) technique that adapts large pre-trained models by adding low-rank matrices to their weight updates. However, in the context of fine-tuning multi-head self-attention (MHA), LoRA has been employed to adapt each attention head separately, thereby overlooking potential synergies across different heads. To mitigate this issue, we propose a novel Hyper-shared Low-Rank Adaptation (HoRA) method, which utilizes joint hypernetworks to generate low-rank matrices across attention heads. By coupling their adaptation through a shared generator, HoRA encourages cross-head information sharing, and thus directly addresses the aforementioned limitation of LoRA. By comparing LoRA and HoRA through the lens of hierarchical mixture of experts, our theoretical findings reveal that the latter achieves superior sample efficiency to the former. Furthermore, through extensive experiments across diverse language and vision benchmarks, we demonstrate that HoRA outperforms LoRA and other PEFT methods while requiring only a marginal increase in the number of trainable parameters.",
+      "authors": [
+        "Nghiem T. Diep",
+        "Dung Le",
+        "Tuan Truong",
+        "Tan Dinh",
+        "Huy Nguyen",
+        "Nhat Ho"
+      ],
+      "published": "2025-10-06T01:13:39+08:00",
+      "updated": "2025-10-06T01:13:39+08:00",
+      "arxiv_id": "2510.04295v1",
+      "url": "https://arxiv.org/pdf/2510.04295v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "lora"
+      ]
+    },
+    {
+      "title": "GROK: From Quantitative Biomarkers to Qualitative Diagnosis via a Grounded MLLM with Knowledge-Guided Instruction",
+      "abstract": "Multimodal large language models (MLLMs) hold promise for integrating diverse data modalities, but current medical adaptations such as LLaVA-Med often fail to fully exploit the synergy between color fundus photography (CFP) and optical coherence tomography (OCT), and offer limited interpretability of quantitative biomarkers. We introduce GROK, a grounded multimodal large language model that jointly processes CFP, OCT, and text to deliver clinician-grade diagnoses of ocular and systemic disease. GROK comprises three core modules: Knowledge-Guided Instruction Generation, CLIP-Style OCT-Biomarker Alignment, and Supervised Instruction Fine-Tuning, which together establish a quantitative-to-qualitative diagnostic chain of thought, mirroring real clinical reasoning when producing detailed lesion annotations. To evaluate our approach, we introduce the Grounded Ophthalmic Understanding benchmark, which covers six disease categories and three tasks: macro-level diagnostic classification, report generation quality, and fine-grained clinical assessment of the generated chain of thought. Experiments show that, with only LoRA (Low-Rank Adaptation) fine-tuning of a 7B-parameter Qwen2 backbone, GROK outperforms comparable 7B and 32B baselines on both report quality and fine-grained clinical metrics, and even exceeds OpenAI o3. Code and data are publicly available in the GROK repository.",
+      "authors": [
+        "Zhuangzhi Gao",
+        "Hongyi Qin",
+        "He Zhao",
+        "Qinkai Yu",
+        "Feixiang Zhou",
+        "Eduard Shantsila",
+        "Uazman Alam",
+        "Alena Shantsila",
+        "Wahbi El-Bouri",
+        "Gregory Y. H. Lip",
+        "Yalin Zheng"
+      ],
+      "published": "2025-10-06T00:46:29+08:00",
+      "updated": "2025-10-06T00:46:29+08:00",
+      "arxiv_id": "2510.04281v1",
+      "url": "https://arxiv.org/pdf/2510.04281v1",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "MLLMEraser: Achieving Test-Time Unlearning in Multimodal Large Language Models through Activation Steering",
+      "abstract": "Multimodal large language models (MLLMs) have demonstrated remarkable capabilities across vision-language tasks, yet their large-scale deployment raises pressing concerns about memorized private data, outdated knowledge, and harmful content. Existing unlearning approaches for MLLMs typically adapt training-based strategies such as gradient ascent or preference optimization, but these methods are computationally expensive, irreversible, and often distort retained knowledge. In this work, we propose MLLMEraser, an input-aware, training-free framework for test-time unlearning. Our approach leverages activation steering to enable dynamic knowledge erasure without parameter updates. Specifically, we construct a multimodal erasure direction by contrasting adversarially perturbed, knowledge-recall image-text pairs with knowledge-erasure counterparts, capturing both textual and visual discrepancies. To prevent unnecessary interference, we further design an input-aware steering mechanism that adaptively determines when and how the erasure direction should be applied, preserving utility on retained knowledge while enforcing forgetting on designated content. Experiments on LLaVA-1.5 and Qwen-2.5-VL demonstrate that MLLMEraser consistently outperforms state-of-the-art MLLM unlearning baselines, achieving stronger forgetting performance with lower computational cost and minimal utility degradation.",
+      "authors": [
+        "Chenlu Ding",
+        "Jiancan Wu",
+        "Leheng Sheng",
+        "Fan Zhang",
+        "Yancheng Yuan",
+        "Xiang Wang",
+        "Xiangnan He"
+      ],
+      "published": "2025-10-05T22:20:17+08:00",
+      "updated": "2025-10-10T19:47:30+08:00",
+      "arxiv_id": "2510.04217v2",
+      "url": "https://arxiv.org/pdf/2510.04217v2",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "matched_keywords": [
+        "Multimodal Large Language Model",
+        "Multimodal Large Models",
+        "Vision-Language Model",
+        "MLLM",
+        "task interference",
+        "MLLMs"
+      ]
+    },
+    {
+      "title": "DHQA-4D: Perceptual Quality Assessment of Dynamic 4D Digital Human",
+      "abstract": "With the rapid development of 3D scanning and reconstruction technologies, dynamic digital human avatars based on 4D meshes have become increasingly popular. A high-precision dynamic digital human avatar can be applied to various fields such as game production, animation generation, and remote immersive communication. However, these 4D human avatar meshes are prone to being degraded by various types of noise during the processes of collection, compression, and transmission, thereby affecting the viewing experience of users. In light of this fact, quality assessment of dynamic 4D digital humans becomes increasingly important. In this paper, we first propose a large-scale dynamic digital human quality assessment dataset, DHQA-4D, which contains 32 high-quality real-scanned 4D human mesh sequences, 1920 distorted textured 4D human meshes degraded by 11 textured distortions, as well as their corresponding textured and non-textured mean opinion scores (MOSs). Equipped with DHQA-4D dataset, we analyze the influence of different types of distortion on human perception for textured dynamic 4D meshes and non-textured dynamic 4D meshes. Additionally, we propose DynaMesh-Rater, a novel large multimodal model (LMM) based approach that is able to assess both textured 4D meshes and non-textured 4D meshes. Concretely, DynaMesh-Rater elaborately extracts multi-dimensional features, including visual features from a projected 2D video, motion features from cropped video clips, and geometry features from the 4D human mesh to provide comprehensive quality-related information. Then we utilize a LMM model to integrate the multi-dimensional features and conduct a LoRA-based instruction tuning technique to teach the LMM model to predict the quality scores. Extensive experimental results on the DHQA-4D dataset demonstrate the superiority of our DynaMesh-Rater method over previous quality assessment methods.",
+      "authors": [
+        "Yunhao Li",
+        "Sijing Wu",
+        "Yucheng Zhu",
+        "Huiyu Duan",
+        "Zicheng Zhang",
+        "Guangtao Zhai"
+      ],
+      "published": "2025-10-05T00:51:08+08:00",
+      "updated": "2025-10-05T00:51:08+08:00",
+      "arxiv_id": "2510.03874v1",
+      "url": "https://arxiv.org/pdf/2510.03874v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Cross-Modal Content Optimization for Steering Web Agent Preferences",
+      "abstract": "Vision-language model (VLM)-based web agents increasingly power high-stakes selection tasks like content recommendation or product ranking by combining multimodal perception with preference reasoning. Recent studies reveal that these agents are vulnerable against attackers who can bias selection outcomes through preference manipulations using adversarial pop-ups, image perturbations, or content tweaks. Existing work, however, either assumes strong white-box access, with limited single-modal perturbations, or uses impractical settings. In this paper, we demonstrate, for the first time, that joint exploitation of visual and textual channels yields significantly more powerful preference manipulations under realistic attacker capabilities. We introduce Cross-Modal Preference Steering (CPS) that jointly optimizes imperceptible modifications to an item's visual and natural language descriptions, exploiting CLIP-transferable image perturbations and RLHF-induced linguistic biases to steer agent decisions. In contrast to prior studies that assume gradient access, or control over webpages, or agent memory, we adopt a realistic black-box threat setup: a non-privileged adversary can edit only their own listing's images and textual metadata, with no insight into the agent's model internals. We evaluate CPS on agents powered by state-of-the-art proprietary and open source VLMs including GPT-4.1, Qwen-2.5VL and Pixtral-Large on both movie selection and e-commerce tasks. Our results show that CPS is significantly more effective than leading baseline methods. For instance, our results show that CPS consistently outperforms baselines across all models while maintaining 70% lower detection rates, demonstrating both effectiveness and stealth. These findings highlight an urgent need for robust defenses as agentic systems play an increasingly consequential role in society.",
+      "authors": [
+        "Tanqiu Jiang",
+        "Min Bai",
+        "Nikolaos Pappas",
+        "Yanjun Qi",
+        "Sandesh Swamy"
+      ],
+      "published": "2025-10-04T09:57:20+08:00",
+      "updated": "2025-10-04T09:57:20+08:00",
+      "arxiv_id": "2510.03612v1",
+      "url": "https://arxiv.org/pdf/2510.03612v1",
+      "categories": [
+        "cs.AI",
+        "cs.CR"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "VLM",
+        "Multimodal Reasoning",
+        "Multimodal Large Language Model",
+        "Multimodal Large Models",
+        "Vision-Language Model",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "TRepLiNa: Layer-wise CKA+REPINA Alignment Improves Low-Resource Machine Translation in Aya-23 8B",
+      "abstract": "The 2025 Multimodal Models for Low-Resource Contexts and Social Impact (MMLoSo) Language Challenge addresses one of India's most pressing linguistic gaps: the lack of resources for its diverse low-resource languages (LRLs). In this study, we investigate whether enforcing cross-lingual similarity in specific internal layers of a decoder-only multilingual large language model (LLM) can improve translation quality from LRL to high-resource language (HRL). Specifically, we combine Centered Kernel Alignment (CKA), a similarity metric that encourages representations of different languages to align, with REPINA, a regularization method that constrains parameter updates to remain close to the pretrained model, into a joint method we call TRepLiNa. In this research project, we experiment with zero-shot, few-shot, and fine-tuning settings using Aya-23 8B with QLoRA across MMLoSo shared task language pairs (Mundari, Santali, Bhili) with Hindi/English pivots. Our results show that aligning mid-level layers using TRepLiNa (CKA+REPINA) is a low-cost, practical approach to improving LRL translation, especially in data-scarce settings.",
+      "authors": [
+        "Toshiki Nakai",
+        "Ravi Kiran Chikkala",
+        "Lena Sophie Oberkircher",
+        "Nicholas Jennings",
+        "Natalia Skachkova",
+        "Tatiana Anikina",
+        "Jesujoba Oluwadara Alabi"
+      ],
+      "published": "2025-10-04T01:36:12+08:00",
+      "updated": "2025-10-11T23:03:48+08:00",
+      "arxiv_id": "2510.06249v2",
+      "url": "https://arxiv.org/pdf/2510.06249v2",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "qlora",
+        "multimodal",
+        "lora"
+      ]
+    },
+    {
+      "title": "Multimodal Carotid Risk Stratification with Large Vision-Language Models: Benchmarking, Fine-Tuning, and Clinical Insights",
+      "abstract": "Reliable risk assessment for carotid atheromatous disease remains a major clinical challenge, as it requires integrating diverse clinical and imaging information in a manner that is transparent and interpretable to clinicians. This study investigates the potential of state-of-the-art and recent large vision-language models (LVLMs) for multimodal carotid plaque assessment by integrating ultrasound imaging (USI) with structured clinical, demographic, laboratory, and protein biomarker data. A framework that simulates realistic diagnostic scenarios through interview-style question sequences is proposed, comparing a range of open-source LVLMs, including both general-purpose and medically tuned models. Zero-shot experiments reveal that even if they are very powerful, not all LVLMs can accurately identify imaging modality and anatomy, while all of them perform poorly in accurate risk classification. To address this limitation, LLaVa-NeXT-Vicuna is adapted to the ultrasound domain using low-rank adaptation (LoRA), resulting in substantial improvements in stroke risk stratification. The integration of multimodal tabular data in the form of text further enhances specificity and balanced accuracy, yielding competitive performance compared to prior convolutional neural network (CNN) baselines trained on the same dataset. Our findings highlight both the promise and limitations of LVLMs in ultrasound-based cardiovascular risk prediction, underscoring the importance of multimodal integration, model calibration, and domain adaptation for clinical translation.",
+      "authors": [
+        "Daphne Tsolissou",
+        "Theofanis Ganitidis",
+        "Konstantinos Mitsis",
+        "Stergios CHristodoulidis",
+        "Maria Vakalopoulou",
+        "Konstantina Nikita"
+      ],
+      "published": "2025-10-03T19:48:12+08:00",
+      "updated": "2025-10-03T19:48:12+08:00",
+      "arxiv_id": "2510.02922v1",
+      "url": "https://arxiv.org/pdf/2510.02922v1",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "multimodal",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "Med-K2N: Flexible K-to-N Modality Translation for Medical Image Synthesis",
+      "abstract": "Cross-modal medical image synthesis research focuses on reconstructing missing imaging modalities from available ones to support clinical diagnosis. Driven by clinical necessities for flexible modality reconstruction, we explore K to N medical generation, where three critical challenges emerge: How can we model the heterogeneous contributions of different modalities to various target tasks? How can we ensure fusion quality control to prevent degradation from noisy information? How can we maintain modality identity consistency in multi-output generation? Driven by these clinical necessities, and drawing inspiration from SAM2's sequential frame paradigm and clinicians' progressive workflow of incrementally adding and selectively integrating multi-modal information, we treat multi-modal medical data as sequential frames with quality-driven selection mechanisms. Our key idea is to \"learn\" adaptive weights for each modality-task pair and \"memorize\" beneficial fusion patterns through progressive enhancement. To achieve this, we design three collaborative modules: PreWeightNet for global contribution assessment, ThresholdNet for adaptive filtering, and EffiWeightNet for effective weight computation. Meanwhile, to maintain modality identity consistency, we propose the Causal Modality Identity Module (CMIM) that establishes causal constraints between generated images and target modality descriptions using vision-language modeling. Extensive experimental results demonstrate that our proposed Med-K2N outperforms state-of-the-art methods by significant margins on multiple benchmarks. Source code is available.",
+      "authors": [
+        "Feng Yuan",
+        "Yifan Gao",
+        "Yuehua Ye",
+        "Haoyue Li",
+        "Xin Gao"
+      ],
+      "published": "2025-10-03T16:47:17+08:00",
+      "updated": "2025-10-03T16:47:17+08:00",
+      "arxiv_id": "2510.02815v1",
+      "url": "https://arxiv.org/pdf/2510.02815v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "modality missing",
+        "Vision-Language Model",
+        "missing modality",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Mitigating Modal Imbalance in Multimodal Reasoning",
+      "abstract": "Foundation models (FMs) deployed in real-world tasks such as computer-use agents must integrate diverse modalities. How good are FMs at performing joint reasoning, simultaneously reasoning over multiple modalities, especially when the modalities interact and relate to each other to form cross-modal context? To better understand this problem, we study FMs on cross-modal conflicts: scenarios where conflicting evidence is presented across modalities. This allows us to examine whether FMs prioritize one modality over another or reason jointly to reconcile the conflict. Our experiments reveal that FMs can recognize conflicts in unimodal contexts, composed of a single modality, 90% of the time, but the ratio falls as low as 3% when evidence is split across modalities -- similar observations hold in cross-lingual contexts, composed of multiple languages. We trace this failure to cross-modal attention imbalance, showing that FMs exhibit extreme asymmetry in attention scores, disproportionately prioritizing certain modalities. We show that cross-modal attention imbalance does not go away by simply scaling up multimodal or multilingual datasets blindly, since they lack training examples that explicitly require cross-modal reasoning. We demonstrate that even a simple and scalable method of explicitly combining multiple modalities within each training instance significantly reduces attention imbalance. Reduced attention imbalance directly translates to improved downstream performance on several vision-language benchmarks. Our findings underscore the importance of systematically addressing cross-modal contexts to build reliable foundation models.",
+      "authors": [
+        "Chen Henry Wu",
+        "Neil Kale",
+        "Aditi Raghunathan"
+      ],
+      "published": "2025-10-03T06:58:28+08:00",
+      "updated": "2025-10-06T10:10:36+08:00",
+      "arxiv_id": "2510.02608v2",
+      "url": "https://arxiv.org/pdf/2510.02608v2",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "matched_keywords": [
+        "Multimodal Reasoning",
+        "Multimodal Foundation Model",
+        "Vision-Language Model",
+        "Cross-Modal Model",
+        "modality imbalance",
+        "modality conflict",
+        "cross-modal conflict"
+      ]
+    },
+    {
+      "title": "Secure Multi-Modal Data Fusion in Federated Digital Health Systems via MCP",
+      "abstract": "Secure and interoperable integration of heterogeneous medical data remains a grand challenge in digital health. Current federated learning (FL) frameworks offer privacy-preserving model training but lack standardized mechanisms to orchestrate multi-modal data fusion across distributed and resource-constrained environments. This study introduces a novel framework that leverages the Model Context Protocol (MCP) as an interoperability layer for secure, cross-agent communication in multi-modal federated healthcare systems. The proposed architecture unifies three pillars: (i) multi-modal feature alignment for clinical imaging, electronic medical records, and wearable IoT data; (ii) secure aggregation with differential privacy to protect patient-sensitive updates; and (iii) energy-aware scheduling to mitigate dropouts in mobile clients. By employing MCP as a schema-driven interface, the framework enables adaptive orchestration of AI agents and toolchains while ensuring compliance with privacy regulations. Experimental evaluation on benchmark datasets and pilot clinical cohorts demonstrates up to 9.8\\% improvement in diagnostic accuracy compared with baseline FL, a 54\\% reduction in client dropout rates, and clinically acceptable privacy--utility trade-offs. These results highlight MCP-enabled multi-modal fusion as a scalable and trustworthy pathway toward equitable, next-generation federated health infrastructures.",
+      "authors": [
+        "Aueaphum Aueawatthanaphisut"
+      ],
+      "published": "2025-10-02T16:19:56+08:00",
+      "updated": "2025-10-02T16:19:56+08:00",
+      "arxiv_id": "2510.01780v1",
+      "url": "https://arxiv.org/pdf/2510.01780v1",
+      "categories": [
+        "cs.CR",
+        "cs.AI",
+        "cs.CY",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CR",
+      "matched_keywords": []
+    },
+    {
+      "title": "MDSEval: A Meta-Evaluation Benchmark for Multimodal Dialogue Summarization",
+      "abstract": "Multimodal Dialogue Summarization (MDS) is a critical task with wide-ranging applications. To support the development of effective MDS models, robust automatic evaluation methods are essential for reducing both cost and human effort. However, such methods require a strong meta-evaluation benchmark grounded in human annotations. In this work, we introduce MDSEval, the first meta-evaluation benchmark for MDS, consisting image-sharing dialogues, corresponding summaries, and human judgments across eight well-defined quality aspects. To ensure data quality and richfulness, we propose a novel filtering framework leveraging Mutually Exclusive Key Information (MEKI) across modalities. Our work is the first to identify and formalize key evaluation dimensions specific to MDS. We benchmark state-of-the-art modal evaluation methods, revealing their limitations in distinguishing summaries from advanced MLLMs and their susceptibility to various bias.",
+      "authors": [
+        "Yinhong Liu",
+        "Jianfeng He",
+        "Hang Su",
+        "Ruixue Lian",
+        "Yi Nian",
+        "Jake Vincent",
+        "Srikanth Vishnubhotla",
+        "Robinson Piramuthu",
+        "Saab Mansour"
+      ],
+      "published": "2025-10-02T12:38:27+08:00",
+      "updated": "2025-10-02T12:38:27+08:00",
+      "arxiv_id": "2510.01659v1",
+      "url": "https://arxiv.org/pdf/2510.01659v1",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "matched_keywords": [
+        "MLLM",
+        "MLLMs"
+      ]
+    },
+    {
+      "title": "LLM4Rec: Large Language Models for Multimodal Generative Recommendation with Causal Debiasing",
+      "abstract": "Contemporary generative recommendation systems face significant challenges in handling multimodal data, eliminating algorithmic biases, and providing transparent decision-making processes. This paper introduces an enhanced generative recommendation framework that addresses these limitations through five key innovations: multimodal fusion architecture, retrieval-augmented generation mechanisms, causal inference-based debiasing, explainable recommendation generation, and real-time adaptive learning capabilities. Our framework leverages advanced large language models as the backbone while incorporating specialized modules for cross-modal understanding, contextual knowledge integration, bias mitigation, explanation synthesis, and continuous model adaptation. Extensive experiments on three benchmark datasets (MovieLens-25M, Amazon-Electronics, Yelp-2023) demonstrate consistent improvements in recommendation accuracy, fairness, and diversity compared to existing approaches. The proposed framework achieves up to 2.3% improvement in NDCG@10 and 1.4% enhancement in diversity metrics while maintaining computational efficiency through optimized inference strategies.",
+      "authors": [
+        "Bo Ma",
+        "Hang Li",
+        "ZeHua Hu",
+        "XiaoFan Gui",
+        "LuYao Liu",
+        "Simon Lau"
+      ],
+      "published": "2025-10-02T10:53:05+08:00",
+      "updated": "2025-10-02T10:53:05+08:00",
+      "arxiv_id": "2510.01622v1",
+      "url": "https://arxiv.org/pdf/2510.01622v1",
+      "categories": [
+        "cs.IR",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "primary_category": "cs.IR",
+      "matched_keywords": [
+        "Multimodal Large Language Model",
+        "Multimodal Large Models",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Bridging Collaborative Filtering and Large Language Models with Dynamic Alignment, Multimodal Fusion and Evidence-grounded Explanations",
+      "abstract": "Recent research has explored using Large Language Models for recommendation tasks by transforming user interaction histories and item metadata into text prompts, then having the LLM produce rankings or recommendations. A promising approach involves connecting collaborative filtering knowledge to LLM representations through compact adapter networks, which avoids expensive fine-tuning while preserving the strengths of both components. Yet several challenges persist in practice: collaborative filtering models often use static snapshots that miss rapidly changing user preferences; many real-world items contain rich visual and audio content beyond textual descriptions; and current systems struggle to provide trustworthy explanations backed by concrete evidence. Our work introduces \\model{}, a framework that tackles these limitations through three key innovations. We develop an online adaptation mechanism that continuously incorporates new user interactions through lightweight modules, avoiding the need to retrain large models. We create a unified representation that seamlessly combines collaborative signals with visual and audio features, handling cases where some modalities may be unavailable. Finally, we design an explanation system that grounds recommendations in specific collaborative patterns and item attributes, producing natural language rationales users can verify. Our approach maintains the efficiency of frozen base models while adding minimal computational overhead, making it practical for real-world deployment.",
+      "authors": [
+        "Bo Ma",
+        "LuYao Liu",
+        "Simon Lau",
+        "Chandler Yuan",
+        "and XueY Cui",
+        "Rosie Zhang"
+      ],
+      "published": "2025-10-02T10:43:24+08:00",
+      "updated": "2025-10-02T10:43:24+08:00",
+      "arxiv_id": "2510.01606v1",
+      "url": "https://arxiv.org/pdf/2510.01606v1",
+      "categories": [
+        "cs.IR",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "primary_category": "cs.IR",
+      "matched_keywords": [
+        "Multimodal Large Language Model",
+        "Multimodal Large Models"
+      ]
+    },
+    {
+      "title": "Strategic Fusion of Vision Language Models: Shapley-Credited Context-Aware Dawid-Skene for Multi-Label Tasks in Autonomous Driving",
+      "abstract": "Large vision-language models (VLMs) are increasingly used in autonomous-vehicle (AV) stacks, but hallucination limits their reliability in safety-critical pipelines. We present Shapley-credited Context-Aware Dawid-Skene with Agreement, a game-theoretic fusion method for multi-label understanding of ego-view dashcam video. It learns per-model, per-label, context-conditioned reliabilities from labelled history and, at inference, converts each model's report into an agreement-guardrailed log-likelihood ratio that is combined with a contextual prior and a public reputation state updated via Shapley-based team credit. The result is calibrated, thresholdable posteriors that (i) amplify agreement among reliable models, (ii) preserve uniquely correct single-model signals, and (iii) adapt to drift. To specialise general VLMs, we curate 1,000 real-world dashcam clips with structured annotations (scene description, manoeuvre recommendation, rationale) via an automatic pipeline that fuses HDD ground truth, vehicle kinematics, and YOLOv11 + BoT-SORT tracking, guided by a three-step chain-of-thought prompt; three heterogeneous VLMs are then fine-tuned with LoRA. We evaluate with Hamming distance, Micro-Macro-F1, and average per-video latency. Empirically, the proposed method achieves a 23% reduction in Hamming distance, 55% improvement in Macro-F1, and 47% improvement in Micro-F1 when comparing with the best single model, supporting VLM fusion as a calibrated, interpretable, and robust decision-support component for AV pipelines.",
+      "authors": [
+        "Yuxiang Feng",
+        "Keyang Zhang",
+        "Hassane Ouchouid",
+        "Ashwil Kaniamparambil",
+        "Ioannis Souflas",
+        "Panagiotis Angeloudis"
+      ],
+      "published": "2025-10-02T01:14:11+08:00",
+      "updated": "2025-10-02T01:14:11+08:00",
+      "arxiv_id": "2510.01126v1",
+      "url": "https://arxiv.org/pdf/2510.01126v1",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "vlm",
+        "lora",
+        "vision-language"
+      ]
+    },
+    {
+      "title": "When Silence Matters: The Impact of Irrelevant Audio on Text Reasoning in Large Audio-Language Models",
+      "abstract": "Large audio-language models (LALMs) unify speech and text processing, but their robustness in noisy real-world settings remains underexplored. We investigate how irrelevant audio, such as silence, synthetic noise, and environmental sounds, affects text reasoning tasks where audio is unnecessary. Across three text-based benchmarks, we find that even non-informative audio reduces accuracy and increases prediction volatility; the severity of interference scales with longer durations, higher amplitudes, and elevated decoding temperatures. Silence, often assumed neutral, destabilizes outputs as strongly as synthetic noise. While larger models show greater resilience, vulnerabilities persist across all evaluated systems. We further test mitigation strategies and find that prompting shows limited effectiveness, whereas self-consistency improves stability at the cost of increased computation. Our results reveal cross-modal interference as a key robustness challenge and highlight the need for efficient fusion strategies that preserve reasoning performance in the presence of irrelevant inputs.",
+      "authors": [
+        "Chen-An Li",
+        "Tzu-Han Lin",
+        "Hung-yi Lee"
+      ],
+      "published": "2025-10-01T15:59:45+08:00",
+      "updated": "2025-10-01T15:59:45+08:00",
+      "arxiv_id": "2510.00626v1",
+      "url": "https://arxiv.org/pdf/2510.00626v1",
+      "categories": [
+        "cs.SD",
+        "cs.CL"
+      ],
+      "primary_category": "cs.SD",
+      "matched_keywords": [
+        "task interference",
+        "cross-modal interference",
+        "Cross-Modal Model"
+      ]
+    },
+    {
+      "title": "Advances in Medical Image Segmentation: A Comprehensive Survey with a Focus on Lumbar Spine Applications",
+      "abstract": "Medical Image Segmentation (MIS) stands as a cornerstone in medical image analysis, playing a pivotal role in precise diagnostics, treatment planning, and monitoring of various medical conditions. This paper presents a comprehensive and systematic survey of MIS methodologies, bridging the gap between traditional image processing techniques and modern deep learning approaches. The survey encompasses thresholding, edge detection, region-based segmentation, clustering algorithms, and model-based techniques while also delving into state-of-the-art deep learning architectures such as Convolutional Neural Networks (CNNs), Fully Convolutional Networks (FCNs), and the widely adopted U-Net and its variants. Moreover, integrating attention mechanisms, semi-supervised learning, generative adversarial networks (GANs), and Transformer-based models is thoroughly explored. In addition to covering established methods, this survey highlights emerging trends, including hybrid architectures, cross-modality learning, federated and distributed learning frameworks, and active learning strategies, which aim to address challenges such as limited labeled datasets, computational complexity, and model generalizability across diverse imaging modalities. Furthermore, a specialized case study on lumbar spine segmentation is presented, offering insights into the challenges and advancements in this relatively underexplored anatomical region. Despite significant progress in the field, critical challenges persist, including dataset bias, domain adaptation, interpretability of deep learning models, and integration into real-world clinical workflows.",
+      "authors": [
+        "Ahmed Kabil",
+        "Ghada Khoriba",
+        "Mina Yousef",
+        "Essam A. Rashed"
+      ],
+      "published": "2025-10-01T09:34:38+08:00",
+      "updated": "2025-10-01T09:34:38+08:00",
+      "arxiv_id": "2510.03318v1",
+      "url": "https://arxiv.org/pdf/2510.03318v1",
+      "categories": [
+        "cs.CV"
+      ],
+      "primary_category": "cs.CV",
+      "matched_keywords": [
+        "modality bias",
+        "Cross-Modal Model"
+      ]
+    }
+  ]
+}
