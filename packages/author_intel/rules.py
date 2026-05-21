@@ -23,7 +23,7 @@ def build_scholar_label(profile: AuthorProfile, frequency: int) -> ScholarLabel:
             author_id=profile.author_id,
             label="heavyweight_candidate",
             evidence=evidence,
-            confidence_note="matched_openalex_or_dblp_profile",
+            confidence_note="matched_work_authorship_profile",
             trigger_rules=trigger_rules,
         )
 
@@ -33,7 +33,7 @@ def build_scholar_label(profile: AuthorProfile, frequency: int) -> ScholarLabel:
             author_id=profile.author_id,
             label="high_impact_candidate",
             evidence=evidence,
-            confidence_note="matched_openalex_or_dblp_profile",
+            confidence_note="matched_work_authorship_profile",
             trigger_rules=trigger_rules,
         )
 

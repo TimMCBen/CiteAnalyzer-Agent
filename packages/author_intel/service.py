@@ -1,116 +1,166 @@
-"""Author-intelligence service for profiling citing-paper authors."""
+"""Author-intelligence service for work-authorship-based author profiling."""
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import Protocol
 
 from packages.author_intel.models import AuthorIntelResult
-from packages.author_intel.normalize import build_author_candidates
 from packages.author_intel.rules import build_scholar_label
 from packages.citation_sources.models import CitingPaper
+from packages.paper_identity.models import CandidateAuthor, PaperIdentityDecision
+from packages.paper_identity.service import resolve_paper_identity
 from packages.shared.models import AnalysisState, AuthorProfile, AuthorSummary
 from packages.shared.runtime_logging import get_runtime_logger
 
-AUTHOR_INTEL_NETWORK_FAILURE_BUDGET = 3
 
+class OpenAlexWorkAuthorClientProtocol(Protocol):
+    """OpenAlex work/author client required by work-authorship Stage 4."""
+    def lookup_work_by_doi(self, doi: str | None):
+        ...
 
-class OpenAlexClientProtocol(Protocol):
-    """External author lookup client expected from OpenAlex adapters."""
-    def lookup_author(self, name: str) -> dict[str, object] | None:
+    def search_work_by_title(self, title: str, *, per_page: int = 3):
+        ...
+
+    def lookup_author_by_id(self, author_id: str | None) -> dict[str, object] | None:
         ...
 
 
-class DBLPClientProtocol(Protocol):
-    """External author lookup client expected from DBLP adapters."""
-    def lookup_author(self, name: str) -> dict[str, object] | None:
+class ArxivMetadataClientProtocol(Protocol):
+    """arXiv metadata client required by paper identity resolution."""
+    def lookup_ids(self, arxiv_ids: list[str]):
         ...
+
+    def search_by_title(self, title: str, *, max_results: int = 3):
+        ...
+
+
+@dataclass
+class _AuthorAccumulator:
+    """Accumulate trusted work-authorship evidence before building profiles."""
+    author: CandidateAuthor
+    citing_ids: set[str] = field(default_factory=set)
+    institutions: set[str] = field(default_factory=set)
+    countries: set[str] = field(default_factory=set)
+    decision_statuses: set[str] = field(default_factory=set)
 
 
 def analyze_author_intel(
     citing_papers: list[CitingPaper],
-    openalex_client: OpenAlexClientProtocol,
-    dblp_client: DBLPClientProtocol,
+    openalex_client: OpenAlexWorkAuthorClientProtocol,
+    arxiv_client: ArxivMetadataClientProtocol,
+    *,
+    use_llm_review: bool = False,
 ) -> AuthorIntelResult:
-    """Build normalized author profiles and scholar labels for citing papers."""
-    candidates = build_author_candidates(citing_papers)
+    """Build author profiles only from trusted OpenAlex work.authorships."""
     result = AuthorIntelResult()
-    network_failures = 0
-    budget_warning_emitted = False
+    author_evidence: dict[str, _AuthorAccumulator] = {}
 
-    for candidate in candidates:
-        errors: list[str] = []
-        openalex_record = None
-        dblp_record = None
-
-        if network_failures >= AUTHOR_INTEL_NETWORK_FAILURE_BUDGET:
-            if not budget_warning_emitted:
-                get_runtime_logger().warn(
-                    "author_intel.retry_budget",
-                    "作者画像网络查询累计失败较多，后续作者将直接降级为弱证据",
-                    failures=network_failures,
-                    impact="remaining_authors",
-                )
-                result.errors.append(f"author_intel_retry_budget_exhausted:failures={network_failures}")
-                budget_warning_emitted = True
-            profile = _build_profile(candidate.display_name, candidate.normalized_name, None, None)
-            label = build_scholar_label(profile, candidate.frequency)
-            result.author_profiles.append(profile)
-            result.scholar_labels.append(label)
+    for citing_paper in citing_papers:
+        try:
+            decision = resolve_paper_identity(
+                citing_paper,
+                openalex_client=openalex_client,
+                arxiv_client=arxiv_client,
+                use_llm_review=use_llm_review,
+            )
+        except Exception as exc:  # pragma: no cover - network failure path
+            reason = f"identity_lookup_failed:{exc.__class__.__name__}"
+            result.errors.append(f"author_intel_identity:{citing_paper.canonical_id}:{exc}")
+            _record_skipped_paper(result, citing_paper, reason)
+            get_runtime_logger().warn(
+                "author_intel.paper_identity_skip",
+                "施引论文身份解析失败，跳过作者画像",
+                citing_paper_id=citing_paper.canonical_id,
+                error_type=exc.__class__.__name__,
+                impact="single_paper",
+            )
             continue
 
-        try:
-            openalex_record = openalex_client.lookup_author(candidate.display_name)
-        except Exception as exc:  # pragma: no cover - network failure path
-            network_failures += 1
-            errors.append(f"openalex:{candidate.display_name}:{exc}")
+        result.identity_decisions[citing_paper.canonical_id] = decision
+        if not _can_use_work_authorship(decision):
+            reason = _skip_reason(decision)
+            _record_skipped_paper(result, citing_paper, reason, decision)
             get_runtime_logger().warn(
-                "openalex.lookup",
-                "OpenAlex 查询作者时连接或服务异常，已降级为弱证据",
-                author=candidate.display_name,
-                error_type=exc.__class__.__name__,
-                impact="single_author",
+                "author_intel.paper_identity_skip",
+                "施引论文未达到 work-authorship 作者画像条件，跳过作者画像",
+                citing_paper_id=citing_paper.canonical_id,
+                reason=reason,
+                confidence=decision.paper_match_confidence,
+                work_status=decision.openalex_work_status,
+                author_status=decision.author_resolution_status,
+                impact="single_paper",
             )
+            continue
 
-        if _needs_dblp_fallback(openalex_record):
-            try:
-                dblp_record = dblp_client.lookup_author(candidate.display_name)
-            except Exception as exc:  # pragma: no cover - network failure path
-                network_failures += 1
-                errors.append(f"dblp:{candidate.display_name}:{exc}")
-                get_runtime_logger().warn(
-                    "dblp.lookup",
-                    "DBLP 查询作者失败，保留已有弱证据",
-                    author=candidate.display_name,
-                    error_type=exc.__class__.__name__,
-                    impact="single_author",
-                )
+        selected_work = decision.selected_work
+        authors_with_ids = [author for author in selected_work.authors if author.author_id] if selected_work else []
+        if not authors_with_ids:
+            reason = "missing_work_author_ids"
+            _record_skipped_paper(result, citing_paper, reason, decision)
+            get_runtime_logger().warn(
+                "author_intel.authorship_missing",
+                "可信 OpenAlex work 缺少 authorship author_id，跳过作者画像",
+                citing_paper_id=citing_paper.canonical_id,
+                selected_work_id=selected_work.work_id if selected_work else None,
+                impact="single_paper",
+            )
+            continue
 
-        profile = _build_profile(candidate.display_name, candidate.normalized_name, openalex_record, dblp_record)
-        label = build_scholar_label(profile, candidate.frequency)
+        for author in authors_with_ids:
+            key = str(author.author_id)
+            accumulator = author_evidence.get(key)
+            if accumulator is None:
+                accumulator = _AuthorAccumulator(author=author)
+                author_evidence[key] = accumulator
+            accumulator.citing_ids.add(citing_paper.canonical_id)
+            accumulator.institutions.update(author.institutions)
+            accumulator.countries.update(author.countries)
+            accumulator.decision_statuses.add(decision.author_resolution_status)
 
+        get_runtime_logger().detail(
+            "author_intel.work_authorship_used",
+            "已采用 OpenAlex work.authorships 作为作者画像来源",
+            citing_paper_id=citing_paper.canonical_id,
+            authors=len(authors_with_ids),
+            confidence=decision.paper_match_confidence,
+        )
+
+    for author_id, accumulator in sorted(author_evidence.items(), key=lambda item: item[0]):
+        author_record = _lookup_author_profile_by_id(openalex_client, author_id, result)
+        profile = _build_profile_from_work_authorship(accumulator, author_record)
+        label = build_scholar_label(profile, len(accumulator.citing_ids))
         result.author_profiles.append(profile)
         result.scholar_labels.append(label)
-        result.errors.extend(errors)
 
     result.author_summary = _build_summary(result.author_profiles, result.scholar_labels)
+    get_runtime_logger().stage_done(
+        "author_intel.work_authorship",
+        "work-authorship 作者画像完成",
+        profiles=len(result.author_profiles),
+        skipped_papers=len(result.skipped_papers),
+    )
     return result
 
 
 def analyze_author_intel_with_live_clients(citing_papers: list[CitingPaper]) -> AuthorIntelResult:
-    """Run author profiling with the default live OpenAlex and DBLP clients."""
-    from packages.author_intel.clients import DBLPClient, OpenAlexClient
+    """Run author profiling with live OpenAlex work authorships and arXiv metadata."""
+    from packages.paper_identity.clients.arxiv import ArxivMetadataClient
+    from packages.paper_identity.clients.openalex_work import OpenAlexWorkClient
 
     return analyze_author_intel(
         citing_papers=citing_papers,
-        openalex_client=OpenAlexClient(),
-        dblp_client=DBLPClient(),
+        openalex_client=OpenAlexWorkClient(),
+        arxiv_client=ArxivMetadataClient(),
     )
 
 
 def attach_author_intel_result_to_state(state: AnalysisState, result: AuthorIntelResult) -> AnalysisState:
-    """Attach author profiles, labels, summary, and errors to analyzer state."""
+    """Attach author profiles, labels, identity decisions, and errors to analyzer state."""
     state["author_profiles"] = result.author_profiles  # type: ignore[assignment]
     state["scholar_labels"] = result.scholar_labels  # type: ignore[assignment]
     state["author_summary"] = result.author_summary  # type: ignore[assignment]
+    state["paper_identity_decisions"] = result.identity_decisions  # type: ignore[assignment]
+    state["author_intel_skipped_papers"] = result.skipped_papers  # type: ignore[assignment]
     if result.errors:
         state.setdefault("errors", [])
         state["errors"].extend(result.errors)
@@ -118,70 +168,110 @@ def attach_author_intel_result_to_state(state: AnalysisState, result: AuthorInte
     return state
 
 
-def _needs_dblp_fallback(openalex_record: dict[str, object] | None) -> bool:
-    """Decide when an OpenAlex author hit lacks enough evidence for labeling."""
-    if openalex_record is None:
-        return True
-    return openalex_record.get("h_index") is None
+def _can_use_work_authorship(decision: PaperIdentityDecision) -> bool:
+    """Return whether a paper identity decision is safe for author-id profiling."""
+    return (
+        decision.paper_match_confidence in {"high", "medium"}
+        and decision.author_resolution_status in {"work_authorship_verified", "work_authorship_variant"}
+        and decision.selected_work is not None
+    )
 
 
-def _build_profile(
-    display_name: str,
-    normalized_name: str,
-    openalex_record: dict[str, object] | None,
-    dblp_record: dict[str, object] | None,
+def _skip_reason(decision: PaperIdentityDecision) -> str:
+    """Create a compact skip reason from paper identity status fields."""
+    if decision.selected_work is None:
+        return f"no_selected_work:{decision.paper_match_confidence}"
+    if decision.paper_match_confidence not in {"high", "medium"}:
+        return f"paper_confidence_{decision.paper_match_confidence}"
+    if decision.author_resolution_status not in {"work_authorship_verified", "work_authorship_variant"}:
+        return f"author_resolution_{decision.author_resolution_status}"
+    return "work_authorship_unusable"
+
+
+def _record_skipped_paper(
+    result: AuthorIntelResult,
+    citing_paper: CitingPaper,
+    reason: str,
+    decision: PaperIdentityDecision | None = None,
+) -> None:
+    """Store a skipped citing-paper decision for logs and reports."""
+    item = {
+        "citing_paper_id": citing_paper.canonical_id,
+        "title": citing_paper.title,
+        "reason": reason,
+    }
+    if decision:
+        item.update(
+            {
+                "paper_match_confidence": decision.paper_match_confidence,
+                "openalex_work_status": decision.openalex_work_status,
+                "author_resolution_status": decision.author_resolution_status,
+                "selected_work_id": decision.selected_work.work_id if decision.selected_work else "",
+            }
+        )
+    result.skipped_papers.append(item)
+
+
+def _lookup_author_profile_by_id(
+    openalex_client: OpenAlexWorkAuthorClientProtocol,
+    author_id: str,
+    result: AuthorIntelResult,
+) -> dict[str, object] | None:
+    """Fetch an OpenAlex author profile by id without falling back to name search."""
+    try:
+        return openalex_client.lookup_author_by_id(author_id)
+    except Exception as exc:  # pragma: no cover - network failure path
+        result.errors.append(f"openalex_author_id:{author_id}:{exc}")
+        get_runtime_logger().warn(
+            "openalex.author_id",
+            "OpenAlex author_id 作者画像查询失败，保留 work-authorship 弱画像",
+            author_id=author_id,
+            error_type=exc.__class__.__name__,
+            impact="single_author",
+        )
+        return None
+
+
+def _build_profile_from_work_authorship(
+    accumulator: _AuthorAccumulator,
+    author_record: dict[str, object] | None,
 ) -> AuthorProfile:
-    """Merge OpenAlex and DBLP evidence into one author profile."""
-    source_ids: dict[str, str] = {}
-    evidence_sources: list[str] = []
-    affiliations: list[str] = []
-    fields: list[str] = []
+    """Merge trusted work-authorship evidence with optional author-id metrics."""
+    author = accumulator.author
+    author_id = str(author.author_id or author.name)
+    source_ids = {"openalex": author_id} if author.author_id else {}
+    evidence_sources = ["openalex_work_authorship"]
+    affiliations = set(accumulator.institutions)
+    fields: set[str] = set()
     h_index = None
     citation_count = None
     works_count = None
+    name = author.name or author.raw_author_name or author_id
 
-    author_id = normalized_name
-    name = display_name
+    if author_record:
+        name = str(author_record.get("name") or name)
+        source_ids.update({str(k): str(v) for k, v in dict(author_record.get("source_ids") or {}).items() if v})
+        evidence_sources.extend([str(item) for item in list(author_record.get("evidence_sources") or []) if item])
+        affiliations.update(str(item) for item in list(author_record.get("affiliations") or []) if item)
+        fields.update(str(item) for item in list(author_record.get("fields") or []) if item)
+        h_index = _coerce_optional_int(author_record.get("h_index"))
+        citation_count = _coerce_optional_int(author_record.get("citation_count"))
+        works_count = _coerce_optional_int(author_record.get("works_count"))
 
-    if openalex_record:
-        author_id = str(openalex_record.get("author_id") or author_id)
-        name = str(openalex_record.get("name") or name)
-        source_ids.update({str(k): str(v) for k, v in dict(openalex_record.get("source_ids") or {}).items() if v})
-        evidence_sources.extend([str(item) for item in list(openalex_record.get("evidence_sources") or []) if item])
-        affiliations.extend([str(item) for item in list(openalex_record.get("affiliations") or []) if item])
-        fields.extend([str(item) for item in list(openalex_record.get("fields") or []) if item])
-        h_index = _coerce_optional_int(openalex_record.get("h_index"))
-        citation_count = _coerce_optional_int(openalex_record.get("citation_count"))
-        works_count = _coerce_optional_int(openalex_record.get("works_count"))
-
-    if dblp_record:
-        if not source_ids.get("dblp"):
-            source_ids.update({str(k): str(v) for k, v in dict(dblp_record.get("source_ids") or {}).items() if v})
-        for evidence_source in list(dblp_record.get("evidence_sources") or []):
-            source_name = str(evidence_source)
-            if source_name and source_name not in evidence_sources:
-                evidence_sources.append(source_name)
-        if not affiliations:
-            affiliations.extend([str(item) for item in list(dblp_record.get("affiliations") or []) if item])
-        if not fields:
-            fields.extend([str(item) for item in list(dblp_record.get("fields") or []) if item])
-        if not source_ids and dblp_record.get("author_id"):
-            author_id = str(dblp_record["author_id"])
-
-    deduped_affiliations = sorted(set(affiliations))
-    deduped_fields = sorted(set(fields))
-    deduped_sources = sorted(set(evidence_sources))
+    for status in sorted(accumulator.decision_statuses):
+        evidence_sources.append(status)
 
     return AuthorProfile(
         author_id=author_id,
         name=name,
         source_ids=source_ids,
-        affiliations=deduped_affiliations,
-        fields=deduped_fields,
+        affiliations=sorted(affiliations),
+        countries=sorted(accumulator.countries),
+        fields=sorted(fields),
         h_index=h_index,
         citation_count=citation_count,
         works_count=works_count,
-        evidence_sources=deduped_sources,
+        evidence_sources=sorted(set(evidence_sources)),
     )
 
 

@@ -54,6 +54,7 @@ class AuthorProfile:
     name: str
     source_ids: Dict[str, str] = field(default_factory=dict)
     affiliations: List[str] = field(default_factory=list)
+    countries: List[str] = field(default_factory=list)
     fields: List[str] = field(default_factory=list)
     h_index: Optional[int] = None
     citation_count: Optional[int] = None
@@ -105,6 +106,8 @@ class AnalysisState(TypedDict, total=False):
     author_profiles: List[AuthorProfile]
     scholar_labels: List[ScholarLabel]
     author_summary: AuthorSummary
+    paper_identity_decisions: Dict[str, Any]
+    author_intel_skipped_papers: List[Dict[str, str]]
     citation_contexts: List[Any]
     sentiment_summary: Any
     report_artifact: ReportArtifact
