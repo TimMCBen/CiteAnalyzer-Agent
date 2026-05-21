@@ -5,6 +5,7 @@ Thumbs.db
 .vscode/
 
 # Logs and temp files
+logs/
 *.log
 *.out
 *.err
@@ -37,6 +38,9 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# Imported/disabled nested repositories
+**/.git_disabled/
 
 # Terraform and infra
 .terraform/
