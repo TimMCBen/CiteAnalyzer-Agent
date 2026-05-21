@@ -12,7 +12,7 @@ if str(REPO_ROOT) not in sys.path:
 from apps.analyzer.main import run_analysis
 
 
-DEFAULT_TARGET = "https://arxiv.org/abs/2504.19162"
+DEFAULT_TARGET = "https://arxiv.org/pdf/2507.19457"
 
 
 def main() -> None:

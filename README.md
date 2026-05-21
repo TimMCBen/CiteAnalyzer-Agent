@@ -29,7 +29,7 @@ flowchart LR
     parse_stage["阶段 1<br/>输入理解与状态初始化"]
     fetch_stage["阶段 2<br/>施引文献抓取 / 补全 / 去重"]
     scholar_stage["阶段 4<br/>学者识别与影响力标注"]
-    fulltext_stage["阶段 5<br/>全文抓取与文本解析"]
+    fulltext_stage["阶段 5<br/>PDF 获取与落盘"]
     sentiment_stage["阶段 6<br/>引用上下文提取与情感分析"]
     report_stage["阶段 7<br/>汇总结果并生成 HTML / JSON / PDF 报告"]
     final_output["输出结果<br/>HTML 报告 + JSON + PDF"]
@@ -190,7 +190,7 @@ python ./scripts/test_agent/stage8.py
 正式 analyzer 中文日志 live smoke：
 
 ```bash
-python ./scripts/test_agent/e2e_real_smoke.py --target https://arxiv.org/abs/2504.19162 --max-citations 3 --log detail
+python ./scripts/test_agent/e2e_real_smoke.py --target https://arxiv.org/abs/2507.19457 --max-citations 3 --log detail
 ```
 
 阶段 5 真实抓取验证：
@@ -225,10 +225,10 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 - 阶段 1：自然语言输入理解与状态初始化
 - 阶段 2：`Semantic Scholar + Crossref` 主抓取链路
 - 单篇真实 DOI 的阶段 2 在线样本验证
-- 阶段 5 原型：`PDF-first` 全文抓取、本地落盘 `raw pdf/html + parsed txt`，不再把 tar 作为正式默认产物
-- 阶段 5 下载失败恢复：当论文正文拿不到时，会显式返回恢复建议（优先检查 DOI 落地页、作者 PDF / 预印本、或手动补 `source_links`），并在可用时退回摘要
-- 阶段 6 原型：`LangGraph` 工作流、`PDF -> GROBID -> context` 主路径、GROBID 不可用时的文本回退路径、真实 `citing-5` 冒烟测试
-- 阶段 4 模块级实现：`packages/author_intel/`、`AuthorProfile` / `ScholarLabel`、`OpenAlex + DBLP` 画像补全链路、`stage4.py` 验证脚本
+- 阶段 5 原型：`PDF-only` 获取、本地落盘 `raw pdf + parsed marker`，不再把 HTML / TeX / 摘要文本作为正式可分析产物
+- 阶段 5 下载失败恢复：当 PDF 拿不到时，会显式返回恢复建议（优先检查 DOI 落地页、作者 PDF / 预印本、或手动补 `source_links`），但不再退回摘要文本
+- 阶段 6 原型：`LangGraph` 工作流、`PDF -> GROBID -> context` 主路径；GROBID 不可用或未命中时直接标记 `unknown`，不再降级到抽取文本 / LLM 文本定位
+- 阶段 4 模块级实现：`packages/author_intel/`、`AuthorProfile` / `ScholarLabel`、OpenAlex work-authorship 作者画像链路、`stage4.py` 验证脚本
 - analyzer 总控现已接回阶段 4 / 5 / 6，并把 scholar / fulltext / sentiment 结果写回共享状态
 - 阶段 7 报告实现：HTML / JSON / PDF 报告导出、chart payload、情感饼图、机构与国家/地区分布、重要学者表格、代表性引用语境、上游 partial failure / weak-signal / state error 的降级提示
 - 独立 E2E 入口：`e2e_mvp.py` 通过已保存真实 stage2 样本和本地 fixture 跑通 analyzer 全链路
@@ -245,7 +245,7 @@ STAGE6_GROBID_CITING5=1 python ./scripts/test_agent/stage6.py
 
 进行中：
 
-- OpenAlex / DBLP、PDF / HTML、GROBID 相关 live smoke 覆盖仍偏少，需要继续补真实样本回归
+- OpenAlex work-authorship、PDF-only、GROBID 相关 live smoke 覆盖仍偏少，需要继续补真实样本回归
 - `stage3.py` 继续保留为补充源探索占位
 
 尚未完成：
@@ -318,7 +318,7 @@ GROBID_API_URL=http://localhost:8070/api
 
 ## 当前建议的下一步
 
-1. 为 OpenAlex / DBLP、更多 PDF / HTML 全文样本补 live smoke，缩小当前测试评分里“真实回归偏少”的缺口。
+1. 为 OpenAlex / DBLP、更多 PDF-only + GROBID 样本补 live smoke，缩小当前测试评分里“真实回归偏少”的缺口。
 2. 梳理并冻结最小可运行 Python 依赖清单，减少 PowerShell / bash / WSL 解释器分叉带来的验证噪音。
 3. 在主链路 live coverage 达标后，再决定是否推进 `stage3` 的 `Google Scholar` 补充源探索。
 

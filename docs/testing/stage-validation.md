@@ -24,7 +24,7 @@
 - 运行链路使用 `CITE_ANALYZER_RUNTIME_LOG=quiet|brief|detail` 控制中文 runtime 日志，默认 `brief`。
 - `CITE_ANALYZER_RUNTIME_LOG` 服务 `apps/analyzer/` 正式分析入口；`CITE_ANALYZER_STAGE_LOG` 只服务 `scripts/test_agent/` 阶段验证入口。
 - RuntimeLogger contract：`python ./scripts/test_agent/runtime_logging_contract.py`
-- opt-in live smoke：`python ./scripts/test_agent/e2e_real_smoke.py --target https://arxiv.org/abs/2504.19162 --max-citations 3 --log detail`
+- opt-in live smoke：`python ./scripts/test_agent/e2e_real_smoke.py --target https://arxiv.org/pdf/2507.19457 --max-citations 3 --log detail`
 - `e2e_real_smoke.py` 依赖外部 API 和当前网络，不接入默认 `run.py`、`check-project.sh` 或默认 CI。
 - 0 施引路径由 `runtime_logging_contract.py` 的 fake/fixture 稳定验证；不要把实时外部数据库的当前施引数作为固定验收。
 
@@ -96,8 +96,10 @@
 
 - 脚本：`scripts/test_agent/stage4.py`
 - 当前覆盖：
-  - `OpenAlex` 主画像链路
-  - `DBLP` 辅助补全链路
+  - OpenAlex work-authorship 作者画像链路
+  - 仅通过 `work.authorships.author.id` 查询作者画像
+  - 不可信 work / 缺失 author id 时跳过并记录原因
+  - 禁止回退到作者名搜索第一候选
   - 高影响力 / 重量级 / 弱标注规则
   - 缺失 `h-index` 时的“证据不足”路径
 - 当前状态：
@@ -122,11 +124,10 @@
 
 - 阶段 5
   - 当前原型能力：
-    - `PDF-first` 全文抓取
-    - PDF / HTML / LaTeX 解析
-    - 本地落盘 `raw artifact + parsed txt`
-    - 不再把 `tar` / `extracted/` 视为默认正式产物
-    - 当全文不可获取时，返回恢复建议并在可用时退回摘要
+    - `PDF-only` 获取
+    - 本地落盘 `raw pdf + parsed marker`
+    - 不再把 HTML / LaTeX / Markdown / 摘要文本作为可分析产物
+    - 当 PDF 不可获取时，返回恢复建议并将该条标记为 `unknown`
     - arXiv 标题补充搜索复用 `paper_identity` metadata client 的同运行缓存和限速
   - 当前验证：
     - `python ./scripts/test_agent/stage5.py`
@@ -170,7 +171,7 @@
   - 当前原型能力：
     - `LangGraph` 工作流
     - GROBID `PDF -> TEI XML -> biblStruct/ref -> context` 主路径
-    - GROBID 不可用时的普通文本窗口回退
+    - GROBID 不可用或未命中时直接返回 `unknown`
     - 直接 TeX bibliography / cite-key 兼容路径
     - 目标引文显式高亮 `**...**`
     - 当前 MVP 契约冻结为“每篇 citing paper 只返回一条主 `CitationContext`”
@@ -201,7 +202,7 @@
   - arXiv 版本号在 Semantic Scholar client 边界归一化
   - runtime logger 对 API key / authorization 等敏感字段脱敏
   - 0 施引 fake 样本最终生成 HTML / JSON / PDF 报告，且不写入 `state.errors`
-  - OpenAlex 单作者异常输出 `WARN` 且标注 `impact=single_author`
+  - OpenAlex work identity 异常输出 `WARN` 且标注 `impact=single_paper`
   - GROBID 命中 / 未命中输出中文日志
 - 当前状态：
   - 已实现 fake/fixture contract

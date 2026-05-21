@@ -15,6 +15,6 @@
 | --- | --- | --- | --- |
 | 产品面 | D | 还没有真实产品定义。 | 先明确第一个用户路径和验收标准。 |
 | 架构文档 | B | 总体边界、阶段 1 / 2 / 4 / 5 / 6 / 7 的职责和当前总控收口路线已经基本写清；Stage 7 已补 HTML / JSON / PDF、国家/地区分布、情感饼图和代表性引用语境，但 `stage3` 继续处于延后状态。 | 保持 stage3 的延后边界清晰，并在后续真实样本反馈下继续增强报告解释性和地图精度。 |
-| 测试 | B | 已有阶段 1 / 2 / 4 / 5 / 6 / 7 脚本验证，`paper_identity.py` 覆盖论文身份 sidecar、arXiv 缓存/限速和 GPT 硬约束，`comment_contract.py` 固化 Python 用途注释覆盖与低质量模板检查；本地默认跳过 live smoke；`e2e_mvp.py` 已能跑 fixture-backed 全链路；但真实外部 API live 回归仍然偏少。 | 增加更多真实样本回归，尤其是 OpenAlex / DBLP live 路径、论文身份 100 篇 gold 测评和更多 PDF / HTML 全文样本。 |
+| 测试 | B | 已有阶段 1 / 2 / 4 / 5 / 6 / 7 脚本验证，`paper_identity.py` 覆盖论文身份 sidecar、arXiv 缓存/限速和 GPT 硬约束，`comment_contract.py` 固化 Python 用途注释覆盖与低质量模板检查；本地默认跳过 live smoke；`e2e_mvp.py` 已能跑 fixture-backed 全链路；但真实外部 API live 回归仍然偏少。 | 增加更多真实样本回归，尤其是 OpenAlex work-authorship live 路径、论文身份 100 篇 gold 测评和更多 PDF-only + GROBID 样本。 |
 | 可观测性 | B | 已有 `FetchSummary`、来源追踪、中文 RuntimeLogger、外部 API 请求 / 重试 / 降级日志和 0 施引收口验证；但还没有持久化 JSONL 或指标面板。 | 评估是否把 runtime 日志落盘到报告目录，或增加 CI artifact / JSONL 机器日志。 |
 | 安全 | C | 默认约束已经有了，但具体实现还没落地。 | 根据项目接入真实认证、密钥和依赖治理。 |

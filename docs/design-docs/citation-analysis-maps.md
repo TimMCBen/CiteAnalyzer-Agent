@@ -26,7 +26,7 @@ flowchart LR
     s1["阶段1<br/>输入理解与目标论文初始化"]
     s2["阶段2<br/>施引文献抓取与来源保留"]
     s4["阶段4<br/>学者识别与重量级标注"]
-    s5["阶段5<br/>全文抓取与解析"]
+    s5["阶段5<br/>PDF 获取与落盘"]
     s6["阶段6<br/>引用上下文与情感分析"]
     s7["阶段7<br/>HTML / JSON / PDF 报告生成"]
     output["输出<br/>报告摘要 / 图表 / HTML / JSON / PDF"]
@@ -47,7 +47,7 @@ flowchart LR
 | 阶段1 | 先判断你是不是在问“单篇论文被引分析”，并识别目标论文是谁 |
 | 阶段2 | 去外部学术源抓“谁引用了这篇论文” |
 | 阶段4 | 看这些施引作者里，谁更值得重点关注 |
-| 阶段5 | 尽量拿到 citing paper 的全文或可分析文本 |
+| 阶段5 | 尽量拿到 citing paper 的 PDF 文件 |
 | 阶段6 | 找出 citing paper 里是怎么提目标论文的，并判断引用态度 |
 | 阶段7 | 把上面这些结果组织成可直接读的报告 |
 
@@ -58,8 +58,8 @@ flowchart LR
 | 阶段1 | `raw_query` | 标准化后的 `target_paper` 与分析目标 |
 | 阶段2 | 已解析的目标论文 | 施引文献列表、抓取摘要、来源追踪 |
 | 阶段4 | 施引文献作者信息 | 作者画像、学者标注、聚合统计 |
-| 阶段5 | 施引文献列表 | 全文文本或降级结果 |
-| 阶段6 | 全文文本 + 目标论文信息 | 主引用上下文、情感标签、分类汇总 |
+| 阶段5 | 施引文献列表 | PDF artifact 或降级结果 |
+| 阶段6 | PDF + 目标论文信息 | GROBID 命中的主引用上下文、情感标签、分类汇总 |
 | 阶段7 | 全部上游结果 | 最终 `ReportArtifact`、HTML、JSON、PDF |
 
 ## 🧠 开发者视角状态演化图
@@ -120,7 +120,7 @@ flowchart TD
 | `source_trace` | 阶段2 | 每条施引记录来自哪些外部源 |
 | `author_profiles` | 阶段4 | 施引作者画像 |
 | `scholar_labels` | 阶段4 | `high_impact_candidate` / `heavyweight_candidate` / `weak_signal_candidate` |
-| `fulltext_documents` | 阶段5 | 每篇 citing paper 的全文或解析文本 |
+| `fulltext_documents` | 阶段5 | 每篇 citing paper 的 PDF artifact 记录 |
 | `citation_contexts` | 阶段6 | 每篇 citing paper 的主引用上下文 |
 | `sentiment_summary` | 阶段6 | 引用情感统计与 `unknown` 计数 |
 | `errors` | 多阶段 | 局部失败与降级说明，不代表整链路立即终止 |
@@ -132,7 +132,7 @@ flowchart TD
 | --- | --- |
 | `target_paper.resolve_status == resolved` 才能进入阶段 2 | 目标论文解析是抓取前的硬前置 |
 | `paper_id` 当前主要指 `openalex:<id>` | 不是泛化支持任意论文库 ID |
-| 阶段5 逐篇抓全文 | 单篇失败记到 `errors`，不强制中断整链路 |
+| 阶段5 逐篇抓 PDF | 单篇失败记到 `errors`，不强制中断整链路 |
 | 阶段6 单篇只产一条主 `CitationContext` | 当前不是多上下文抽取系统 |
 | 阶段7 报告会暴露 provenance | `fetch_summary`、`source_trace`、`errors`、弱标注 `confidence_note` 会进入报告 |
 

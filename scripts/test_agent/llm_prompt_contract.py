@@ -60,6 +60,11 @@ def assert_classifier_prompt_requires_chinese_evidence() -> None:
     prompt = fake_llm.system_prompts[0]
     assert "label 必须且只能使用英文枚举" in prompt, prompt
     assert "evidence_note 必须使用中文" in prompt, prompt
+    assert "1-2 句自然通顺" in prompt, prompt
+    assert "不要包含字段名" in prompt, prompt
+    assert "llm_sentiment" in prompt, prompt
+    assert "原因：前缀" in prompt, prompt
+    assert "作为背景、相关工作、事实列举或分类归纳" in prompt, prompt
 
 
 def assert_locator_prompts_require_chinese_evidence() -> None:

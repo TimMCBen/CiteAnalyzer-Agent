@@ -217,7 +217,7 @@ def _summary_label(key: str) -> str:
         "target": "目标论文",
         "citing_papers": "施引文献",
         "author_profiles": "作者画像",
-        "fulltext": "全文获取",
+        "fulltext": "PDF获取",
         "grobid": "GROBID命中",
         "sentiment": "引用情感",
         "degradation": "降级说明",

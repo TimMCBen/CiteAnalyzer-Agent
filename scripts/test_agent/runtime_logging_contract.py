@@ -50,18 +50,32 @@ class FakeCrossrefClient:
         return candidate
 
 
-class FailingOpenAlexClient:
-    """Fake OpenAlex client that raises a transient lookup failure."""
-    def lookup_author(self, name: str) -> dict[str, object] | None:
-        """Raise a simulated TLS disconnect for author lookup."""
+class FailingOpenAlexWorkClient:
+    """Fake OpenAlex work client that raises transient lookup failures."""
+    def lookup_work_by_doi(self, doi: str | None):
+        """Raise a simulated TLS disconnect for DOI work lookup."""
         raise ssl.SSLError("simulated TLS disconnect")
 
+    def search_work_by_title(self, title: str, *, per_page: int = 3):
+        """Raise a simulated TLS disconnect for title work lookup."""
+        raise ssl.SSLError("simulated TLS disconnect")
 
-class EmptyDBLPClient:
-    """Fake DBLP client that returns no author profile."""
-    def lookup_author(self, name: str) -> dict[str, object] | None:
-        """Return no DBLP match for author lookup."""
-        return None
+    def lookup_author_by_id(self, author_id: str | None) -> dict[str, object] | None:
+        """Fail if author-id lookup happens after identity failure."""
+        raise AssertionError("author-id lookup should be skipped after identity failure")
+
+
+class EmptyArxivClient:
+    """Fake arXiv client that returns no metadata candidates."""
+    def lookup_ids(self, arxiv_ids: list[str]):
+        """Return no arXiv ID candidates."""
+        _ = arxiv_ids
+        return []
+
+    def search_by_title(self, title: str, *, max_results: int = 3):
+        """Return no arXiv title candidates."""
+        _ = (title, max_results)
+        return []
 
 
 def capture_detail(callable_obj) -> str:
@@ -159,13 +173,13 @@ def assert_openalex_warning_contract() -> None:
     output = capture_detail(
         lambda: analyze_author_intel(
             citing_papers=[CitingPaper(canonical_id="citing-1", title="Paper", authors=["Lei Bai"])],
-            openalex_client=FailingOpenAlexClient(),
-            dblp_client=EmptyDBLPClient(),
+            openalex_client=FailingOpenAlexWorkClient(),
+            arxiv_client=EmptyArxivClient(),
         )
     )
-    assert "WARN openalex.lookup" in output, output
-    assert "Lei Bai" in output, output
-    assert "impact=single_author" in output, output
+    assert "WARN author_intel.paper_identity_skip" in output, output
+    assert "citing_paper_id=citing-1" in output, output
+    assert "impact=single_paper" in output, output
 
 
 def assert_grobid_logging_contract() -> None:

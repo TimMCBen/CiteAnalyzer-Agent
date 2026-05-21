@@ -1,6 +1,7 @@
 """Validate the fixture-backed MVP analyzer workflow end to end."""
 from __future__ import annotations
 
+import json
 import shutil
 import sys
 from pathlib import Path
@@ -15,12 +16,12 @@ from apps.analyzer.resolve import resolve_target_paper_metadata as real_resolve_
 from packages.author_intel.service import analyze_author_intel
 from packages.citation_sources.models import CitationFetchResult
 from packages.shared.models import TargetPaper
-from scripts.test_agent.stage4 import FakeDBLPClient, FakeOpenAlexClient
+from scripts.test_agent.stage4 import FakeArxivClient, FakeOpenAlexWorkClient
 from scripts.test_agent.stage6 import (
     DEFAULT_SAMPLE_PATH,
     build_local_source_links,
     fake_classify_sentiment,
-    fake_reference_matcher,
+    fake_grobid_matcher,
     load_stage2_sample,
 )
 from scripts.test_agent.stage_logging import StageLogger
@@ -34,11 +35,13 @@ def assert_e2e_mvp_real_sample():
     original_resolve = nodes.resolve_target_paper_metadata
     original_fetch = nodes.fetch_citation_candidates_with_live_clients
     original_author_intel = nodes.analyze_author_intel_with_live_clients
+    original_fetch_fulltext = nodes.fetch_fulltext_document
     original_sentiment = nodes.analyze_citation_sentiments
 
     import packages.sentiment.workflow as workflow
 
     original_classifier = workflow.classify_sentiment
+    original_grobid_matcher = workflow.locate_reference_context_from_grobid_pdf
 
     def fake_resolve_target_paper_metadata(target: TargetPaper) -> TargetPaper:
         _ = target
@@ -69,21 +72,30 @@ def assert_e2e_mvp_real_sample():
     def fake_analyze_author_intel_with_live_clients(citing_papers_input):
         return analyze_author_intel(
             citing_papers=list(citing_papers_input),
-            openalex_client=FakeOpenAlexClient(),
-            dblp_client=FakeDBLPClient(),
+            openalex_client=FakeOpenAlexWorkClient(),
+            arxiv_client=FakeArxivClient(),
         )
+
+    def fake_fetch_fulltext_document(*args, **kwargs):
+        from packages.sentiment.fulltext import fetch_fulltext_document
+
+        kwargs["search_arxiv_fallback"] = False
+        return fetch_fulltext_document(*args, **kwargs)
 
     def fake_analyze_citation_sentiments(*args, **kwargs):
         from packages.sentiment.service import analyze_citation_sentiments
 
-        kwargs["llm_reference_matcher"] = fake_reference_matcher
+        kwargs["allow_network"] = False
+        kwargs["search_arxiv_fallback"] = False
         return analyze_citation_sentiments(*args, **kwargs)
 
     nodes.resolve_target_paper_metadata = fake_resolve_target_paper_metadata
     nodes.fetch_citation_candidates_with_live_clients = fake_fetch_citation_candidates_with_live_clients
     nodes.analyze_author_intel_with_live_clients = fake_analyze_author_intel_with_live_clients
+    nodes.fetch_fulltext_document = fake_fetch_fulltext_document
     nodes.analyze_citation_sentiments = fake_analyze_citation_sentiments
     workflow.classify_sentiment = fake_classify_sentiment
+    workflow.locate_reference_context_from_grobid_pdf = fake_grobid_matcher
 
     try:
         state = run_analysis("请查看 DOI 为 10.1145/3368089.3409740 的论文有哪些施引文献、重点学者和引用情感")
@@ -91,19 +103,26 @@ def assert_e2e_mvp_real_sample():
         nodes.resolve_target_paper_metadata = original_resolve
         nodes.fetch_citation_candidates_with_live_clients = original_fetch
         nodes.analyze_author_intel_with_live_clients = original_author_intel
+        nodes.fetch_fulltext_document = original_fetch_fulltext
         nodes.analyze_citation_sentiments = original_sentiment
         workflow.classify_sentiment = original_classifier
+        workflow.locate_reference_context_from_grobid_pdf = original_grobid_matcher
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     assert state["status"] == "report_generated", state["status"]
     assert len(state["citing_papers"]) == 5, len(state["citing_papers"])
-    assert len(state["scholar_labels"]) >= 1, state["scholar_labels"]
+    assert len(state["scholar_labels"]) == 0, state["scholar_labels"]
+    assert len(state["author_intel_skipped_papers"]) == 5, state["author_intel_skipped_papers"]
     assert len(state["citation_contexts"]) == 5, len(state["citation_contexts"])
     assert state["report_artifact"].export_paths["html"], state["report_artifact"]
     assert Path(state["report_artifact"].export_paths["html"]).exists()
-    assert Path(state["report_artifact"].export_paths["json"]).exists()
+    json_path = Path(state["report_artifact"].export_paths["json"])
+    assert json_path.exists()
     assert Path(state["report_artifact"].export_paths["pdf"]).exists()
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    assert len(payload["summary"]["author_identity_skipped_papers"]) == 5, payload["summary"]
     assert state["sentiment_summary"].unknown_count >= 1, state["sentiment_summary"]
+    assert state["sentiment_summary"].classified_count >= 1, state["sentiment_summary"]
     return state
 
 
