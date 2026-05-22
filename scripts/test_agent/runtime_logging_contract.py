@@ -24,6 +24,7 @@ from packages.citation_sources.clients.semantic_scholar import (
     SemanticScholarClient,
 )
 from packages.citation_sources.models import CitingPaper
+from packages.paper_identity.models import CandidateAuthor, CandidateWork
 from packages.citation_sources.service import attach_fetch_result_to_state, fetch_citation_candidates
 from packages.sentiment.models import ReferenceMatch, TextSourceSelection
 from packages.sentiment.workflow import run_stage6_workflow
@@ -78,10 +79,78 @@ class EmptyArxivClient:
         return []
 
 
+class ProgressOpenAlexWorkClient:
+    """Fake OpenAlex work client for Stage 4 progress logging contracts."""
+    def lookup_work_by_doi(self, doi: str | None):
+        """Return trusted work-authorship fixtures for progress tests."""
+        works = {
+            "10.1000/progress-1": CandidateWork(
+                source="openalex",
+                work_id="https://openalex.org/W-progress-1",
+                title="Progress One",
+                doi="10.1000/progress-1",
+                year=2026,
+                authors=[
+                    CandidateAuthor(name="Ada Lovelace", author_id="https://openalex.org/A-progress-1"),
+                    CandidateAuthor(name="Grace Hopper", author_id="https://openalex.org/A-progress-2"),
+                    CandidateAuthor(name="Weak Author", author_id="https://openalex.org/A-progress-3"),
+                ],
+            ),
+            "10.1000/progress-2": CandidateWork(
+                source="openalex",
+                work_id="https://openalex.org/W-progress-2",
+                title="Progress Two",
+                doi="10.1000/progress-2",
+                year=2026,
+                authors=[
+                    CandidateAuthor(name="Failing Author", author_id="https://openalex.org/A-progress-4"),
+                    CandidateAuthor(name="Another Weak Author", author_id="https://openalex.org/A-progress-5"),
+                    CandidateAuthor(name="Final Matched Author", author_id="https://openalex.org/A-progress-6"),
+                ],
+            ),
+        }
+        return works.get(str(doi))
+
+    def search_work_by_title(self, title: str, *, per_page: int = 3):
+        """Return no title candidates so DOI fixtures drive the decision."""
+        _ = (title, per_page)
+        return []
+
+    def lookup_author_by_id(self, author_id: str | None) -> dict[str, object] | None:
+        """Return author-id profiles or simulate one author lookup failure."""
+        if author_id == "https://openalex.org/A-progress-4":
+            raise ssl.SSLError("simulated TLS disconnect")
+        if author_id in {
+            "https://openalex.org/A-progress-1",
+            "https://openalex.org/A-progress-2",
+            "https://openalex.org/A-progress-6",
+        }:
+            name_by_id = {
+                "https://openalex.org/A-progress-1": "Ada Lovelace",
+                "https://openalex.org/A-progress-2": "Grace Hopper",
+                "https://openalex.org/A-progress-6": "Final Matched Author",
+            }
+            return {
+                "author_id": author_id,
+                "name": name_by_id[str(author_id)],
+                "h_index": 40,
+                "citation_count": 1000,
+                "works_count": 80,
+                "source_ids": {"openalex": author_id},
+                "evidence_sources": ["openalex_author_id"],
+            }
+        return None
+
+
 def capture_detail(callable_obj) -> str:
     """Capture detail-mode runtime logs from a callable."""
+    return capture_runtime(callable_obj, mode="detail")
+
+
+def capture_runtime(callable_obj, mode: str) -> str:
+    """Capture runtime logs from a callable in a selected mode."""
     stream = io.StringIO()
-    with redirect_stdout(stream), runtime_context(logger=RuntimeLogger(mode="detail")):
+    with redirect_stdout(stream), runtime_context(logger=RuntimeLogger(mode=mode)):
         callable_obj()
     return stream.getvalue()
 
@@ -182,6 +251,58 @@ def assert_openalex_warning_contract() -> None:
     assert "impact=single_paper" in output, output
 
 
+def run_author_progress_fixture() -> None:
+    """Run a Stage 4 fixture with six trusted work-authorship authors."""
+    analyze_author_intel(
+        citing_papers=[
+            CitingPaper(
+                canonical_id="progress-1",
+                title="Progress One",
+                doi="10.1000/progress-1",
+                year=2026,
+                authors=["Ada Lovelace", "Grace Hopper", "Weak Author"],
+            ),
+            CitingPaper(
+                canonical_id="progress-2",
+                title="Progress Two",
+                doi="10.1000/progress-2",
+                year=2026,
+                authors=["Failing Author", "Another Weak Author", "Final Matched Author"],
+            ),
+        ],
+        openalex_client=ProgressOpenAlexWorkClient(),
+        arxiv_client=EmptyArxivClient(),
+    )
+
+
+def assert_stage4_progress_detail_contract() -> None:
+    output = capture_detail(run_author_progress_fixture)
+    progress_lines = [line for line in output.splitlines() if "PROGRESS 阶段4" in line]
+    assert len(progress_lines) == 6, output
+    assert "作者画像" in output, output
+    assert "1/6" in output, output
+    assert "6/6 100%" in output, output
+    assert "current=Ada Lovelace" in output, output
+    assert "status=matched" in output, output
+    assert "status=weak_signal" in output, output
+    assert "status=failed_lookup" in output, output
+    assert "matched=" in output, output
+    assert "weak=" in output, output
+    assert "failed=" in output, output
+
+
+def assert_stage4_progress_brief_contract() -> None:
+    output = capture_runtime(run_author_progress_fixture, mode="brief")
+    progress_lines = [line for line in output.splitlines() if "PROGRESS 阶段4" in line]
+    assert 1 <= len(progress_lines) < 6, output
+    assert "6/6 100%" in output, output
+
+
+def assert_stage4_progress_quiet_contract() -> None:
+    output = capture_runtime(run_author_progress_fixture, mode="quiet")
+    assert "PROGRESS 阶段4" not in output, output
+
+
 def assert_grobid_logging_contract() -> None:
     import packages.sentiment.workflow as workflow
 
@@ -244,6 +365,12 @@ def main() -> None:
     logger.pass_case("zero_citation_generates_report")
     assert_openalex_warning_contract()
     logger.pass_case("openalex_single_author_warning")
+    assert_stage4_progress_detail_contract()
+    logger.pass_case("stage4_progress_detail")
+    assert_stage4_progress_brief_contract()
+    logger.pass_case("stage4_progress_brief")
+    assert_stage4_progress_quiet_contract()
+    logger.pass_case("stage4_progress_quiet")
     assert_grobid_logging_contract()
     logger.pass_case("grobid_hit_and_miss_logging")
     logger.done("runtime logging contract passed")

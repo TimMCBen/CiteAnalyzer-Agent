@@ -32,3 +32,5 @@ jobs:
         with:
           globs: |
             **/*.md
+            !coursework/**
+            !Thesis_Crawling_and_Filtering_System/**
