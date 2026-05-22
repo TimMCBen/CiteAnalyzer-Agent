@@ -54,6 +54,7 @@ def analyze_author_intel(
     """Build author profiles only from trusted OpenAlex work.authorships."""
     result = AuthorIntelResult()
     author_evidence: dict[str, _AuthorAccumulator] = {}
+    logger = get_runtime_logger()
 
     for citing_paper in citing_papers:
         try:
@@ -67,7 +68,7 @@ def analyze_author_intel(
             reason = f"identity_lookup_failed:{exc.__class__.__name__}"
             result.errors.append(f"author_intel_identity:{citing_paper.canonical_id}:{exc}")
             _record_skipped_paper(result, citing_paper, reason)
-            get_runtime_logger().warn(
+            logger.warn(
                 "author_intel.paper_identity_skip",
                 "施引论文身份解析失败，跳过作者画像",
                 citing_paper_id=citing_paper.canonical_id,
@@ -80,7 +81,7 @@ def analyze_author_intel(
         if not _can_use_work_authorship(decision):
             reason = _skip_reason(decision)
             _record_skipped_paper(result, citing_paper, reason, decision)
-            get_runtime_logger().warn(
+            logger.warn(
                 "author_intel.paper_identity_skip",
                 "施引论文未达到 work-authorship 作者画像条件，跳过作者画像",
                 citing_paper_id=citing_paper.canonical_id,
@@ -97,7 +98,7 @@ def analyze_author_intel(
         if not authors_with_ids:
             reason = "missing_work_author_ids"
             _record_skipped_paper(result, citing_paper, reason, decision)
-            get_runtime_logger().warn(
+            logger.warn(
                 "author_intel.authorship_missing",
                 "可信 OpenAlex work 缺少 authorship author_id，跳过作者画像",
                 citing_paper_id=citing_paper.canonical_id,
@@ -117,7 +118,7 @@ def analyze_author_intel(
             accumulator.countries.update(author.countries)
             accumulator.decision_statuses.add(decision.author_resolution_status)
 
-        get_runtime_logger().detail(
+        logger.detail(
             "author_intel.work_authorship_used",
             "已采用 OpenAlex work.authorships 作为作者画像来源",
             citing_paper_id=citing_paper.canonical_id,
@@ -125,15 +126,39 @@ def analyze_author_intel(
             confidence=decision.paper_match_confidence,
         )
 
-    for author_id, accumulator in sorted(author_evidence.items(), key=lambda item: item[0]):
+    sorted_author_evidence = sorted(author_evidence.items(), key=lambda item: item[0])
+    matched_profiles = 0
+    weak_signals = 0
+    failed_lookups = 0
+    for index, (author_id, accumulator) in enumerate(sorted_author_evidence, start=1):
+        previous_error_count = len(result.errors)
         author_record = _lookup_author_profile_by_id(openalex_client, author_id, result)
         profile = _build_profile_from_work_authorship(accumulator, author_record)
         label = build_scholar_label(profile, len(accumulator.citing_ids))
+        failed_lookup = len(result.errors) > previous_error_count
         result.author_profiles.append(profile)
         result.scholar_labels.append(label)
+        if author_record:
+            matched_profiles += 1
+        if label.label == "weak_signal_candidate":
+            weak_signals += 1
+        if failed_lookup:
+            failed_lookups += 1
+        logger.progress(
+            "stage4",
+            "作者画像",
+            completed=index,
+            total=len(sorted_author_evidence),
+            current=profile.name,
+            status=_progress_status(author_record, label, failed_lookup),
+            matched=matched_profiles,
+            weak=weak_signals,
+            failed=failed_lookups,
+            remaining=len(sorted_author_evidence) - index,
+        )
 
     result.author_summary = _build_summary(result.author_profiles, result.scholar_labels)
-    get_runtime_logger().stage_done(
+    logger.stage_done(
         "author_intel.work_authorship",
         "work-authorship 作者画像完成",
         profiles=len(result.author_profiles),
@@ -283,6 +308,17 @@ def _build_summary(author_profiles: list[AuthorProfile], scholar_labels: list) -
     summary.heavyweight_candidates = sum(1 for label in scholar_labels if label.label == "heavyweight_candidate")
     summary.weak_signal_candidates = sum(1 for label in scholar_labels if label.label == "weak_signal_candidate")
     return summary
+
+
+def _progress_status(author_record: dict[str, object] | None, label: object, failed_lookup: bool) -> str:
+    """Return a compact Stage 4 progress status."""
+    if failed_lookup:
+        return "failed_lookup"
+    if getattr(label, "label", None) == "weak_signal_candidate":
+        return "weak_signal"
+    if author_record:
+        return "matched"
+    return "work_authorship"
 
 
 def _coerce_optional_int(value: object) -> int | None:

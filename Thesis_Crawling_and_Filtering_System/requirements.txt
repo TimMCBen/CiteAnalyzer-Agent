@@ -4,6 +4,7 @@ aiofiles
 tqdm
 python-multipart
 requests
+idna>=3.15,<4
 beautifulsoup4
 jsonlines
 numpy
@@ -11,5 +12,8 @@ pandas
 schedule
 arxiv
 lxml
+pillow>=12.2,<13
+orjson>=3.11.5,<4
+pyjwt>=2.12,<3
 BeautifulSoup
 openreview-py

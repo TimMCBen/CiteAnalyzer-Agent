@@ -380,6 +380,9 @@ def assert_live_llm_country_resolution(logger: StageLogger) -> None:
     if os.getenv("CI", "").strip().lower() != "true":
         logger.skip("live_llm_country_resolution", reason="ci_only")
         return
+    if not os.getenv("API_KEY", "").strip():
+        logger.skip("live_llm_country_resolution", reason="missing_api_key")
+        return
 
     config = get_llm_env_config(override=True)
     assert config.model == "gpt-5.4", (

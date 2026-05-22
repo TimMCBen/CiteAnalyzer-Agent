@@ -17,6 +17,7 @@ EXPECTED_AGGREGATED_SCRIPTS = [
     "llm_prompt_contract.py",
     "network_retry_contract.py",
     "paper_identity.py",
+    "report_map_demo_contract.py",
     "stage1.py",
     "stage2.py",
     "stage4.py",
@@ -40,12 +41,14 @@ def load_run_module():
 def assert_run_aggregates_expected_scripts() -> None:
     module = load_run_module()
     dispatched_scripts: list[str] = []
-    dispatched_modes: list[str | None] = []
+    dispatched_stage_modes: list[str | None] = []
+    dispatched_runtime_modes: list[str | None] = []
 
     def fake_run(command: list[str], *, check: bool, env=None) -> None:
         assert check is True
         dispatched_scripts.append(Path(command[1]).name)
-        dispatched_modes.append((env or {}).get("CITE_ANALYZER_STAGE_LOG"))
+        dispatched_stage_modes.append((env or {}).get("CITE_ANALYZER_STAGE_LOG"))
+        dispatched_runtime_modes.append((env or {}).get("CITE_ANALYZER_RUNTIME_LOG"))
 
     module.subprocess.run = fake_run
 
@@ -54,7 +57,8 @@ def assert_run_aggregates_expected_scripts() -> None:
         module.main([])
 
     assert dispatched_scripts == EXPECTED_AGGREGATED_SCRIPTS, dispatched_scripts
-    assert dispatched_modes == ["brief"] * len(EXPECTED_AGGREGATED_SCRIPTS), dispatched_modes
+    assert dispatched_stage_modes == ["brief"] * len(EXPECTED_AGGREGATED_SCRIPTS), dispatched_stage_modes
+    assert dispatched_runtime_modes == ["brief"] * len(EXPECTED_AGGREGATED_SCRIPTS), dispatched_runtime_modes
 
     output = stdout.getvalue()
     assert "START aggregate::import_contract.py" in output
@@ -65,12 +69,14 @@ def assert_run_aggregates_expected_scripts() -> None:
 
 def assert_run_detail_mode_overrides_environment() -> None:
     module = load_run_module()
-    dispatched_modes: list[str | None] = []
+    dispatched_stage_modes: list[str | None] = []
+    dispatched_runtime_modes: list[str | None] = []
 
     def fake_run(command: list[str], *, check: bool, env=None) -> None:
         _ = command
         assert check is True
-        dispatched_modes.append((env or {}).get("CITE_ANALYZER_STAGE_LOG"))
+        dispatched_stage_modes.append((env or {}).get("CITE_ANALYZER_STAGE_LOG"))
+        dispatched_runtime_modes.append((env or {}).get("CITE_ANALYZER_RUNTIME_LOG"))
 
     module.subprocess.run = fake_run
     original_mode = os.environ.get("CITE_ANALYZER_STAGE_LOG")
@@ -83,7 +89,8 @@ def assert_run_detail_mode_overrides_environment() -> None:
         else:
             os.environ["CITE_ANALYZER_STAGE_LOG"] = original_mode
 
-    assert dispatched_modes == ["detail"] * len(EXPECTED_AGGREGATED_SCRIPTS), dispatched_modes
+    assert dispatched_stage_modes == ["detail"] * len(EXPECTED_AGGREGATED_SCRIPTS), dispatched_stage_modes
+    assert dispatched_runtime_modes == ["detail"] * len(EXPECTED_AGGREGATED_SCRIPTS), dispatched_runtime_modes
 
 
 def assert_run_rejects_invalid_cli_mode() -> None:
@@ -113,7 +120,7 @@ def main() -> None:
         detail=f"scripts={EXPECTED_AGGREGATED_SCRIPTS} mode=brief",
     )
     assert_run_detail_mode_overrides_environment()
-    logger.pass_case("detail_mode_overrides_environment", detail="cli=detail env_before=brief child_env=detail")
+    logger.pass_case("detail_mode_overrides_environment", detail="cli=detail env_before=brief child_env=detail runtime_env=detail")
     assert_run_rejects_invalid_cli_mode()
     logger.pass_case("rejects_invalid_cli_mode", detail="cli=noisy rejected=True")
     logger.done("run contract validation passed")
